@@ -50,13 +50,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Elasticsearch.Net.1.1.2\lib\Elasticsearch.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog, Version=1.4.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Serilog">
       <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.dll</HintPath>
     </Reference>
     <Reference Include="Serilog.FullNetFx">
       <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.FullNetFx.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -66,13 +64,11 @@
   <ItemGroup>
     <Compile Include="LoggerConfigurationElasticSearchExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sinks\ElasticSearch\DurableElasticSearchSink.cs" />
     <Compile Include="Sinks\ElasticSearch\ElasticsearchJsonFormatter.cs" />
     <Compile Include="..\..\assets\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Sinks\ElasticSearch\ElasticsearchSink.cs" />
-    <Compile Include="Sinks\ElasticSearch\ElasticSearchLogShipper.cs" />
     <Compile Include="Sinks\ElasticSearch\ElasticsearchSinkOptions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -101,8 +97,4 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>

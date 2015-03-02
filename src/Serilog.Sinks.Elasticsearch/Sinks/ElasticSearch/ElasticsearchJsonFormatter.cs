@@ -1,21 +1,12 @@
-﻿// Copyright 2014 Serilog Contributors
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using Elasticsearch.Net.Serialization;
 using Serilog.Events;
@@ -26,6 +17,8 @@ namespace Serilog.Sinks.ElasticSearch
 {
     /// <summary>
     /// Custom Json formatter that respects the configured property name handling and forces 'Timestamp' to @timestamp
+    /// h
+    /// 
     /// </summary>
     public class ElasticsearchJsonFormatter : JsonFormatter
     {
@@ -67,7 +60,7 @@ namespace Serilog.Sinks.ElasticSearch
             WriteRenderingsValues(tokensWithFormat, properties, output);
             output.Write("}");
         }
-        
+
         /// <summary>
         /// Writes out the attached properties
         /// </summary>
@@ -75,9 +68,9 @@ namespace Serilog.Sinks.ElasticSearch
         {
             if (!_inlineFields)
                 output.Write(",\"{0}\":{{", "fields");
-            else 
+            else
                 output.Write(",");
-            
+
             WritePropertiesValues(properties, output);
 
             if (!_inlineFields)
@@ -89,9 +82,92 @@ namespace Serilog.Sinks.ElasticSearch
         /// </summary>
         protected override void WriteException(Exception exception, ref string delim, TextWriter output)
         {
-            WriteJsonProperty("exception", exception, ref delim, output);
+            output.Write(delim);
+            output.Write("\"");
+            output.Write("exceptions");
+            output.Write("\":[");
+
+            delim = "";
+            this.WriteExceptionSerializationInfo(exception, ref delim, output, depth: 0);
+            output.Write("]");
         }
-           
+
+        private void WriteExceptionSerializationInfo(Exception exception, ref string delim, TextWriter output, int depth)
+        {
+
+            var si = new SerializationInfo(exception.GetType(), new FormatterConverter());
+            var sc = new StreamingContext();
+            exception.GetObjectData(si, sc);
+
+            var helpUrl = si.GetString("HelpURL");
+            var stackTrace = si.GetString("StackTraceString");
+            var remoteStackTrace = si.GetString("RemoteStackTraceString");
+            var remoteStackIndex = si.GetInt32("RemoteStackIndex");
+            var exceptionMethod = si.GetString("ExceptionMethod");
+            var hresult = si.GetInt32("HResult");
+            var source = si.GetString("Source");
+            var className = si.GetString("ClassName");
+            var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
+
+            //TODO Loop over ISerializable data
+
+            output.Write(delim);
+            output.Write("{");
+            delim = "";
+            this.WriteJsonProperty("Depth", depth, ref delim, output);
+            this.WriteJsonProperty("ClassName", className, ref delim, output);
+            this.WriteJsonProperty("Message", exception.Message, ref delim, output);
+            this.WriteJsonProperty("Source", source, ref delim, output);
+            this.WriteJsonProperty("StackTraceString", stackTrace, ref delim, output);
+            this.WriteJsonProperty("RemoteStackTraceString", remoteStackTrace, ref delim, output);
+            this.WriteJsonProperty("RemoteStackIndex", remoteStackIndex, ref delim, output);
+            this.WriteStructuredExceptionMethod(exceptionMethod, ref delim, output);
+            this.WriteJsonProperty("HResult", hresult, ref delim, output);
+            this.WriteJsonProperty("HelpURL", helpUrl, ref delim, output);
+            
+            //writing byte[] will fall back to serializer and they differ in output 
+            //JsonNET assumes string, simplejson writes array of numerics.
+            //Skip for now
+            //this.WriteJsonProperty("WatsonBuckets", watsonBuckets, ref delim, output);
+
+            output.Write("}");
+            delim = ",";
+            if (exception.InnerException != null && depth < 20)
+                this.WriteExceptionSerializationInfo(exception.InnerException, ref delim, output, ++depth);
+        }
+
+        private void WriteStructuredExceptionMethod(string exceptionMethodString, ref string delim, TextWriter output)
+        {
+            if (string.IsNullOrWhiteSpace(exceptionMethodString)) return;
+
+            var args = exceptionMethodString.Split('\0', '\n');
+
+            if (args.Length!=5) return;
+
+            var memberType = Int32.Parse(args[0], CultureInfo.InvariantCulture);
+            var name = args[1];
+            var assemblyName = args[2];
+            var className = args[3];
+            var signature = args[4];
+            var an = new AssemblyName(assemblyName);
+            output.Write(delim);
+            output.Write("\"");
+            output.Write("ExceptionMethod");
+            output.Write("\":{");
+            delim = "";
+            this.WriteJsonProperty("Name", name, ref delim, output);
+            this.WriteJsonProperty("AssemblyName", an.Name, ref delim, output);
+            this.WriteJsonProperty("AssemblyVersion", an.Version.ToString(), ref delim, output);
+            this.WriteJsonProperty("AssemblyCulture", an.CultureName, ref delim, output);
+            this.WriteJsonProperty("ClassName", className, ref delim, output);
+            this.WriteJsonProperty("Signature", signature, ref delim, output);
+            this.WriteJsonProperty("MemberType", memberType, ref delim, output);
+            
+            output.Write("}");
+            delim = ",";
+        }
+
+
         /// <summary>
         /// (Optionally) writes out the rendered message
         /// </summary>
@@ -99,7 +175,7 @@ namespace Serilog.Sinks.ElasticSearch
         {
             WriteJsonProperty("message", message, ref delim, output);
         }
-        
+
         /// <summary>
         /// Writes out the message template for the logevent.
         /// </summary>
@@ -107,7 +183,7 @@ namespace Serilog.Sinks.ElasticSearch
         {
             WriteJsonProperty("messageTemplate", template, ref delim, output);
         }
-        
+
         /// <summary>
         /// Writes out the log level
         /// </summary>
@@ -116,7 +192,7 @@ namespace Serilog.Sinks.ElasticSearch
             var stringLevel = Enum.GetName(typeof(LogEventLevel), level);
             WriteJsonProperty("level", stringLevel, ref delim, output);
         }
-        
+
         /// <summary>
         /// Writes out the log timestamp
         /// </summary>

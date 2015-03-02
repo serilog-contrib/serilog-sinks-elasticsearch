@@ -49,14 +49,6 @@
     <Reference Include="Elasticsearch.Net">
       <HintPath>..\..\packages\Elasticsearch.Net.1.1.2\lib\Elasticsearch.Net.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog, Version=1.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.4.196\lib\net40\Serilog.dll</HintPath>
-    </Reference>
-    <Reference Include="Serilog.FullNetFx, Version=1.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.4.196\lib\net40\Serilog.FullNetFx.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -68,9 +60,7 @@
     <Compile Include="..\..\assets\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Sinks\ElasticSearch\DurableElasticSearchSink.cs" />
     <Compile Include="Sinks\ElasticSearch\ElasticsearchJsonFormatter-net40.cs" />
-    <Compile Include="Sinks\ElasticSearch\ElasticSearchLogShipper.cs" />
     <Compile Include="Sinks\ElasticSearch\ElasticSearchSink.cs" />
     <Compile Include="Sinks\ElasticSearch\ElasticsearchSinkOptions.cs" />
   </ItemGroup>
@@ -98,6 +88,16 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Serilog.FullNetFx\Serilog.FullNetFx-net40.csproj">
+      <Project>{7a9e1095-167d-402a-b43d-b36b97ff183d}</Project>
+      <Name>Serilog.FullNetFx-net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Serilog\Serilog-net40.csproj">
+      <Project>{0915dbd9-0f7c-4439-8d9e-74c3d579b219}</Project>
+      <Name>Serilog-net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,33 +1,32 @@
-// Copyright 2014 Serilog Contributors
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Configuration;
 using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.ConnectionPool;
 using Elasticsearch.Net.Serialization;
 using Serilog.Events;
-using Serilog.Formatting;
 
 namespace Serilog.Sinks.ElasticSearch
 {
     /// <summary>
     /// Provides ElasticsearchSink with configurable options
     /// </summary>
-    public class ElasticsearchSinkOptions
+    public class ElasticsearchSinkOptions 
     {
+
+        /// <summary>
+        /// When set to true the sink will register an index template for the logs in elasticsearch.
+        /// This template is optimized to deal with serilog events
+        /// </summary>
+        public bool AutoRegisterTemplate { get; set; }
+
+        ///<summary>
+        /// When using the <see cref="AutoRegisterTemplate"/> feature this allows you to override the default template name.
+        /// Defaults to: serilog-events-template
+        /// </summary>
+        public string TemplateName { get; set; }
+
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
@@ -47,12 +46,12 @@ namespace Serilog.Sinks.ElasticSearch
         ///<summary>
         /// The maximum number of events to post in a single batch.
         /// </summary>
-        public int? BatchPostingLimit { get; set; }
+        public int BatchPostingLimit { get; set; }
        
         ///<summary>
-        /// The time to wait between checking for event batches.
+        /// The time to wait between checking for event batches. Defaults to 2 seconds.
         /// </summary>
-        public TimeSpan? Period { get; set; }
+        public TimeSpan Period { get; set; }
        
         ///<summary>
         /// Supplies culture-specific formatting information, or null.
@@ -85,35 +84,28 @@ namespace Serilog.Sinks.ElasticSearch
         public IConnectionPool ConnectionPool { get; private set; }
 
         /// <summary>
-        /// Optional path to directory that can be used as a log shipping buffer for increasing the reliability of the log forwarding.
-        /// </summary>
-        public string BufferBaseFilename { get; set; }
-
-        /// <summary>
-        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default no limit will be applied.
-        /// </summary>
-        public long? BufferFileSizeLimitBytes { get; set; }
-
-        /// <summary>
-        /// The interval between checking the buffer files
-        /// </summary>
-        public TimeSpan? BufferLogShippingInterval { get; set; }
-
-        /// <summary>
-        /// Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)
-        /// </summary>
-        public ITextFormatter CustomFormatter { get; set; }
-
-        /// <summary>
         /// Function to decide which index to write the LogEvent to
         /// </summary>
         public Func<LogEvent, DateTimeOffset, string> IndexDecider { get; set; }
+        
+
+        /// <summary>
+        /// Configures the elasticsearch sink defaults
+        /// </summary>
+        protected ElasticsearchSinkOptions()
+        {
+            this.IndexFormat =  "logstash-{0:yyyy.MM.dd}";
+            this.TypeName = "logevent";
+            this.Period = TimeSpan.FromSeconds(2);
+            this.BatchPostingLimit = 50;
+            this.TemplateName = "serilog-events-template";
+        }
 
         /// <summary>
         /// Configures the elasticsearch sink
         /// </summary>
         /// <param name="connectionPool">The connectionpool to use to write events to</param>
-        public ElasticsearchSinkOptions(IConnectionPool connectionPool)
+        public ElasticsearchSinkOptions(IConnectionPool connectionPool) : this()
         {
             ConnectionPool = connectionPool;
         }
@@ -122,7 +114,7 @@ namespace Serilog.Sinks.ElasticSearch
         /// Configures the elasticsearch sink
         /// </summary>
         /// <param name="nodes">The nodes to write to</param>
-        public ElasticsearchSinkOptions(IEnumerable<Uri> nodes)
+        public ElasticsearchSinkOptions(IEnumerable<Uri> nodes) : this()
         {
             nodes = nodes != null && nodes.Any(n=>n != null) 
                 ? nodes.Where(n=>n != null) 

@@ -60,8 +60,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 //tostring implemenation
                 //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
                 bulkJsonPieces[3].Should().Contain("Complex\":{");
-                //Since we are passing a ISerializer the exception should be be logged as object and not string
-                bulkJsonPieces[3].Should().Contain("exception\":{");
+                bulkJsonPieces[3].Should().Contain("exceptions\":[{");
             }
         }
     }

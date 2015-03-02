@@ -54,9 +54,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 bulkJsonPieces[1].Should().NotContain("Properties\"");
                 bulkJsonPieces[2].Should().Contain(@"""_index"":""logstash-2013.05.30");
 
-                //We have no serializer associated with the sink so we expect the forced ToString() of scalar values
                 bulkJsonPieces[3].Should().Contain("Complex\":\"{");
-                bulkJsonPieces[3].Should().Contain("exception\":\"System.Net.Http.HttpRequestException: An error");
+                bulkJsonPieces[3].Should().Contain("exceptions\":[{\"Depth\":0");
             }
         }
     }
