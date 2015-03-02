@@ -24,7 +24,7 @@ using Serilog.Sinks.PeriodicBatching;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
     /// <summary>
     /// Writes log events as documents to ElasticSearch.

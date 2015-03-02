@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>Serilog.Sinks.ElasticSearch</id>
+    <id>Serilog.Sinks.Elasticsearch</id>
     <version>$version$</version>
     <authors>Michiel van Oudheusden</authors>
-    <description>The perfect way for .NET apps to write structured log events to ElasticSearch.</description>
+    <description>The perfect way for .NET apps to write structured log events to Elasticsearch.</description>
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -16,7 +16,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin40\Release\Serilog.Sinks.ElasticSearch.dll" target="lib\net40" />
-    <file src="bin40\Release\Serilog.Sinks.ElasticSearch.xml" target="lib\net40" />
+    <file src="bin40\Release\Serilog.Sinks.Elasticsearch.dll" target="lib\net40" />
+    <file src="bin40\Release\Serilog.Sinks.Elasticsearch.xml" target="lib\net40" />
   </files>
 </package>

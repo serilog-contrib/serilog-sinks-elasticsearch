@@ -13,7 +13,7 @@ using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
     /// <summary>
     /// Custom Json formatter that respects the configured property name handling and forces 'Timestamp' to @timestamp

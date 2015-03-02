@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Connection.Configuration;
-using Elasticsearch.Net.JsonNet;
-using FakeItEasy;
 using FluentAssertions;
+using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.ElasticSearch;
-using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

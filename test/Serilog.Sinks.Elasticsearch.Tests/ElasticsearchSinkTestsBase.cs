@@ -10,7 +10,6 @@ using Elasticsearch.Net.JsonNet;
 using FakeItEasy;
 using FluentAssertions;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
-using Serilog.Sinks.ElasticSearch;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

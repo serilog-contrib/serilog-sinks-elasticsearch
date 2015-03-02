@@ -7,7 +7,7 @@ using Elasticsearch.Net.ConnectionPool;
 using Elasticsearch.Net.Serialization;
 using Serilog.Events;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
     /// <summary>
     /// Provides ElasticsearchSink with configurable options

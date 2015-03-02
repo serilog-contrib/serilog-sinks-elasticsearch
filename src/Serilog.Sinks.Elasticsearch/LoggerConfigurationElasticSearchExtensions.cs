@@ -20,20 +20,20 @@ using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.Serialization;
 using Serilog.Configuration;
 using Serilog.Events;
-using Serilog.Sinks.ElasticSearch;
+using Serilog.Sinks.Elasticsearch;
 
 namespace Serilog
 {
     /// <summary>
-    /// Adds the WriteTo.ElasticSearch() extension method to <see cref="LoggerConfiguration"/>.
+    /// Adds the WriteTo.Elasticsearch() extension method to <see cref="LoggerConfiguration"/>.
     /// </summary>
-    public static class LoggerConfigurationElasticSearchExtensions
+    public static class LoggerConfigurationElasticsearchExtensions
     {
 
         /// <summary>
-        /// Adds a sink that writes log events as documents to an ElasticSearch index.
+        /// Adds a sink that writes log events as documents to an Elasticsearch index.
         /// This works great with the Kibana web interface when using the default settings.
-        /// Make sure to add a template to ElasticSearch like the one found here:
+        /// Make sure to add a template to Elasticsearch like the one found here:
         /// https://gist.github.com/mivano/9688328
         /// </summary>
         /// <param name="loggerSinkConfiguration"></param>
