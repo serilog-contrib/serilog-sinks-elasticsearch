@@ -19,6 +19,7 @@ using System.Net.Configuration;
 using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.Serialization;
 using Serilog.Configuration;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 
@@ -48,8 +49,10 @@ namespace Serilog
             //TODO NEST trace logging ID's to corrolate requests to eachother
             //Deal with positional formatting in fields property  (default to scalar string in mapping)
             options = options ?? new ElasticsearchSinkOptions(new [] { new Uri("http://localhost:9200") });
-            var sink = new ElasticsearchSink(options);
-            sink.RegisterTemplateIfNeeded();
+
+			var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
+                ? (ILogEventSink) new ElasticsearchSink(options)
+                : new DurableElasticsearchSink(options);
             return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
         }
     }

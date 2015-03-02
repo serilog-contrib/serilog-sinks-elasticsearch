@@ -25,11 +25,11 @@ using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.Serialization;
 using Serilog.Debugging;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
-    class ElasticSearchLogShipper : IDisposable
+    class ElasticsearchLogShipper : IDisposable
     {
-        readonly ElasticsearchClient _client;
+	    private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
         readonly Timer _timer;
@@ -39,27 +39,15 @@ namespace Serilog.Sinks.ElasticSearch
         readonly string _bookmarkFilename;
         readonly string _logFolder;
         readonly string _candidateSearchPath;
-        readonly string _typeName;
-        readonly string _indexFormat;
 
-        public ElasticSearchLogShipper(ElasticsearchSinkOptions options)
+        internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
-            var configuration = new ConnectionConfiguration(options.ConnectionPool)
-                .SetTimeout(ElasticsearchSink.DefaultConnectionTimeout)
-                .SetMaximumAsyncConnections(20);
-
-            _period = options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5);
-
-            _indexFormat = !string.IsNullOrWhiteSpace(options.IndexFormat) ? options.IndexFormat : ElasticsearchSink.DefaultIndexFormat;
-            _typeName = !string.IsNullOrWhiteSpace(options.TypeName) ? options.TypeName : ElasticsearchSink.DefaultTypeName;
-
-            _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
-
-            _batchPostingLimit = options.BatchPostingLimit ?? 100;
-
-            _bookmarkFilename = Path.GetFullPath(options.BufferBaseFilename + ".bookmark");
+	        _state = state;
+            _period = _state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5);
+            _batchPostingLimit = _state.Options.BatchPostingLimit;
+            _bookmarkFilename = Path.GetFullPath(_state.Options.BufferBaseFilename + ".bookmark");
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
-            _candidateSearchPath = Path.GetFileName(options.BufferBaseFilename) + "*.json";
+            _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
 
             _timer = new Timer(s => OnTick());
 
@@ -173,11 +161,10 @@ namespace Serilog.Sinks.ElasticSearch
                             string nextLine;
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
-                                var indexName = string.Format(_indexFormat, date);
-                                var action = new { index = new { _index = indexName, _type = _typeName } };
-                                var actionJson = _client.Serializer.Serialize(action, SerializationFormatting.None);
-
-                                payload.Add(Encoding.UTF8.GetString(actionJson));
+                                var indexName = string.Format(_state.Options.IndexFormat, date);
+                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                                var actionJson = _state.Serialize(action);
+                                payload.Add(actionJson);
                                 payload.Add(nextLine);
                                 ++count;
                             }
@@ -185,7 +172,7 @@ namespace Serilog.Sinks.ElasticSearch
 
                         if (count > 0)
                         {
-                            var response = _client.Bulk(payload);
+                            var response = _state.Client.Bulk(payload);
 
                             if (response.Success)
                             {
