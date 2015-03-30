@@ -13,180 +13,47 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Serialization;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.ElasticSearch;
+using Serilog.Sinks.Elasticsearch;
 
 namespace Serilog
 {
     /// <summary>
-    /// Adds the WriteTo.ElasticSearch() extension method to <see cref="LoggerConfiguration"/>.
+    /// Adds the WriteTo.Elasticsearch() extension method to <see cref="LoggerConfiguration"/>.
     /// </summary>
-    public static class LoggerConfigurationElasticSearchExtensions
+    public static class LoggerConfigurationElasticsearchExtensions
     {
-        /// <summary>
-        /// Adds a sink that writes log events as documents to an ElasticSearch index.
-        /// This works great with the Kibana web interface when using the default settings.
-        /// Make sure to add a template to ElasticSearch like the one found here:
-        /// https://gist.github.com/mivano/9688328
-        /// </summary>
-        /// <param name="loggerConfiguration">The logger configuration.</param>
-        /// <param name="indexFormat">The index format where the events are send to. It defaults to the logstash index per day format. It uses a String.Format using the DateTime.UtcNow parameter.</param>
-        /// <param name="node">The URI to the node where ElasticSearch is running. When null, will fall back to http://localhost:9200</param>
-        /// <param name="connectionTimeOutInMilliseconds">The connection time out in milliseconds. Default value is 5000.</param>
-        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
-        /// <param name="batchPostingLimit">The maximum number of events to post in a single batch.</param>
-        /// <param name="period">The time to wait between checking for event batches.</param>
-        /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
-        /// <param name="serializer">When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation</param>
-        /// <returns>
-        /// Logger configuration, allowing configuration to continue.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">loggerConfiguration</exception>
-        /// <exception cref="ArgumentNullException">A required parameter is null.</exception>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please use Elasticsearch(ElasticsearchSinkOptions options), this method might not expose all options and should be removed in the next Serilog major release")]
-        public static LoggerConfiguration ElasticSearch(
-            this LoggerSinkConfiguration loggerConfiguration,
-            string indexFormat = ElasticsearchSink.DefaultIndexFormat,
-            Uri node = null,
-            int connectionTimeOutInMilliseconds = ElasticsearchSink.DefaultConnectionTimeout,
-            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-            int batchPostingLimit = ElasticsearchSink.DefaultBatchPostingLimit,
-            TimeSpan? period = null,
-            IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null
-            )
-        {
-            if (node == null)
-                node = new Uri("http://localhost:9200");
-
-            return Elasticsearch(loggerConfiguration, new ElasticsearchSinkOptions(new [] { node })
-            {
-                Serializer = serializer,
-                FormatProvider = formatProvider,
-                IndexFormat = indexFormat,
-                ModifyConnectionSetttings = s => s.SetTimeout(connectionTimeOutInMilliseconds),
-                BatchPostingLimit = batchPostingLimit,
-                Period = period,
-                MinimumLogEventLevel = restrictedToMinimumLevel
-            });
-        }
 
         /// <summary>
-        /// Adds a sink that writes log events as documents to an ElasticSearch index.
+        /// Adds a sink that writes log events as documents to an Elasticsearch index.
         /// This works great with the Kibana web interface when using the default settings.
-        /// Make sure to add a template to ElasticSearch like the one found here:
-        /// https://gist.github.com/mivano/9688328
+        /// 
+        /// By passing in the BufferBaseFilename, you make this into a durable sink. 
+        /// Meaning it will log to disk first and tries to deliver to the Elasticsearch server in the background.
         /// </summary>
-        /// <param name="loggerConfiguration">The logger configuration.</param>
-        /// <param name="nodes">The node URIs of the Elasticsearch cluster.</param>
-        /// <param name="indexFormat">The index format where the events are send to. It defaults to the logstash index per day format. It uses a String.Format using the DateTime.UtcNow parameter.</param>
-        /// <param name="connectionTimeOutInMilliseconds">The connection time out in milliseconds. Default value is 5000.</param>
-        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
-        /// <param name="batchPostingLimit">The maximum number of events to post in a single batch.</param>
-        /// <param name="period">The time to wait between checking for event batches.</param>
-        /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
-        /// <param name="serializer">When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation</param>
-        /// <returns>
-        /// Logger configuration, allowing configuration to continue.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">loggerConfiguration</exception>
-        /// <exception cref="ArgumentNullException">A required parameter is null.</exception>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please use Elasticsearch(ElasticsearchSinkOptions options), this method might not expose all options and should be removed in the next Serilog major release")]
-        public static LoggerConfiguration ElasticSearch(
-            this LoggerSinkConfiguration loggerConfiguration,
-            IEnumerable<Uri> nodes,
-            string indexFormat = ElasticsearchSink.DefaultIndexFormat,
-            int connectionTimeOutInMilliseconds = ElasticsearchSink.DefaultConnectionTimeout,
-            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-            int batchPostingLimit = ElasticsearchSink.DefaultBatchPostingLimit,
-            TimeSpan? period = null,
-            IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null
-            )
-        {
-            return Elasticsearch(loggerConfiguration, new ElasticsearchSinkOptions(nodes)
-            {
-                Serializer = serializer,
-                FormatProvider = formatProvider,
-                IndexFormat = indexFormat,
-                ModifyConnectionSetttings = s => s.SetTimeout(connectionTimeOutInMilliseconds),
-                BatchPostingLimit = batchPostingLimit,
-                Period = period,
-                MinimumLogEventLevel = restrictedToMinimumLevel
-            });
-        }
-
-        /// <summary>
-        /// Adds a sink that writes log events as documents to an ElasticSearch index.
-        /// This works great with the Kibana web interface when using the default settings.
-        /// Make sure to add a template to ElasticSearch like the one found here:
-        /// https://gist.github.com/mivano/9688328
-        /// </summary>
-        /// <param name="loggerConfiguration">The logger configuration.</param>
-        /// <param name="connectionConfiguration">The configuration to use for connecting to the Elasticsearch cluster.</param>
-        /// <param name="indexFormat">The index format where the events are send to. It defaults to the logstash index per day format. It uses a String.Format using the DateTime.UtcNow parameter.</param>
-        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
-        /// <param name="batchPostingLimit">The maximum number of events to post in a single batch.</param>
-        /// <param name="period">The time to wait between checking for event batches.</param>
-        /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
-        /// <param name="serializer">When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation</param>
-        /// <returns>
-        /// Logger configuration, allowing configuration to continue.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">loggerConfiguration</exception>
-        /// <exception cref="ArgumentNullException">A required parameter is null.</exception>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please use Elasticsearch(ElasticsearchSinkOptions options), this method might not expose all options and should be removed in the next Serilog major release")]
-        public static LoggerConfiguration ElasticSearch(
-            this LoggerSinkConfiguration loggerConfiguration,
-            ConnectionConfiguration connectionConfiguration,
-            string indexFormat = ElasticsearchSink.DefaultIndexFormat,
-            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-            int batchPostingLimit = ElasticsearchSink.DefaultBatchPostingLimit,
-            TimeSpan? period = null,
-            IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null
-            )
-        {
-            if (connectionConfiguration == null)
-                throw new ArgumentNullException("connectionConfiguration");
-            IConnectionConfigurationValues values = connectionConfiguration;
-            return Elasticsearch(loggerConfiguration, new ElasticsearchSinkOptions(values.ConnectionPool)
-            {
-                Serializer = serializer,
-                FormatProvider = formatProvider,
-                IndexFormat = indexFormat,
-                ModifyConnectionSetttings = s => connectionConfiguration,
-                BatchPostingLimit = batchPostingLimit,
-                Period = period,
-                MinimumLogEventLevel = restrictedToMinimumLevel
-            });
-        }
-
-        /// <summary>
-        /// Adds a sink that writes log events as documents to an ElasticSearch index.
-        /// This works great with the Kibana web interface when using the default settings.
-        /// Make sure to add a template to ElasticSearch like the one found here:
-        /// https://gist.github.com/mivano/9688328
-        /// </summary>
-        /// <param name="loggerSinkConfiguration"></param>
+        /// <remarks>
+        /// Make sure to have a sensible mapping in your Elasticsearch indexes. 
+        /// You can automatically create one by specifying this in the options.
+        /// </remarks>
+        /// <param name="loggerSinkConfiguration">Options for the sink.</param>
         /// <param name="options">Provides options specific to the Elasticsearch sink</param>
-        /// <returns></returns>
-        public static LoggerConfiguration Elasticsearch(this LoggerSinkConfiguration loggerSinkConfiguration, ElasticsearchSinkOptions options = null)
+        /// <returns>LoggerConfiguration object</returns>
+        public static LoggerConfiguration Elasticsearch(
+            this LoggerSinkConfiguration loggerSinkConfiguration, 
+            ElasticsearchSinkOptions options = null)
         {
+            //TODO make sure we do not kill appdata injection
+            //TODO handle bulk errors and write to self log, what does logstash do in this case?
+            //TODO NEST trace logging ID's to corrolate requests to eachother
+
+            //Deal with positional formatting in fields property  (default to scalar string in mapping)
             options = options ?? new ElasticsearchSinkOptions(new [] { new Uri("http://localhost:9200") });
 
-            var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
+			var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
                 ? (ILogEventSink) new ElasticsearchSink(options)
-                : new DurableElasticSearchSink(options);
+                : new DurableElasticsearchSink(options);
 
             return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
         }

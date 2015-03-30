@@ -21,122 +21,161 @@ using Elasticsearch.Net.Serialization;
 using Serilog.Events;
 using Serilog.Formatting;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
-    /// <summary>
-    /// Provides ElasticsearchSink with configurable options
-    /// </summary>
-    public class ElasticsearchSinkOptions
-    {
-        ///<summary>
-        /// Connection configuration to use for connecting to the cluster.
-        /// </summary>
-        public Func<ConnectionConfiguration, ConnectionConfiguration> ModifyConnectionSetttings { get; set; }
+	/// <summary>
+	/// Provides ElasticsearchSink with configurable options
+	/// </summary>
+	public class ElasticsearchSinkOptions
+	{
 
-        ///<summary>
-        /// The index name formatter. A string.Format using the DateTimeOffset of the event is run over this string.
-        /// defaults to "logstash-{0:yyyy.MM.dd}"
-        /// </summary>
-        public string IndexFormat { get; set; }
+		/// <summary>
+		/// When set to true the sink will register an index template for the logs in elasticsearch.
+		/// This template is optimized to deal with serilog events
+		/// </summary>
+		public bool AutoRegisterTemplate { get; set; }
 
-        ///<summary>
-        /// The default elasticsearch type name to use for the log events defaults to: logevent
-        /// </summary>
-        public string TypeName { get; set; }
-       
-        ///<summary>
-        /// The maximum number of events to post in a single batch.
-        /// </summary>
-        public int? BatchPostingLimit { get; set; }
-       
-        ///<summary>
-        /// The time to wait between checking for event batches.
-        /// </summary>
-        public TimeSpan? Period { get; set; }
-       
-        ///<summary>
-        /// Supplies culture-specific formatting information, or null.
-        /// </summary>
-        public IFormatProvider FormatProvider { get; set; }
-       
-        ///<summary>
-        /// Allows you to override the connection used to communicate with elasticsearch
-        /// </summary>
-        public IConnection Connection { get; set; }
-        
-        /// <summary>
-        /// When true fields will be written at the root of the json document
-        /// </summary>
-        public bool InlineFields { get; set; }
+		///<summary>
+		/// When using the <see cref="AutoRegisterTemplate"/> feature this allows you to override the default template name.
+		/// Defaults to: serilog-events-template
+		/// </summary>
+		public string TemplateName { get; set; }
 
-        /// <summary>
-        /// The minimum log event level required in order to write an event to the sink.
-        /// </summary>
-        public LogEventLevel? MinimumLogEventLevel { get; set; }
-       
-        ///<summary>
-        /// When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation
-        /// </summary>
-        public IElasticsearchSerializer Serializer { get; set; }
-         
-        /// <summary>
-        /// The connectionpool describing the cluster to write event to
-        /// </summary>
-        public IConnectionPool ConnectionPool { get; private set; }
+		///<summary>
+		/// Connection configuration to use for connecting to the cluster.
+		/// </summary>
+		public Func<ConnectionConfiguration, ConnectionConfiguration> ModifyConnectionSetttings { get; set; }
 
-        /// <summary>
-        /// Optional path to directory that can be used as a log shipping buffer for increasing the reliability of the log forwarding.
-        /// </summary>
-        public string BufferBaseFilename { get; set; }
+		///<summary>
+		/// The index name formatter. A string.Format using the DateTimeOffset of the event is run over this string.
+		/// defaults to "logstash-{0:yyyy.MM.dd}"
+		/// </summary>
+		public string IndexFormat { get; set; }
 
-        /// <summary>
-        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default no limit will be applied.
-        /// </summary>
-        public long? BufferFileSizeLimitBytes { get; set; }
+		///<summary>
+		/// The default elasticsearch type name to use for the log events defaults to: logevent
+		/// </summary>
+		public string TypeName { get; set; }
 
-        /// <summary>
-        /// The interval between checking the buffer files
-        /// </summary>
-        public TimeSpan? BufferLogShippingInterval { get; set; }
+		///<summary>
+		/// The maximum number of events to post in a single batch.
+		/// </summary>
+		public int BatchPostingLimit { get; set; }
 
-        /// <summary>
-        /// Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)
-        /// </summary>
-        public ITextFormatter CustomFormatter { get; set; }
+		///<summary>
+		/// The time to wait between checking for event batches. Defaults to 2 seconds.
+		/// </summary>
+		public TimeSpan Period { get; set; }
 
-        /// <summary>
-        /// Function to decide which index to write the LogEvent to
-        /// </summary>
-        public Func<LogEvent, DateTimeOffset, string> IndexDecider { get; set; }
+		///<summary>
+		/// Supplies culture-specific formatting information, or null.
+		/// </summary>
+		public IFormatProvider FormatProvider { get; set; }
 
-        /// <summary>
-        /// Configures the elasticsearch sink
-        /// </summary>
-        /// <param name="connectionPool">The connectionpool to use to write events to</param>
-        public ElasticsearchSinkOptions(IConnectionPool connectionPool)
-        {
-            ConnectionPool = connectionPool;
-        }
-        
-        /// <summary>
-        /// Configures the elasticsearch sink
-        /// </summary>
-        /// <param name="nodes">The nodes to write to</param>
-        public ElasticsearchSinkOptions(IEnumerable<Uri> nodes)
-        {
-            nodes = nodes != null && nodes.Any(n=>n != null) 
-                ? nodes.Where(n=>n != null) 
-                : new[] { new Uri("http://localhost:9200") };
-            if (nodes.Count() == 1)
-                ConnectionPool = new SingleNodeConnectionPool(nodes.First());
-            else 
-                ConnectionPool = new StaticConnectionPool(nodes);
-        }
+		///<summary>
+		/// Allows you to override the connection used to communicate with elasticsearch
+		/// </summary>
+		public IConnection Connection { get; set; }
+
+		/// <summary>
+		/// The connection timeout (in milliseconds) when sending bulk operations to elasticsearch (defaults to 5000)
+		/// </summary>
+		public int ConnectionTimeout { get; set; }
+
+		/// <summary>
+		/// When true fields will be written at the root of the json document
+		/// </summary>
+		public bool InlineFields { get; set; }
+
+		/// <summary>
+		/// The minimum log event level required in order to write an event to the sink.
+		/// </summary>
+		public LogEventLevel? MinimumLogEventLevel { get; set; }
+
+		///<summary>
+		/// When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation
+		/// </summary>
+		public IElasticsearchSerializer Serializer { get; set; }
+
+		/// <summary>
+		/// The connectionpool describing the cluster to write event to
+		/// </summary>
+		public IConnectionPool ConnectionPool { get; private set; }
+
+		/// <summary>
+		/// Function to decide which index to write the LogEvent to
+		/// </summary>
+		public Func<LogEvent, DateTimeOffset, string> IndexDecider { get; set; }
+
+
+		/// <summary>
+		/// Optional path to directory that can be used as a log shipping buffer for increasing the reliability of the log forwarding.
+		/// </summary>
+		public string BufferBaseFilename { get; set; }
+
+		/// <summary>
+		/// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default no limit will be applied.
+		/// </summary>
+		public long? BufferFileSizeLimitBytes { get; set; }
+
+		/// <summary>
+		/// The interval between checking the buffer files
+		/// </summary>
+		public TimeSpan? BufferLogShippingInterval { get; set; }
+
+		/// <summary>
+		/// Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)
+		/// </summary>
+		public ITextFormatter CustomFormatter { get; set; }
 
         /// <summary>
-        /// Configures the elasticsearch sink
+        /// Customizes the formatter used when converting log events into the durable sink. Please note that the formatter output must be valid JSON :)
         /// </summary>
-        /// <param name="node">The node to write to</param>
-        public ElasticsearchSinkOptions(Uri node) : this(new [] {node}) { }
-    }
+        public ITextFormatter CustomDurableFormatter { get; set; }
+
+		/// <summary>
+		/// Configures the elasticsearch sink defaults
+		/// </summary>
+		protected ElasticsearchSinkOptions()
+		{
+			this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
+			this.TypeName = "logevent";
+			this.Period = TimeSpan.FromSeconds(2);
+			this.BatchPostingLimit = 50;
+			this.TemplateName = "serilog-events-template";
+			this.ConnectionTimeout = 5000;
+		}
+
+		/// <summary>
+		/// Configures the elasticsearch sink
+		/// </summary>
+		/// <param name="connectionPool">The connectionpool to use to write events to</param>
+		public ElasticsearchSinkOptions(IConnectionPool connectionPool)
+			: this()
+		{
+			ConnectionPool = connectionPool;
+		}
+
+		/// <summary>
+		/// Configures the elasticsearch sink
+		/// </summary>
+		/// <param name="nodes">The nodes to write to</param>
+		public ElasticsearchSinkOptions(IEnumerable<Uri> nodes)
+			: this()
+		{
+			nodes = nodes != null && nodes.Any(n => n != null)
+				? nodes.Where(n => n != null)
+				: new[] { new Uri("http://localhost:9200") };
+			if (nodes.Count() == 1)
+				ConnectionPool = new SingleNodeConnectionPool(nodes.First());
+			else
+				ConnectionPool = new StaticConnectionPool(nodes);
+		}
+
+		/// <summary>
+		/// Configures the elasticsearch sink
+		/// </summary>
+		/// <param name="node">The node to write to</param>
+		public ElasticsearchSinkOptions(Uri node) : this(new[] { node }) { }
+	}
 }
