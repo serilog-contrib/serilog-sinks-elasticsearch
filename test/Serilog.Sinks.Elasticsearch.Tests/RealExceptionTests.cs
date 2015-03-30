@@ -1,21 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Connection.Configuration;
 using Elasticsearch.Net.JsonNet;
-using FakeItEasy;
 using FluentAssertions;
-using Newtonsoft.Json;
+using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.ElasticSearch;
-using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -60,8 +52,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 //tostring implemenation
                 //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
                 bulkJsonPieces[3].Should().Contain("Complex\":{");
-                //Since we are passing a ISerializer the exception should be be logged as object and not string
-                bulkJsonPieces[3].Should().Contain("exception\":{");
+                bulkJsonPieces[3].Should().Contain("exceptions\":[{");
             }
         }
     }

@@ -5,7 +5,6 @@ using FluentAssertions;
 using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.ElasticSearch;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

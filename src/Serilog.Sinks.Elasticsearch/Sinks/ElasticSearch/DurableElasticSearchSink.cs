@@ -17,40 +17,33 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.RollingFile;
 
-namespace Serilog.Sinks.ElasticSearch
+namespace Serilog.Sinks.Elasticsearch
 {
-    class DurableElasticSearchSink : ILogEventSink, IDisposable
+    class DurableElasticsearchSink : ILogEventSink, IDisposable
     {
         // we rely on the date in the filename later!
         const string FileNameSuffix = "-{Date}.json";
 
         readonly RollingFileSink _sink;
-        readonly ElasticSearchLogShipper _shipper;
+        readonly ElasticsearchLogShipper _shipper;
+	    private readonly ElasticsearchSinkState _state;
 
-        public DurableElasticSearchSink(ElasticsearchSinkOptions options)
+	    public DurableElasticsearchSink(ElasticsearchSinkOptions options)
         {
-            if (options == null) throw new ArgumentNullException("options");
+	        _state = ElasticsearchSinkState.Create(options);
 
             if (string.IsNullOrWhiteSpace(options.BufferBaseFilename))
             {
                 throw new ArgumentException("Cannot create the durable ElasticSearch sink without a buffer base file name!");
             }
-
-            var formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
-                formatProvider: options.FormatProvider,
-                renderMessage: true,
-                closingDelimiter: Environment.NewLine,
-                serializer: options.Serializer,
-                inlineFields: options.InlineFields
-                );
-
+    
             _sink = new RollingFileSink(
                 options.BufferBaseFilename + FileNameSuffix,
-                formatter,
+                _state.DurableFormatter,
                 options.BufferFileSizeLimitBytes,
                 null);
 
-            _shipper = new ElasticSearchLogShipper(options);
+            _shipper = new ElasticsearchLogShipper(_state);
         }
 
         public void Emit(LogEvent logEvent)
