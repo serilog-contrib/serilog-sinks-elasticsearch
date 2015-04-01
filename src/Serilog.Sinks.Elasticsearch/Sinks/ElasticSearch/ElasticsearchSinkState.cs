@@ -129,11 +129,23 @@ namespace Serilog.Sinks.Elasticsearch
                     _default_ = new
                     {
                         _all = new { enabled = true },
-                        dynamic_templates = new[] 
+                        dynamic_templates = new List<Object>
                         {
-                            new 
+                            //when you use serilog as an adaptor for third party frameworks
+                            //where you have no control over the log message they typically
+                            //contain {0} ad infinitum, we force numeric property names to
+                            //contain strings by default.
+                            { new { numerics_in_fields = new
                             {
-                                string_fields = new 
+                                path_match = @"fields\.[\d+]$",
+                                match_pattern = "regex",
+                                mapping = new
+                                {
+                                    type = "string", index = "analyzed", omit_norms = true
+                                }
+                            }}},
+                            { 
+                                new { string_fields = new 
                                 {
                                     match = "*",
                                     match_mapping_type = "string",
@@ -148,12 +160,11 @@ namespace Serilog.Sinks.Elasticsearch
                                             }
                                         }
                                     }
-                                }
+                                }}
                             }
                         },
                         properties = new Dictionary<string, object>
                         {
-                            { "message", new { type = "string", index =  "analyzed" } },
                             { "exceptions", new
                             {
                                 type = "nested", properties =  new Dictionary<string, object>
