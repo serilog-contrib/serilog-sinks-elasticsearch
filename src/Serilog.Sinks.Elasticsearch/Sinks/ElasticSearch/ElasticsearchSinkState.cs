@@ -165,6 +165,7 @@ namespace Serilog.Sinks.Elasticsearch
                         },
                         properties = new Dictionary<string, object>
                         {
+                            { "message", new { type = "string", index =  "analyzed" } },
                             { "exceptions", new
                             {
                                 type = "nested", properties =  new Dictionary<string, object>
