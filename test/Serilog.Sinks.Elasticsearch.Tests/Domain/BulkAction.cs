@@ -35,14 +35,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Domain
     {
         [JsonProperty("@timestamp")]
         public DateTime Timestamp { get; set; }
-        
+
         [JsonProperty("level")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LogEventLevel Level { get; set; }
-        
+
         [JsonProperty("messageTemplate")]
         public string MessageTemplate { get; set; }
-        
+
         [JsonProperty("message")]
         public string Message { get; set; }
 
@@ -62,11 +62,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Domain
         public SerilogExceptionMethodInfo ExceptionMethod { get; set; }
         public int HResult { get; set; }
         public string HelpUrl { get; set; }
-        
+
         //writing byte[] will fall back to serializer and they differ in output 
         //JsonNET assumes string, simplejson writes array of numerics.
         //Skip for now
-            
+
         //public byte[] WatsonBuckets { get; set; }
     }
 

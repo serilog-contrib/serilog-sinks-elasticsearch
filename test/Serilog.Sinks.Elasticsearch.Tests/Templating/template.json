@@ -10,6 +10,17 @@
             },
             "dynamic_templates": [
                 {
+                  "numerics_in_fields": {
+                      "path_match":"fields\\.[\\d+]$",
+                      "match_pattern":"regex",
+                      "mapping": {
+                          "type":"string",
+                          "index":"analyzed",
+                          "omit_norms":true
+                      }
+                  }
+                },
+                {
                     "string_fields": {
                         "match": "*",
                         "match_mapping_type": "string",

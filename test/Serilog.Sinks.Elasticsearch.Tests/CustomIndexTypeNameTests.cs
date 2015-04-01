@@ -28,10 +28,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 sink.Emit(e);
                 var exception = new ArgumentException("parameter");
                 properties = new List<LogEventProperty>
-				{
-					new LogEventProperty("Song", new ScalarValue("Old Macabre")),
-					new LogEventProperty("Complex", new ScalarValue(new { A  = 1, B = 2}))
-				};
+                {
+                    new LogEventProperty("Song", new ScalarValue("Old Macabre")),
+                    new LogEventProperty("Complex", new ScalarValue(new { A  = 1, B = 2}))
+                };
                 e = new LogEvent(timestamp.AddYears(-2), LogEventLevel.Fatal, exception, template, properties);
                 sink.Emit(e);
             }

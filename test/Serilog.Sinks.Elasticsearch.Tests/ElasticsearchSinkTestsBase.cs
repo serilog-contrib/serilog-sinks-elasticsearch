@@ -19,8 +19,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected readonly IConnection _connection;
         protected readonly ElasticsearchSinkOptions _options;
         protected readonly List<string> _seenHttpPosts = new List<string>();
+        protected readonly List<int> _seenHttpHeads = new List<int>();
         protected readonly List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
         private ElasticsearchJsonNetSerializer _serializer;
+
+        protected int _templateExistsReturnCode = 404;
 
         protected ElasticsearchSinkTestsBase()
         {
@@ -29,7 +32,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             _connection = A.Fake<IConnection>();
             _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
             {
-                BatchPostingLimit  = 2,
+                BatchPostingLimit = 2,
                 Period = TinyWait,
                 Connection = _connection
             };
@@ -47,6 +50,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                     _seenHttpPosts.Add(Encoding.UTF8.GetString(postData));
                     return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "POST", "/", postData, fixedRespone);
                 });
+            A.CallTo(() => _connection.HeadSync(A<Uri>._, A<IRequestConfiguration>._))
+                .ReturnsLazily((Uri uri, IRequestConfiguration requestConfiguration) =>
+                {
+                    _seenHttpHeads.Add(_templateExistsReturnCode);
+                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), _templateExistsReturnCode, "HEAD", "/", null);
+                });
         }
 
         /// <summary>
@@ -57,8 +66,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected IList<SerilogElasticsearchEvent> GetPostedLogEvents(int expectedCount)
         {
             this._seenHttpPosts.Should().NotBeNullOrEmpty();
-            var totalBulks = this._seenHttpPosts.SelectMany(p=>p.Split(new []{"\n"}, StringSplitOptions.RemoveEmptyEntries)).ToList();
-            totalBulks.Should().NotBeNullOrEmpty().And.HaveCount(expectedCount*2);
+            var totalBulks = this._seenHttpPosts.SelectMany(p => p.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)).ToList();
+            totalBulks.Should().NotBeNullOrEmpty().And.HaveCount(expectedCount * 2);
 
             var bulkActions = new List<SerilogElasticsearchEvent>();
             for (var i = 0; i < totalBulks.Count; i += 2)

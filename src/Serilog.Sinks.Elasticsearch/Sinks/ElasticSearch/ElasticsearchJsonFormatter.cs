@@ -58,9 +58,37 @@ namespace Serilog.Sinks.Elasticsearch
             : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider)
         {
             _serializer = serializer;
-            _inlineFields = inlineFields;      
+            _inlineFields = inlineFields;
         }
 
+#if NET4
+        /// <summary>
+        /// Writes out individual renderings of attached properties
+        /// </summary>
+        protected override void WriteRenderings(IGrouping<string, PropertyToken>[] tokensWithFormat, IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
+        {
+            output.Write(",\"{0}\":{{", "renderings");
+            WriteRenderingsValues(tokensWithFormat, properties, output);
+            output.Write("}");
+        }
+
+        /// <summary>
+        /// Writes out the attached properties
+        /// </summary>
+        protected override void WriteProperties(IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
+        {
+            if (!_inlineFields)
+                output.Write(",\"{0}\":{{", "fields");
+            else
+                output.Write(",");
+
+            WritePropertiesValues(properties, output);
+
+            if (!_inlineFields)
+                output.Write("}");
+        }
+
+#else
         /// <summary>
         /// Writes out individual renderings of attached properties
         /// </summary>
@@ -86,6 +114,8 @@ namespace Serilog.Sinks.Elasticsearch
             if (!_inlineFields)
                 output.Write("}");
         }
+
+#endif
 
         /// <summary>
         /// Writes out the attached exception
@@ -134,7 +164,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.WriteStructuredExceptionMethod(exceptionMethod, ref delim, output);
             this.WriteJsonProperty("HResult", hresult, ref delim, output);
             this.WriteJsonProperty("HelpURL", helpUrl, ref delim, output);
-            
+
             //writing byte[] will fall back to serializer and they differ in output 
             //JsonNET assumes string, simplejson writes array of numerics.
             //Skip for now
@@ -152,7 +182,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             var args = exceptionMethodString.Split('\0', '\n');
 
-            if (args.Length!=5) return;
+            if (args.Length != 5) return;
 
             var memberType = Int32.Parse(args[0], CultureInfo.InvariantCulture);
             var name = args[1];
@@ -168,11 +198,13 @@ namespace Serilog.Sinks.Elasticsearch
             this.WriteJsonProperty("Name", name, ref delim, output);
             this.WriteJsonProperty("AssemblyName", an.Name, ref delim, output);
             this.WriteJsonProperty("AssemblyVersion", an.Version.ToString(), ref delim, output);
+#if !NET4
             this.WriteJsonProperty("AssemblyCulture", an.CultureName, ref delim, output);
+#endif
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Signature", signature, ref delim, output);
             this.WriteJsonProperty("MemberType", memberType, ref delim, output);
-            
+
             output.Write("}");
             delim = ",";
         }

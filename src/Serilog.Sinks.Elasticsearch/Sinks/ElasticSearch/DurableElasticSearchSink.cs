@@ -26,17 +26,17 @@ namespace Serilog.Sinks.Elasticsearch
 
         readonly RollingFileSink _sink;
         readonly ElasticsearchLogShipper _shipper;
-	    private readonly ElasticsearchSinkState _state;
+        private readonly ElasticsearchSinkState _state;
 
-	    public DurableElasticsearchSink(ElasticsearchSinkOptions options)
+        public DurableElasticsearchSink(ElasticsearchSinkOptions options)
         {
-	        _state = ElasticsearchSinkState.Create(options);
+            _state = ElasticsearchSinkState.Create(options);
 
             if (string.IsNullOrWhiteSpace(options.BufferBaseFilename))
             {
                 throw new ArgumentException("Cannot create the durable ElasticSearch sink without a buffer base file name!");
             }
-    
+
             _sink = new RollingFileSink(
                 options.BufferBaseFilename + FileNameSuffix,
                 _state.DurableFormatter,

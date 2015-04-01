@@ -3,19 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0843A434-B7E8-4986-BB77-AC8B49D411BE}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		assets\CommonAssemblyInfo.cs = assets\CommonAssemblyInfo.cs
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch", "Serilog.Sinks.Elasticsearch.csproj", "{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2B32DE10-D8F2-4078-8FB9-1C02621F23D8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4F5E635B-1710-4899-AF85-3D30E64C0172}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch", "src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj", "{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{66B10686-4C73-4D5E-8638-98475879E989}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Tests", "..\..\test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{66B10686-4C73-4D5E-8638-98475879E989}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,9 +24,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B} = {2B32DE10-D8F2-4078-8FB9-1C02621F23D8}
-		{66B10686-4C73-4D5E-8638-98475879E989} = {4F5E635B-1710-4899-AF85-3D30E64C0172}
 	EndGlobalSection
 EndGlobal

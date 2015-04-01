@@ -30,9 +30,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 using (var sink = new ElasticsearchSink(_options))
                 {
                     var properties = new List<LogEventProperty>
-					{
-						new LogEventProperty("Song", new ScalarValue("New Macabre")),
-					};
+                    {
+                        new LogEventProperty("Song", new ScalarValue("New Macabre")),
+                    };
                     var logEvent = new LogEvent(timestamp, LogEventLevel.Information, e, template, properties);
                     sink.Emit(logEvent);
                     logEvent = new LogEvent(timestamp.AddDays(2), LogEventLevel.Information, e, template, properties);
