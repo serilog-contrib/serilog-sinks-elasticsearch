@@ -10,8 +10,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
     [TestFixture]
     public class DoNotRegisterIfTemplateExistsTests : ElasticsearchSinkTestsBase
     {
-        private readonly Tuple<Uri, string> _templatePut;
-
+       
         public DoNotRegisterIfTemplateExistsTests()
         {
             _templateExistsReturnCode = 200;
