@@ -26,7 +26,7 @@ namespace Serilog.Sinks.Elasticsearch
 {
     class ElasticsearchLogShipper : IDisposable
     {
-	    private readonly ElasticsearchSinkState _state;
+        private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
         readonly Timer _timer;
@@ -39,7 +39,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
-	        _state = state;
+            _state = state;
             _period = _state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5);
             _batchPostingLimit = _state.Options.BatchPostingLimit;
             _bookmarkFilename = Path.GetFullPath(_state.Options.BufferBaseFilename + ".bookmark");
@@ -103,7 +103,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             // Note, called under _stateLock
             var infiniteTimespan = TimeSpan.FromMilliseconds(Timeout.Infinite); //< can't use Timeout.InfiniteTimespan in .NET 4
-            
+
             _timer.Change(_period, infiniteTimespan);
         }
 

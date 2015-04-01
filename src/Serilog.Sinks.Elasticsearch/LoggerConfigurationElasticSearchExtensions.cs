@@ -41,7 +41,7 @@ namespace Serilog
         /// <param name="options">Provides options specific to the Elasticsearch sink</param>
         /// <returns>LoggerConfiguration object</returns>
         public static LoggerConfiguration Elasticsearch(
-            this LoggerSinkConfiguration loggerSinkConfiguration, 
+            this LoggerSinkConfiguration loggerSinkConfiguration,
             ElasticsearchSinkOptions options = null)
         {
             //TODO make sure we do not kill appdata injection
@@ -49,10 +49,10 @@ namespace Serilog
             //TODO NEST trace logging ID's to corrolate requests to eachother
 
             //Deal with positional formatting in fields property  (default to scalar string in mapping)
-            options = options ?? new ElasticsearchSinkOptions(new [] { new Uri("http://localhost:9200") });
+            options = options ?? new ElasticsearchSinkOptions(new[] { new Uri("http://localhost:9200") });
 
-			var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
-                ? (ILogEventSink) new ElasticsearchSink(options)
+            var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
+                ? (ILogEventSink)new ElasticsearchSink(options)
                 : new DurableElasticsearchSink(options);
 
             return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);

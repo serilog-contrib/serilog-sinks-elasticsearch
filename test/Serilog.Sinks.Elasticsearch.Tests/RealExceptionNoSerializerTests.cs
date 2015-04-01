@@ -29,10 +29,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                     )
                 {
                     var properties = new List<LogEventProperty>
-					{
-						new LogEventProperty("Song", new ScalarValue("New Macabre")),
-						new LogEventProperty("Complex", new ScalarValue(new { A  = 1, B = 2}))
-					};
+                    {
+                        new LogEventProperty("Song", new ScalarValue("New Macabre")), 
+                        new LogEventProperty("Complex", new ScalarValue(new { A  = 1, B = 2}))
+                    };
                     var logEvent = new LogEvent(timestamp, LogEventLevel.Information, null, template, properties);
                     sink.Emit(logEvent);
                     logEvent = new LogEvent(timestamp.AddDays(2), LogEventLevel.Information, e, template, properties);

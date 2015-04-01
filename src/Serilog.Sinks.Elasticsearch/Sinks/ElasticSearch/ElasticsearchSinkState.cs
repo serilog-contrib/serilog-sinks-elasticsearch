@@ -24,18 +24,18 @@ using Serilog.Formatting;
 
 namespace Serilog.Sinks.Elasticsearch
 {
-	internal class ElasticsearchSinkState
-	{
-		public static ElasticsearchSinkState Create(ElasticsearchSinkOptions options)
-		{
+    internal class ElasticsearchSinkState
+    {
+        public static ElasticsearchSinkState Create(ElasticsearchSinkOptions options)
+        {
             if (options == null) throw new ArgumentNullException("options");
-			var state = new ElasticsearchSinkState(options);
-			if (state.Options.AutoRegisterTemplate)
-				state.RegisterTemplateIfNeeded();
-			return state;
-		}
+            var state = new ElasticsearchSinkState(options);
+            if (state.Options.AutoRegisterTemplate)
+                state.RegisterTemplateIfNeeded();
+            return state;
+        }
 
-		private readonly ElasticsearchSinkOptions _options;
+        private readonly ElasticsearchSinkOptions _options;
         readonly Func<LogEvent, DateTimeOffset, string> _indexDecider;
 
         private readonly ITextFormatter _formatter;
@@ -49,25 +49,25 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
-		public ElasticsearchSinkOptions Options { get { return this._options; }}
-		public IElasticsearchClient Client { get { return this._client; }}
-		public ITextFormatter Formatter { get { return this._formatter; }}
+        public ElasticsearchSinkOptions Options { get { return this._options; } }
+        public IElasticsearchClient Client { get { return this._client; } }
+        public ITextFormatter Formatter { get { return this._formatter; } }
         public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
 
 
-		private ElasticsearchSinkState(ElasticsearchSinkOptions options)
-		{
+        private ElasticsearchSinkState(ElasticsearchSinkOptions options)
+        {
             if (string.IsNullOrWhiteSpace(options.IndexFormat)) throw new ArgumentException("options.IndexFormat");
             if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
 
             this._templateName = options.TemplateName;
             this._templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
-            
+
             _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
             _typeName = options.TypeName;
-			_options = options;
+            _options = options;
 
             var configuration = new ConnectionConfiguration(options.ConnectionPool)
                 .SetTimeout(options.ConnectionTimeout)
@@ -93,20 +93,20 @@ namespace Serilog.Sinks.Elasticsearch
                inlineFields: options.InlineFields
            );
 
-			this._registerTemplateOnStartup = options.AutoRegisterTemplate;
-		}
+            this._registerTemplateOnStartup = options.AutoRegisterTemplate;
+        }
 
 
-		public string Serialize(object o)
-		{
-			var bytes = _client.Serializer.Serialize(o, SerializationFormatting.None);
-			return Encoding.UTF8.GetString(bytes);
-		}
+        public string Serialize(object o)
+        {
+            var bytes = _client.Serializer.Serialize(o, SerializationFormatting.None);
+            return Encoding.UTF8.GetString(bytes);
+        }
 
-		public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
-		{
-			return this._indexDecider(e, offset);
-		}
+        public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
+        {
+            return this._indexDecider(e, offset);
+        }
 
         /// <summary>
         /// Register the elasticsearch index template if the provided options mandate it.
@@ -174,8 +174,8 @@ namespace Serilog.Sinks.Elasticsearch
                 }
             });
 
-            
+
         }
 
-	}
+    }
 }
