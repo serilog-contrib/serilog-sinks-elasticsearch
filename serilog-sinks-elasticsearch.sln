@@ -5,6 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0843A434-B7E8-4986-BB77-AC8B49D411BE}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		assets\CommonAssemblyInfo.cs = assets\CommonAssemblyInfo.cs
 	EndProjectSection
 EndProject

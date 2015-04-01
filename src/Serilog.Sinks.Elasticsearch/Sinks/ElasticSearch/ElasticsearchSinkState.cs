@@ -114,6 +114,9 @@ namespace Serilog.Sinks.Elasticsearch
         public void RegisterTemplateIfNeeded()
         {
             if (!this._registerTemplateOnStartup) return;
+            var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
+            if (templateExistsResponse.HttpStatusCode == 200) return;
+
             var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
             {
                 template = this._templateMatchString,

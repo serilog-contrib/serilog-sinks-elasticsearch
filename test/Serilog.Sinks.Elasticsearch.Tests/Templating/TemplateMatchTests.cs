@@ -31,6 +31,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 
             this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
             this._seenHttpPuts.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            this._seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
             _templatePut = this._seenHttpPuts[0];
             
         }
