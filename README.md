@@ -14,11 +14,28 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
 - Automatically create the right mappings for the best usage of the log events in ES.
 
+## Quick start
+
+```powershell
+Install-Package serilog.sinks.elasticsearch
+```
+
+```csharp
+var loggerConfig = new LoggerConfiguration()
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200") ){
+             AutoRegisterTemplate = true,
+     });
+```
+
+And start writing your events using Serilog.
+
 ## More information
 - [Basic information](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/basic-setup) on how to configure and use this sink.
 - [Configuration options](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/config) which you can use.
 - How to use the [durability](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/durability) mode.
 - [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
+- Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
+- Report issues to the Serilog [issue tracker](https://github.com/serilog/serilog/issues).
 
 ### Breaking changes for version 2
 
