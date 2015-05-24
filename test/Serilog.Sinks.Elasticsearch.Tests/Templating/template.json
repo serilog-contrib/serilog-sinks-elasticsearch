@@ -6,7 +6,8 @@
     "mappings": {
         "_default_": {
             "_all": {
-                "enabled": true
+                "enabled": true,
+                "omit_norms" : true
             },
             "dynamic_templates": [
                 {
