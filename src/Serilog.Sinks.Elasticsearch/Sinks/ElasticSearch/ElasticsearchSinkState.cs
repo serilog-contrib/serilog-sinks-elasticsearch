@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using Elasticsearch.Net;
 using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.Serialization;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -114,82 +115,88 @@ namespace Serilog.Sinks.Elasticsearch
         public void RegisterTemplateIfNeeded()
         {
             if (!this._registerTemplateOnStartup) return;
-            var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
-            if (templateExistsResponse.HttpStatusCode == 200) return;
 
-            var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
-            {
-                template = this._templateMatchString,
-                settings = new Dictionary<string, string>
+            try
+            { 
+                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
+                if (templateExistsResponse.HttpStatusCode == 200) return;
+            
+                var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
                 {
-                    {"index.refresh_interval", "5s"}
-                },
-                mappings = new
-                {
-                    _default_ = new
+                    template = this._templateMatchString,
+                    settings = new Dictionary<string, string>
                     {
-                        _all = new { enabled = true },
-                        dynamic_templates = new List<Object>
+                        {"index.refresh_interval", "5s"}
+                    },
+                    mappings = new
+                    {
+                        _default_ = new
                         {
-                            //when you use serilog as an adaptor for third party frameworks
-                            //where you have no control over the log message they typically
-                            //contain {0} ad infinitum, we force numeric property names to
-                            //contain strings by default.
-                            { new { numerics_in_fields = new
+                            _all = new { enabled = true },
+                            dynamic_templates = new List<Object>
                             {
-                                path_match = @"fields\.[\d+]$",
-                                match_pattern = "regex",
-                                mapping = new
+                                //when you use serilog as an adaptor for third party frameworks
+                                //where you have no control over the log message they typically
+                                //contain {0} ad infinitum, we force numeric property names to
+                                //contain strings by default.
+                                { new { numerics_in_fields = new
                                 {
-                                    type = "string", index = "analyzed", omit_norms = true
-                                }
-                            }}},
-                            { 
-                                new { string_fields = new 
-                                {
-                                    match = "*",
-                                    match_mapping_type = "string",
-                                    mapping = new 
+                                    path_match = @"fields\.[\d+]$",
+                                    match_pattern = "regex",
+                                    mapping = new
                                     {
-                                        type = "string", index = "analyzed", omit_norms = true,
-                                        fields = new 
-                                        {
-                                            raw = new
-                                            {
-                                                type= "string", index = "not_analyzed", ignore_above = 256
-                                            }
-                                        }
+                                        type = "string", index = "analyzed", omit_norms = true
                                     }
-                                }}
-                            }
-                        },
-                        properties = new Dictionary<string, object>
-                        {
-                            { "message", new { type = "string", index =  "analyzed" } },
-                            { "exceptions", new
-                            {
-                                type = "nested", properties =  new Dictionary<string, object>
-                                {
-                                    { "Depth", new { type = "integer" } },
-                                    { "RemoteStackIndex", new { type = "integer" } },
-                                    { "HResult", new { type = "integer" } },
-                                    { "StackTraceString", new { type = "string", index = "analyzed" } },
-                                    { "RemoteStackTraceString", new { type = "string", index = "analyzed" } },
-                                    { "ExceptionMessage", new
+                                }}},
+                                { 
+                                    new { string_fields = new 
                                     {
-                                        type = "object", properties = new Dictionary<string, object>
+                                        match = "*",
+                                        match_mapping_type = "string",
+                                        mapping = new 
                                         {
-                                            { "MemberType", new { type = "integer" } },
+                                            type = "string", index = "analyzed", omit_norms = true,
+                                            fields = new 
+                                            {
+                                                raw = new
+                                                {
+                                                    type= "string", index = "not_analyzed", ignore_above = 256
+                                                }
+                                            }
                                         }
                                     }}
                                 }
-                            } }
+                            },
+                            properties = new Dictionary<string, object>
+                            {
+                                { "message", new { type = "string", index =  "analyzed" } },
+                                { "exceptions", new
+                                {
+                                    type = "nested", properties =  new Dictionary<string, object>
+                                    {
+                                        { "Depth", new { type = "integer" } },
+                                        { "RemoteStackIndex", new { type = "integer" } },
+                                        { "HResult", new { type = "integer" } },
+                                        { "StackTraceString", new { type = "string", index = "analyzed" } },
+                                        { "RemoteStackTraceString", new { type = "string", index = "analyzed" } },
+                                        { "ExceptionMessage", new
+                                        {
+                                            type = "object", properties = new Dictionary<string, object>
+                                            {
+                                                { "MemberType", new { type = "integer" } },
+                                            }
+                                        }}
+                                    }
+                                } }
+                            }
                         }
                     }
-                }
-            });
-
-
+                });
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("Failed to create the template. {0}", ex);
+            }
         }
 
     }
