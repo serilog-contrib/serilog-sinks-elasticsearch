@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using Elasticsearch.Net;
 using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.Serialization;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -36,23 +37,37 @@ namespace Serilog.Sinks.Elasticsearch
         }
 
         private readonly ElasticsearchSinkOptions _options;
-        readonly Func<LogEvent, DateTimeOffset, string> _indexDecider;
+        private readonly Func<LogEvent, DateTimeOffset, string> _indexDecider;
 
         private readonly ITextFormatter _formatter;
         private readonly ITextFormatter _durableFormatter;
 
         private readonly ElasticsearchClient _client;
 
-        readonly string _typeName;
         private readonly bool _registerTemplateOnStartup;
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
-        public ElasticsearchSinkOptions Options { get { return this._options; } }
-        public IElasticsearchClient Client { get { return this._client; } }
-        public ITextFormatter Formatter { get { return this._formatter; } }
-        public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
+        public ElasticsearchSinkOptions Options
+        {
+            get { return _options; }
+        }
+
+        public IElasticsearchClient Client
+        {
+            get { return _client; }
+        }
+
+        public ITextFormatter Formatter
+        {
+            get { return _formatter; }
+        }
+
+        public ITextFormatter DurableFormatter
+        {
+            get { return _durableFormatter; }
+        }
 
 
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
@@ -61,12 +76,11 @@ namespace Serilog.Sinks.Elasticsearch
             if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
 
-            this._templateName = options.TemplateName;
-            this._templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
+            _templateName = options.TemplateName;
+            _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
 
             _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
-            _typeName = options.TypeName;
             _options = options;
 
             var configuration = new ConnectionConfiguration(options.ConnectionPool)
@@ -76,7 +90,8 @@ namespace Serilog.Sinks.Elasticsearch
             if (options.ModifyConnectionSetttings != null)
                 configuration = options.ModifyConnectionSetttings(configuration);
 
-            _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
+            _client = new ElasticsearchClient(configuration, connection: options.Connection,
+                serializer: options.Serializer);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
@@ -84,18 +99,18 @@ namespace Serilog.Sinks.Elasticsearch
                 closingDelimiter: string.Empty,
                 serializer: options.Serializer,
                 inlineFields: options.InlineFields
-            );
+                );
+
             _durableFormatter = options.CustomDurableFormatter ?? new ElasticsearchJsonFormatter(
-               formatProvider: options.FormatProvider,
-               renderMessage: true,
-               closingDelimiter: Environment.NewLine,
-               serializer: options.Serializer,
-               inlineFields: options.InlineFields
-           );
+                formatProvider: options.FormatProvider,
+                renderMessage: true,
+                closingDelimiter: Environment.NewLine,
+                serializer: options.Serializer,
+                inlineFields: options.InlineFields
+                );
 
-            this._registerTemplateOnStartup = options.AutoRegisterTemplate;
+            _registerTemplateOnStartup = options.AutoRegisterTemplate;
         }
-
 
         public string Serialize(object o)
         {
@@ -105,7 +120,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
         {
-            return this._indexDecider(e, offset);
+            return _indexDecider(e, offset);
         }
 
         /// <summary>
@@ -113,84 +128,89 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public void RegisterTemplateIfNeeded()
         {
-            if (!this._registerTemplateOnStartup) return;
-            var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
-            if (templateExistsResponse.HttpStatusCode == 200) return;
+            if (!_registerTemplateOnStartup) return;
 
-            var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
+            try
             {
-                template = this._templateMatchString,
-                settings = new Dictionary<string, string>
+                var templateExistsResponse = _client.IndicesExistsTemplateForAll<VoidResponse>(_templateName);
+                if (templateExistsResponse.HttpStatusCode == 200) return;
+                
+                _client.IndicesPutTemplateForAll<VoidResponse>(_templateName, new
                 {
-                    {"index.refresh_interval", "5s"}
-                },
-                mappings = new
-                {
-                    _default_ = new
+                    template = this._templateMatchString,
+                    settings = new Dictionary<string, string>
                     {
-                        _all = new { enabled = true },
-                        dynamic_templates = new List<Object>
+                        {"index.refresh_interval", "5s"}
+                    },
+                    mappings = new
+                    {
+                        _default_ = new
                         {
-                            //when you use serilog as an adaptor for third party frameworks
-                            //where you have no control over the log message they typically
-                            //contain {0} ad infinitum, we force numeric property names to
-                            //contain strings by default.
-                            { new { numerics_in_fields = new
+                            _all = new { enabled = true },
+                            dynamic_templates = new List<Object>
                             {
-                                path_match = @"fields\.[\d+]$",
-                                match_pattern = "regex",
-                                mapping = new
+                                //when you use serilog as an adaptor for third party frameworks
+                                //where you have no control over the log message they typically
+                                //contain {0} ad infinitum, we force numeric property names to
+                                //contain strings by default.
+                                { new { numerics_in_fields = new
                                 {
-                                    type = "string", index = "analyzed", omit_norms = true
-                                }
-                            }}},
-                            { 
-                                new { string_fields = new 
-                                {
-                                    match = "*",
-                                    match_mapping_type = "string",
-                                    mapping = new 
+                                    path_match = @"fields\.[\d+]$",
+                                    match_pattern = "regex",
+                                    mapping = new
                                     {
-                                        type = "string", index = "analyzed", omit_norms = true,
-                                        fields = new 
-                                        {
-                                            raw = new
-                                            {
-                                                type= "string", index = "not_analyzed", ignore_above = 256
-                                            }
-                                        }
+                                        type = "string", index = "analyzed", omit_norms = true
                                     }
-                                }}
-                            }
-                        },
-                        properties = new Dictionary<string, object>
-                        {
-                            { "message", new { type = "string", index =  "analyzed" } },
-                            { "exceptions", new
-                            {
-                                type = "nested", properties =  new Dictionary<string, object>
-                                {
-                                    { "Depth", new { type = "integer" } },
-                                    { "RemoteStackIndex", new { type = "integer" } },
-                                    { "HResult", new { type = "integer" } },
-                                    { "StackTraceString", new { type = "string", index = "analyzed" } },
-                                    { "RemoteStackTraceString", new { type = "string", index = "analyzed" } },
-                                    { "ExceptionMessage", new
+                                }}},
+                                { 
+                                    new { string_fields = new 
                                     {
-                                        type = "object", properties = new Dictionary<string, object>
+                                        match = "*",
+                                        match_mapping_type = "string",
+                                        mapping = new 
                                         {
-                                            { "MemberType", new { type = "integer" } },
+                                            type = "string", index = "analyzed", omit_norms = true,
+                                            fields = new 
+                                            {
+                                                raw = new
+                                                {
+                                                    type= "string", index = "not_analyzed", ignore_above = 256
+                                                }
+                                            }
                                         }
                                     }}
                                 }
-                            } }
+                            },
+                            properties = new Dictionary<string, object>
+                            {
+                                { "message", new { type = "string", index =  "analyzed" } },
+                                { "exceptions", new
+                                {
+                                    type = "nested", properties =  new Dictionary<string, object>
+                                    {
+                                        { "Depth", new { type = "integer" } },
+                                        { "RemoteStackIndex", new { type = "integer" } },
+                                        { "HResult", new { type = "integer" } },
+                                        { "StackTraceString", new { type = "string", index = "analyzed" } },
+                                        { "RemoteStackTraceString", new { type = "string", index = "analyzed" } },
+                                        { "ExceptionMessage", new
+                                        {
+                                            type = "object", properties = new Dictionary<string, object>
+                                            {
+                                                { "MemberType", new { type = "integer" } },
+                                            }
+                                        }}
+                                    }
+                                } }
+                            }
                         }
                     }
-                }
-            });
-
-
+                });
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("Failed to create the template. {0}", ex);
+            }
         }
-
     }
 }
