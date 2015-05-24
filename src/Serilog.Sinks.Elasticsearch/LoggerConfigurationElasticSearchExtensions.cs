@@ -48,7 +48,6 @@ namespace Serilog
             //TODO handle bulk errors and write to self log, what does logstash do in this case?
             //TODO NEST trace logging ID's to corrolate requests to eachother
 
-            //Deal with positional formatting in fields property  (default to scalar string in mapping)
             options = options ?? new ElasticsearchSinkOptions(new[] { new Uri("http://localhost:9200") });
 
             var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)

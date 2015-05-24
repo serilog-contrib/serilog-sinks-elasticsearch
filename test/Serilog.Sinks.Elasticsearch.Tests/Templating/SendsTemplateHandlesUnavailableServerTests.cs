@@ -8,7 +8,7 @@ using Serilog.Debugging;
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
     [TestFixture(Category = "Integration test")]
-    public class SendsTemplateHandlesUnavaiableSServerTests : ElasticsearchSinkTestsBase
+    public class SendsTemplateHandlesUnavailableServerTests : ElasticsearchSinkTestsBase
     {
         [Test]
         public void Should_not_crash_when_server_is_unavaiable()
