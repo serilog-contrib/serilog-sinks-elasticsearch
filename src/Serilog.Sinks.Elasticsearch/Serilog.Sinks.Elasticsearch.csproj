@@ -62,7 +62,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LoggerConfigurationElasticSearchExtensions.cs" />
+    <Compile Include="LoggerConfigurationElasticsearchExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sinks\Elasticsearch\DurableElasticsearchSink.cs" />
     <Compile Include="Sinks\Elasticsearch\ElasticsearchJsonFormatter.cs" />
