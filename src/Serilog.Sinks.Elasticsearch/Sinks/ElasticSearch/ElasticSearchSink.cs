@@ -54,8 +54,6 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return;
 
-            _state.RegisterTemplateIfNeeded(); // Since creation can fail during startup, retry.
-
             var payload = new List<string>();
             foreach (var e in events)
             {

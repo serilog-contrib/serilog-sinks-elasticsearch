@@ -48,7 +48,6 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
-        private bool _templateRegistered;
 
         public ElasticsearchSinkOptions Options
         {
@@ -129,16 +128,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public void RegisterTemplateIfNeeded()
         {
-            if (!_registerTemplateOnStartup || _templateRegistered) return;
+            if (!_registerTemplateOnStartup) return;
 
             try
             {
                 var templateExistsResponse = _client.IndicesExistsTemplateForAll<VoidResponse>(_templateName);
-                if (templateExistsResponse.HttpStatusCode == 200)
-                {
-                    _templateRegistered = true;
-                    return;
-                }
+                if (templateExistsResponse.HttpStatusCode == 200) return;
                 
                 _client.IndicesPutTemplateForAll<VoidResponse>(_templateName, new
                 {
@@ -211,8 +206,6 @@ namespace Serilog.Sinks.Elasticsearch
                         }
                     }
                 });
-
-                _templateRegistered = true;
             }
             catch (Exception ex)
             {
