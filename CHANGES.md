@@ -1,4 +1,7 @@
 
+2.0.38
+ * Fixes an issue where the index decider was not properly used with pusing events thorugh the ElasticLogShipper.
+
 2.0.37
  * When auto register of the template is enabled, but the ES server is unavailable, the exception is logged to the selflog instead of bubbling up the exception.
  * omit_terms is set to true in the template.

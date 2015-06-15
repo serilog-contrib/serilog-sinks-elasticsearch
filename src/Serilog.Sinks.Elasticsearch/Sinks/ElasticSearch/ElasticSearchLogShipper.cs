@@ -148,6 +148,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         var dateString = lastToken.Substring(0, 8);
                         var date = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);
+                        var indexName = _state.GetIndexForEvent(null, date);
 
                         var payload = new List<string>();
 
@@ -158,7 +159,6 @@ namespace Serilog.Sinks.Elasticsearch
                             string nextLine;
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
-                                var indexName = string.Format(_state.Options.IndexFormat, date);
                                 var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
                                 var actionJson = _state.Serialize(action);
                                 payload.Add(actionJson);
