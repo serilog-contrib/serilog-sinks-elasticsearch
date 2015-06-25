@@ -56,5 +56,35 @@ namespace Serilog
 
             return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
         }
+
+        /// <summary>
+        /// Overload to allow basic configuration through AppSettings.
+        /// </summary>
+        /// <param name="loggerSinkConfiguration">Options for the sink.</param>
+        /// <param name="uri">A URI for the Elasticsearch instance</param>
+        /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
+        /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
+        /// <returns>LoggerConfiguration object</returns>
+        public static LoggerConfiguration Elasticsearch(
+            this LoggerSinkConfiguration loggerSinkConfiguration,
+            string uri,
+            string indexFormat = null,
+            string templateName = null)
+        {
+            var options = new ElasticsearchSinkOptions(new[] { new Uri(uri) });
+
+            if (!string.IsNullOrWhiteSpace(indexFormat))
+            {
+                options.IndexFormat = indexFormat;
+            }
+
+            if (!string.IsNullOrWhiteSpace(templateName))
+            {
+                options.AutoRegisterTemplate = true;
+                options.TemplateName = templateName;
+            }
+
+            return Elasticsearch(loggerSinkConfiguration, options);
+        }
     }
 }
