@@ -13,8 +13,11 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Serilog.Configuration;
 using Serilog.Core;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 
@@ -25,6 +28,7 @@ namespace Serilog
     /// </summary>
     public static class LoggerConfigurationElasticsearchExtensions
     {
+        const string DefaultNodeUri = "http://localhost:9200";
 
         /// <summary>
         /// Adds a sink that writes log events as documents to an Elasticsearch index.
@@ -48,7 +52,7 @@ namespace Serilog
             //TODO handle bulk errors and write to self log, what does logstash do in this case?
             //TODO NEST trace logging ID's to corrolate requests to eachother
 
-            options = options ?? new ElasticsearchSinkOptions(new[] { new Uri("http://localhost:9200") });
+            options = options ?? new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
 
             var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
                 ? (ILogEventSink)new ElasticsearchSink(options)
@@ -61,17 +65,27 @@ namespace Serilog
         /// Overload to allow basic configuration through AppSettings.
         /// </summary>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
-        /// <param name="uri">A URI for the Elasticsearch instance</param>
+        /// <param name="nodeUris">A comma separated list of URIs for Elasticsearch nodes</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
         /// <returns>LoggerConfiguration object</returns>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
-            string uri,
+            string nodeUris,
             string indexFormat = null,
             string templateName = null)
         {
-            var options = new ElasticsearchSinkOptions(new[] { new Uri(uri) });
+            ElasticsearchSinkOptions options;
+            try
+            {
+                IEnumerable<Uri> nodes = nodeUris.Split(',').Select(uriString => new Uri(uriString));
+                options = new ElasticsearchSinkOptions(nodes);
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("Exception while parsing node URIs from {0}: {1}", nodeUris, ex);
+                options = new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
+            }
 
             if (!string.IsNullOrWhiteSpace(indexFormat))
             {
