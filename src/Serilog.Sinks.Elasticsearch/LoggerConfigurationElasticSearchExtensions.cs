@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Serilog.Configuration;
 using Serilog.Core;
-using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 
@@ -75,17 +74,8 @@ namespace Serilog
             string indexFormat = null,
             string templateName = null)
         {
-            ElasticsearchSinkOptions options;
-            try
-            {
-                IEnumerable<Uri> nodes = nodeUris.Split(',').Select(uriString => new Uri(uriString));
-                options = new ElasticsearchSinkOptions(nodes);
-            }
-            catch (Exception ex)
-            {
-                SelfLog.WriteLine("Exception while parsing node URIs from {0}: {1}", nodeUris, ex);
-                options = new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
-            }
+            IEnumerable<Uri> nodes = nodeUris.Split(',').Select(uriString => new Uri(uriString));
+            var options = new ElasticsearchSinkOptions(nodes);
 
             if (!string.IsNullOrWhiteSpace(indexFormat))
             {
