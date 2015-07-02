@@ -64,17 +64,24 @@ namespace Serilog
         /// Overload to allow basic configuration through AppSettings.
         /// </summary>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
-        /// <param name="nodeUris">A comma separated list of URIs for Elasticsearch nodes</param>
+        /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
         /// <returns>LoggerConfiguration object</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
             string nodeUris,
             string indexFormat = null,
             string templateName = null)
         {
-            IEnumerable<Uri> nodes = nodeUris.Split(',').Select(uriString => new Uri(uriString));
+            if (string.IsNullOrEmpty(nodeUris))
+                throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
+
+            IEnumerable<Uri> nodes = nodeUris
+                .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(uriString => new Uri(uriString));
+
             var options = new ElasticsearchSinkOptions(nodes);
 
             if (!string.IsNullOrWhiteSpace(indexFormat))
