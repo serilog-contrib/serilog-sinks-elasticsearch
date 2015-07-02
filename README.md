@@ -20,6 +20,8 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
+Register the sink as shown below or use the appSettings reader (v2.0.42+).
+
 ```csharp
 var loggerConfig = new LoggerConfiguration()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200") ){
@@ -46,4 +48,4 @@ Be aware that version 2 introduces some breaking changes.
 - The Exceptions recorded by Serilog are customer serialized into the Exceptions property which is an array instead of an object.
 - Inner exceptions are recorded in the same array but have an increasing depth parameter. So instead of nesting objects you need to look at this parameter to find the depth of the exception.
 - Do no longer use the mapping once provided in the Gist. The Sink can automatically create the right mapping for you, but this feature is disabled by default. We advice you to use it.
-- As there is no simple method extension that does not expect a complex type, it is not possible to use the appSettings reader for this. You need to register this sink via code.
+- Since version 2.0.42 the ability to register this sink using the AppSettings reader is restored. You can pass in a node (or collection of nodes) and optionally an indexname and template.

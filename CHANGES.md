@@ -1,3 +1,5 @@
+2.0.42
+ * Added an overload so the AppSettings reader can be used to configure the ES sink. 
 
 2.0.38
  * Fixes an issue where the index decider was not properly used with pusing events thorugh the ElasticLogShipper.
