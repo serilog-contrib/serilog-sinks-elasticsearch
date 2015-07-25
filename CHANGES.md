@@ -1,3 +1,6 @@
+2.0.49
+ * Fixed typo: ModifyConnectionSetttings to ModifyConnectionSettings.
+
 2.0.42
  * Added an overload so the AppSettings reader can be used to configure the ES sink. 
 
