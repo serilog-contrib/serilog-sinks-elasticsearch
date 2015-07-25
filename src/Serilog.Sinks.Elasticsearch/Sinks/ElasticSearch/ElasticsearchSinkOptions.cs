@@ -44,7 +44,7 @@ namespace Serilog.Sinks.Elasticsearch
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
-        public Func<ConnectionConfiguration, ConnectionConfiguration> ModifyConnectionSetttings { get; set; }
+        public Func<ConnectionConfiguration, ConnectionConfiguration> ModifyConnectionSettings { get; set; }
 
         ///<summary>
         /// The index name formatter. A string.Format using the DateTimeOffset of the event is run over this string.

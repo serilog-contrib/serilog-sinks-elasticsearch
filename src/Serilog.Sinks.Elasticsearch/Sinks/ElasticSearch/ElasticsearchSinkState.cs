@@ -74,8 +74,8 @@ namespace Serilog.Sinks.Elasticsearch
                 .SetTimeout(options.ConnectionTimeout)
                 .SetMaximumAsyncConnections(20);
 
-            if (options.ModifyConnectionSetttings != null)
-                configuration = options.ModifyConnectionSetttings(configuration);
+            if (options.ModifyConnectionSettings != null)
+                configuration = options.ModifyConnectionSettings(configuration);
 
             _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
 
