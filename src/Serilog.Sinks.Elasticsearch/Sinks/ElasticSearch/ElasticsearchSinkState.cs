@@ -29,11 +29,12 @@ namespace Serilog.Sinks.Elasticsearch
     {
         public static ElasticsearchSinkState Create(ElasticsearchSinkOptions options)
         {
-            if (options == null) throw new ArgumentNullException("options");
-            var state = new ElasticsearchSinkState(options);
-            if (state.Options.AutoRegisterTemplate)
-                state.RegisterTemplateIfNeeded();
-            return state;
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+            
+            return new ElasticsearchSinkState(options);
         }
 
         private readonly ElasticsearchSinkOptions _options;
@@ -94,7 +95,7 @@ namespace Serilog.Sinks.Elasticsearch
                inlineFields: options.InlineFields
            );
 
-            this._registerTemplateOnStartup = options.AutoRegisterTemplate;
+            _registerTemplateOnStartup = options.AutoRegisterTemplate;
         }
 
 
@@ -117,10 +118,10 @@ namespace Serilog.Sinks.Elasticsearch
             if (!this._registerTemplateOnStartup) return;
 
             try
-            { 
+            {
                 var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
                 if (templateExistsResponse.HttpStatusCode == 200) return;
-            
+
                 var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
                 {
                     template = this._templateMatchString,
