@@ -33,7 +33,7 @@ This example shows the options that are currently available when using the appSe
 
 ```xml
   <appSettings>
-    <add key="serilog:using:Elasticsearch" value="Serilog.Sinks.Elasticsearch"/>
+    <add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>
     <add key="serilog:write-to:Elasticsearch.nodeUris" value="http://localhost:9200;http://remotehost:9200"/>
     <add key="serilog:write-to:Elasticsearch.indexFormat" value="custom-index-{0:yyyy.MM}"/>
     <add key="serilog:write-to:Elasticsearch.templateName" value="myCustomTemplate"/>
