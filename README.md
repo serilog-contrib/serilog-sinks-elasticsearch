@@ -20,7 +20,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink in code or using the appSettings method (v2.0.42+) as shown below.
+Register the sink in code or using the appSettings reader (v2.0.42+) as shown below.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
@@ -29,7 +29,7 @@ var loggerConfig = new LoggerConfiguration()
      });
 ```
 
-With the appSettings method the following example includes all the options that are currently available.
+This example shows the options that are currently available when using the appSettings reader.
 
 ```xml
   <appSettings>
