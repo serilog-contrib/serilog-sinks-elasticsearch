@@ -37,6 +37,8 @@ namespace Serilog.Sinks.Elasticsearch
         readonly string _logFolder;
         readonly string _candidateSearchPath;
 
+        bool _didRegisterTemplateIfNeeded;
+
         internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
             _state = state;
@@ -111,6 +113,13 @@ namespace Serilog.Sinks.Elasticsearch
         {
             try
             {
+                // on the very first timer tick, we make the auto-register-if-necessary call
+                if (!_didRegisterTemplateIfNeeded)
+                {
+                    _state.RegisterTemplateIfNeeded();
+                    _didRegisterTemplateIfNeeded = true;
+                }
+
                 var count = 0;
 
                 do
