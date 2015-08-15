@@ -20,7 +20,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink as shown below or use the appSettings reader (v2.0.42+).
+Register the sink in code or using the appSettings reader (v2.0.42+) as shown below.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
@@ -28,6 +28,19 @@ var loggerConfig = new LoggerConfiguration()
              AutoRegisterTemplate = true,
      });
 ```
+
+This example shows the options that are currently available when using the appSettings reader.
+
+```xml
+  <appSettings>
+    <add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>
+    <add key="serilog:write-to:Elasticsearch.nodeUris" value="http://localhost:9200;http://remotehost:9200"/>
+    <add key="serilog:write-to:Elasticsearch.indexFormat" value="custom-index-{0:yyyy.MM}"/>
+    <add key="serilog:write-to:Elasticsearch.templateName" value="myCustomTemplate"/>
+  </appSettings>
+```
+
+With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional.
 
 And start writing your events using Serilog.
 
@@ -41,7 +54,7 @@ And start writing your events using Serilog.
 
 ### Breaking changes for version 2
 
-Be aware that version 2 introduces some breaking changes. 
+Be aware that version 2 introduces some breaking changes.
 
 - The overloads have been reduced to a single Elasticsearch function in which you can pass an options object.
 - The namespace and function names are now Elasticsearch instead of ElasticSearch everywhere
