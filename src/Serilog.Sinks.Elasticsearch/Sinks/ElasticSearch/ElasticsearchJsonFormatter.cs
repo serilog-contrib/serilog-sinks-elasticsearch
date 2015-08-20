@@ -147,7 +147,7 @@ namespace Serilog.Sinks.Elasticsearch
             var hresult = si.GetInt32("HResult");
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
-            var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
+            //var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
 
             //TODO Loop over ISerializable data
 
