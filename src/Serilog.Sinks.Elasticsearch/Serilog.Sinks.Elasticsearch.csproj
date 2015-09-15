@@ -51,9 +51,11 @@
       <HintPath>..\..\packages\Elasticsearch.Net.1.1.2\lib\Elasticsearch.Net.dll</HintPath>
     </Reference>
     <Reference Include="Serilog">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.dll</HintPath>
     </Reference>
     <Reference Include="Serilog.FullNetFx">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.FullNetFx.dll</HintPath>
     </Reference>
     <Reference Include="System" />
