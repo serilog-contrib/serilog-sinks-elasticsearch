@@ -50,7 +50,7 @@ And start writing your events using Serilog.
 - How to use the [durability](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/durability) mode.
 - [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
 - Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
-- Report issues to the Serilog [issue tracker](https://github.com/serilog/serilog/issues). PR welcome, but do this against the dev branch.
+- Report issues to the Serilog [issue tracker](https://github.com/serilog/serilog/issues?q=is%3Aopen+is%3Aissue+label%3Aelasticsearch). PR welcome, but do this against the dev branch.
 
 ### Breaking changes for version 2
 
