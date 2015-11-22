@@ -46,7 +46,7 @@ And start writing your events using Serilog.
 
 ## More information
 - [Basic information](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/basic-setup) on how to configure and use this sink.
-- [Configuration options](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/config) which you can use.
+- [Configuration options](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/Configure-the-sink) which you can use.
 - How to use the [durability](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/durability) mode.
 - [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
 - Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
