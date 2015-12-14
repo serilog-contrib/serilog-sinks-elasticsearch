@@ -21,8 +21,8 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                .CreateLogger();
 
             Log.Debug("Debug");
-            Log.Information("Info");
-            Log.Warning("Warning");
+            Log.Information("Info {@message}", "d");
+            Log.Warning("Warning {@message}", new {a=1});
             Log.Error("Error");
 
             Console.ReadLine();
