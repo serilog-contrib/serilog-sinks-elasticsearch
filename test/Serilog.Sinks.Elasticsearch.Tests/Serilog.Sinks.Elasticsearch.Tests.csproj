@@ -95,9 +95,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Serilog.Sinks.ElasticSearch\Serilog.Sinks.ElasticSearch.csproj">
+    <ProjectReference Include="..\..\src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj">
       <Project>{e12881f7-b522-4e42-bccc-4a81f42f8d8b}</Project>
-      <Name>Serilog.Sinks.ElasticSearch</Name>
+      <Name>Serilog.Sinks.Elasticsearch</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
