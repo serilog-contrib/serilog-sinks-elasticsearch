@@ -178,6 +178,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         if (count > 0)
                         {
+                          
                             var response = _state.Client.Bulk(payload);
 
                             if (response.Success)

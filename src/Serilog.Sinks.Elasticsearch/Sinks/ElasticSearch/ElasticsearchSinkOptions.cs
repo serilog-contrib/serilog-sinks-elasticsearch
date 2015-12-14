@@ -18,6 +18,7 @@ using System.Linq;
 using Elasticsearch.Net.Connection;
 using Elasticsearch.Net.ConnectionPool;
 using Elasticsearch.Net.Serialization;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -133,6 +134,17 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public ITextFormatter CustomDurableFormatter { get; set; }
 
+
+        /// <summary>
+        /// Specifies how failing emits should be handled. 
+        /// </summary>
+        public EmitEventFailureHandling EmitEventFailure { get; set; }
+
+        /// <summary>
+        /// Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// </summary>
+        public ILogEventSink FailureSink { get; set; }
+
         /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
@@ -144,6 +156,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
             this.ConnectionTimeout = 5000;
+            this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
         }
 
         /// <summary>
@@ -177,5 +190,22 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="node">The node to write to</param>
         public ElasticsearchSinkOptions(Uri node) : this(new[] { node }) { }
+    }
+
+    /// <summary>
+    /// Sepecifies options for handling failures when emitting the events to Elasticsearch.
+    /// </summary>
+    [Flags]
+    public enum EmitEventFailureHandling
+    {
+        /// <summary>
+        /// Send the error to the SelfLog
+        /// </summary>
+        WriteToSelfLog,
+
+        /// <summary>
+        /// Write the events to another sink. Make sure to configure this one.
+        /// </summary>
+        WriteToFailureSink
     }
 }

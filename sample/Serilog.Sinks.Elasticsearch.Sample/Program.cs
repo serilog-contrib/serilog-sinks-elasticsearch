@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog.Formatting.Json;
+using Serilog.Sinks.IOFile;
 
 namespace Serilog.Sinks.Elasticsearch.Sample
 {
@@ -15,14 +17,16 @@ namespace Serilog.Sinks.Elasticsearch.Sample
             Log.Logger = new LoggerConfiguration()
                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
                {
-                   AutoRegisterTemplate = true
+                   AutoRegisterTemplate = true,
+                   EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog | EmitEventFailureHandling.WriteToFailureSink  ,
+                   FailureSink = new FileSink(@".\failures.txt", new JsonFormatter(), 10000  )
                })
                .MinimumLevel.Debug()
                .CreateLogger();
 
             Log.Debug("Debug");
             Log.Information("Info {@message}", "d");
-            Log.Warning("Warning {@message}", new {a=1});
+            Log.Warning("Warning {@message}", new { a = 1 });
             Log.Error("Error");
 
             Console.ReadLine();
