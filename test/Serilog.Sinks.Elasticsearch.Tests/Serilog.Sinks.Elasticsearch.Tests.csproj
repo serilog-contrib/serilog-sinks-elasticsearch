@@ -30,35 +30,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elasticsearch.Net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=96c599bbe3e70f5d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Elasticsearch.Net.1.2.3\lib\Elasticsearch.Net.dll</HintPath>
+    <Reference Include="Elasticsearch.Net">
+      <HintPath>..\..\packages\Elasticsearch.Net.1.7.1\lib\net45\Elasticsearch.Net.dll</HintPath>
     </Reference>
     <Reference Include="Elasticsearch.Net.JsonNet">
-      <HintPath>..\..\packages\Elasticsearch.Net.JsonNET.1.2.3\lib\Elasticsearch.Net.JsonNet.dll</HintPath>
+      <HintPath>..\..\packages\Elasticsearch.Net.JsonNET.1.7.1\lib\net45\Elasticsearch.Net.JsonNet.dll</HintPath>
     </Reference>
     <Reference Include="FakeItEasy">
-      <HintPath>..\..\packages\FakeItEasy.1.25.0\lib\net40\FakeItEasy.dll</HintPath>
+      <HintPath>..\..\packages\FakeItEasy.1.25.3\lib\net40\FakeItEasy.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.4.1.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions.Core">
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
+      <HintPath>..\..\packages\FluentAssertions.4.1.1\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog, Version=1.4.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.dll</HintPath>
+    <Reference Include="Serilog">
+      <HintPath>..\..\src\Serilog.Sinks.Elasticsearch\packages\Serilog.1.5.14\lib\net45\Serilog.dll</HintPath>
     </Reference>
-    <Reference Include="Serilog.FullNetFx, Version=1.4.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.4.196\lib\net45\Serilog.FullNetFx.dll</HintPath>
+    <Reference Include="Serilog.FullNetFx">
+      <HintPath>..\..\src\Serilog.Sinks.Elasticsearch\packages\Serilog.1.5.14\lib\net45\Serilog.FullNetFx.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -89,7 +86,9 @@
     <Compile Include="Templating\SendsTemplateTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Templating\template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
