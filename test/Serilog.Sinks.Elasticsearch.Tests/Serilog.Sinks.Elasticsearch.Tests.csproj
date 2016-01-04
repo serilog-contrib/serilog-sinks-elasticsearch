@@ -31,7 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Elasticsearch.Net">
-      <HintPath>..\..\src\Serilog.Sinks.Elasticsearch\packages\Elasticsearch.Net.1.7.1\lib\net45\Elasticsearch.Net.dll</HintPath>
+      <HintPath>..\..\packages\Elasticsearch.Net.1.7.1\lib\net45\Elasticsearch.Net.dll</HintPath>
     </Reference>
     <Reference Include="Elasticsearch.Net.JsonNet">
       <HintPath>..\..\packages\Elasticsearch.Net.JsonNET.1.7.1\lib\net45\Elasticsearch.Net.JsonNet.dll</HintPath>
