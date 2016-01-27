@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
@@ -61,34 +61,6 @@ namespace Serilog.Sinks.Elasticsearch
             _inlineFields = inlineFields;
         }
 
-#if NET4
-        /// <summary>
-        /// Writes out individual renderings of attached properties
-        /// </summary>
-        protected override void WriteRenderings(IGrouping<string, PropertyToken>[] tokensWithFormat, IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
-        {
-            output.Write(",\"{0}\":{{", "renderings");
-            WriteRenderingsValues(tokensWithFormat, properties, output);
-            output.Write("}");
-        }
-
-        /// <summary>
-        /// Writes out the attached properties
-        /// </summary>
-        protected override void WriteProperties(IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
-        {
-            if (!_inlineFields)
-                output.Write(",\"{0}\":{{", "fields");
-            else
-                output.Write(",");
-
-            WritePropertiesValues(properties, output);
-
-            if (!_inlineFields)
-                output.Write("}");
-        }
-
-#else
         /// <summary>
         /// Writes out individual renderings of attached properties
         /// </summary>
@@ -114,8 +86,6 @@ namespace Serilog.Sinks.Elasticsearch
             if (!_inlineFields)
                 output.Write("}");
         }
-
-#endif
 
         /// <summary>
         /// Writes out the attached exception
@@ -198,9 +168,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.WriteJsonProperty("Name", name, ref delim, output);
             this.WriteJsonProperty("AssemblyName", an.Name, ref delim, output);
             this.WriteJsonProperty("AssemblyVersion", an.Version.ToString(), ref delim, output);
-#if !NET4
             this.WriteJsonProperty("AssemblyCulture", an.CultureName, ref delim, output);
-#endif
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Signature", signature, ref delim, output);
             this.WriteJsonProperty("MemberType", memberType, ref delim, output);
@@ -252,7 +220,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (_serializer != null)
             {
-                var json = _serializer.Serialize(value, SerializationFormatting.None);
+                var json = _serializer.SerializeToBytes(value, SerializationFormatting.None);
                 var jsonString = Encoding.UTF8.GetString(json);
                 output.Write(jsonString);
                 return;

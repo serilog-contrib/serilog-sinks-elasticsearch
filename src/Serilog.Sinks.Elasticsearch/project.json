@@ -1,0 +1,31 @@
+﻿{
+  "version": "2.0.90-alpha",
+  "description": "The perfect way for .NET apps to write structured log events to Elasticsearch.",
+  "authors": [ "Michiel van Oudheusden", "Martijn Laarman", "Mogens Heller Grabe" ],
+  "tags": [ "serilog", "logging", "elasticsearch" ],
+  "projectUrl": "http://serilog.net",
+  "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
+  "iconUrl": "http://serilog.net/images/serilog-sink-nuget.png",
+  "language": "en-US",
+
+  "dependencies": {
+    "Serilog": "2.0.0-*",
+    "Serilog.Sinks.RollingFile": "2.0.0-*",
+    "Elasticsearch.Net": "2.1.0-*"
+  },
+
+  "compilationOptions": {
+    "keyFile": "../../assets/Serilog.snk"
+  },
+
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Linq": "4.0.0.0",
+        "System.Runtime": "4.0.0.0",
+        "System.IO": "4.0.0.0",
+        "System.ComponentModel.Composition": "4.0.0.0"
+      }
+    }
+  }
+}

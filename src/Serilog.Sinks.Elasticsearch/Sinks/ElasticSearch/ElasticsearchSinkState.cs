@@ -14,11 +14,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Serialization;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -33,7 +32,7 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 throw new ArgumentNullException("options");
             }
-            
+
             return new ElasticsearchSinkState(options);
         }
 
@@ -71,14 +70,14 @@ namespace Serilog.Sinks.Elasticsearch
             _typeName = options.TypeName;
             _options = options;
 
+            // TODO: ravenger review this
             var configuration = new ConnectionConfiguration(options.ConnectionPool)
-                .SetTimeout(options.ConnectionTimeout)
-                .SetMaximumAsyncConnections(20);
+                .RequestTimeout(TimeSpan.FromMilliseconds(options.ConnectionTimeout));
 
             if (options.ModifyConnectionSettings != null)
                 configuration = options.ModifyConnectionSettings(configuration);
 
-            _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
+            _client = new ElasticsearchClient(configuration);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
@@ -98,10 +97,9 @@ namespace Serilog.Sinks.Elasticsearch
             _registerTemplateOnStartup = options.AutoRegisterTemplate;
         }
 
-
         public string Serialize(object o)
         {
-            var bytes = _client.Serializer.Serialize(o, SerializationFormatting.None);
+            var bytes = _client.Serializer.SerializeToBytes(o, SerializationFormatting.None);
             return Encoding.UTF8.GetString(bytes);
         }
 
@@ -149,15 +147,15 @@ namespace Serilog.Sinks.Elasticsearch
                                         type = "string", index = "analyzed", omit_norms = true
                                     }
                                 }}},
-                                { 
-                                    new { string_fields = new 
+                                {
+                                    new { string_fields = new
                                     {
                                         match = "*",
                                         match_mapping_type = "string",
-                                        mapping = new 
+                                        mapping = new
                                         {
                                             type = "string", index = "analyzed", omit_norms = true,
-                                            fields = new 
+                                            fields = new
                                             {
                                                 raw = new
                                                 {
