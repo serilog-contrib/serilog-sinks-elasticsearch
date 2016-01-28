@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Elasticsearch.Net;
 using FakeItEasy;
 using FluentAssertions;
+using Moq;
 using Serilog.Sinks.Elasticsearch;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 using Serilog.Sinks.Elasticsearch.Tests.Serializer;
@@ -26,19 +28,15 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected ElasticsearchSinkTestsBase()
         {
-            Serilog.Debugging.SelfLog.Out = Console.Out;
-            _serializer = new ElasticsearchJsonNetSerializer();
-            _connection = A.Fake<IConnection>();
-            _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
-            {
-                BatchPostingLimit = 2,
-                Period = TinyWait,
-                Connection = _connection
-            };
+            var connectionMock = new Mock<IConnection>();
+            connectionMock.Setup(c => c.RequestAsync<DynamicResponse>(It.IsAny<RequestData>())).Returns(
+                (RequestData requestData) =>
+                {
 
-            A.CallTo(() => _connection.Request<Stream>(A<RequestData>._)).ReturnsLazily((RequestData requestData) =>
-            {
-                if (requestData.Method == HttpMethod.PUT || requestData.Method == HttpMethod.POST)
+                    return null;
+                });
+            connectionMock.Setup(c => c.Request<DynamicResponse>(It.IsAny<RequestData>())).Returns(
+                (RequestData requestData) =>
                 {
                     var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
                     _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(requestData.PostData.WrittenBytes)));
@@ -49,23 +47,64 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         Stream = fixedRespone
                     };
 
-                    return response.ToResponse();
-                }
-                else if (requestData.Method == HttpMethod.HEAD)
-                {
-                    _seenHttpHeads.Add(_templateExistsReturnCode);
+                    return null;
+                });
 
-                    var response = new ResponseBuilder<Stream>(requestData)
-                    {
-                        StatusCode = _templateExistsReturnCode,
-                        Stream = null
-                    };
+            Serilog.Debugging.SelfLog.Out = Console.Out;
+            _serializer = new ElasticsearchJsonNetSerializer();
+            _connection = connectionMock.Object;
+            _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+            {
+                BatchPostingLimit = 2,
+                Period = TinyWait,
+                Connection = _connection
+            };
 
-                    return response.ToResponse();
-                }
+            //A.CallTo(() => _connection.RequestAsync<Stream>(A<RequestData>.Ignored))
+            //    .ReturnsLazily((RequestData requestData) =>
+            //    {
+            //        var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
+            //        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(requestData.PostData.WrittenBytes)));
 
-                return null;
-            });
+            //        var response = new ResponseBuilder<Stream>(requestData)
+            //        {
+            //            StatusCode = 200,
+            //            Stream = fixedRespone
+            //        };
+
+            //        return response.ToResponse();
+            //    });
+
+            //A.CallTo(() => _connection.Request<Stream>(A<RequestData>._)).ReturnsLazily((RequestData requestData) =>
+            //{
+            //    if (requestData.Method == HttpMethod.PUT || requestData.Method == HttpMethod.POST)
+            //    {
+            //        var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
+            //        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(requestData.PostData.WrittenBytes)));
+
+            //        var response = new ResponseBuilder<Stream>(requestData)
+            //        {
+            //            StatusCode = 200,
+            //            Stream = fixedRespone
+            //        };
+
+            //        return response.ToResponse();
+            //    }
+            //    else if (requestData.Method == HttpMethod.HEAD)
+            //    {
+            //        _seenHttpHeads.Add(_templateExistsReturnCode);
+
+            //        var response = new ResponseBuilder<Stream>(requestData)
+            //        {
+            //            StatusCode = _templateExistsReturnCode,
+            //            Stream = null
+            //        };
+
+            //        return response.ToResponse();
+            //    }
+
+            //    return null;
+            //});
         }
 
         /// <summary>

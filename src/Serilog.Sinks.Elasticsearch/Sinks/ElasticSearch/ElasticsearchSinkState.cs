@@ -71,7 +71,10 @@ namespace Serilog.Sinks.Elasticsearch
             _options = options;
 
             // TODO: ravenger review this
-            var configuration = new ConnectionConfiguration(options.ConnectionPool)
+            var configuration = new ConnectionConfiguration(
+                options.ConnectionPool,
+                options.Connection,
+                connectionConfiguration => options.Serializer)
                 .RequestTimeout(TimeSpan.FromMilliseconds(options.ConnectionTimeout));
 
             if (options.ModifyConnectionSettings != null)

@@ -35,12 +35,6 @@
         "System.IO": "4.0.0.0",
         "System.ComponentModel.Composition": "4.0.0.0"
       }
-    },
-    "dotnet5.4": {
-      "compilationOptions": {
-        "define": [ "NO_TIMER", "NO_APPDOMAIN" ]
-      },
-      "dependencies": { }
     }
   }
 }
