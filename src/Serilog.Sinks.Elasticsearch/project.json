@@ -1,5 +1,5 @@
 ﻿{
-  "version": "2.0.90-alpha",
+  "version": "2.1.0-alpha",
   "description": "The perfect way for .NET apps to write structured log events to Elasticsearch.",
   "authors": [ "Michiel van Oudheusden", "Martijn Laarman", "Mogens Heller Grabe" ],
   "tags": [ "serilog", "logging", "elasticsearch" ],
@@ -11,6 +11,7 @@
   "dependencies": {
     "Serilog": "2.0.0-*",
     "Serilog.Sinks.RollingFile": "2.0.0-*",
+    "Serilog.Sinks.PeriodicBatching": "2.0.0-*",
     "Elasticsearch.Net": "2.1.0-*"
   },
 
@@ -26,6 +27,20 @@
         "System.IO": "4.0.0.0",
         "System.ComponentModel.Composition": "4.0.0.0"
       }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Linq": "4.0.0.0",
+        "System.Runtime": "4.0.10.0",
+        "System.IO": "4.0.0.0",
+        "System.ComponentModel.Composition": "4.0.0.0"
+      }
+    },
+    "dotnet5.4": {
+      "compilationOptions": {
+        "define": [ "NO_TIMER", "NO_APPDOMAIN" ]
+      },
+      "dependencies": { }
     }
   }
 }

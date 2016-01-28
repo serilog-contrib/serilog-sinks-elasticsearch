@@ -104,7 +104,6 @@ namespace Serilog.Sinks.Elasticsearch
 
         private void WriteExceptionSerializationInfo(Exception exception, ref string delim, TextWriter output, int depth)
         {
-
             var si = new SerializationInfo(exception.GetType(), new FormatterConverter());
             var sc = new StreamingContext();
             exception.GetObjectData(si, sc);
@@ -177,7 +176,6 @@ namespace Serilog.Sinks.Elasticsearch
             delim = ",";
         }
 
-
         /// <summary>
         /// (Optionally) writes out the rendered message
         /// </summary>
@@ -220,8 +218,8 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (_serializer != null)
             {
-                var json = _serializer.SerializeToBytes(value, SerializationFormatting.None);
-                var jsonString = Encoding.UTF8.GetString(json);
+                var bytes = _serializer.SerializeToBytes(value, SerializationFormatting.None);
+                var jsonString = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
                 output.Write(jsonString);
                 return;
             }

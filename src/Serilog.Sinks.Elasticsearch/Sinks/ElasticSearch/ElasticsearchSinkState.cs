@@ -100,7 +100,7 @@ namespace Serilog.Sinks.Elasticsearch
         public string Serialize(object o)
         {
             var bytes = _client.Serializer.SerializeToBytes(o, SerializationFormatting.None);
-            return Encoding.UTF8.GetString(bytes);
+            return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)

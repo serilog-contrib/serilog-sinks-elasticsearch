@@ -30,7 +30,11 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
+#if NO_TIMER
+        readonly PortableTimer _timer;
+#else
         readonly Timer _timer;
+#endif
         readonly TimeSpan _period;
         readonly object _stateLock = new object();
         volatile bool _unloading;
@@ -49,18 +53,27 @@ namespace Serilog.Sinks.Elasticsearch
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
 
-            _timer = new Timer(s => OnTick());
+#if NO_TIMER
+            _timer = new PortableTimer(cancel => OnTick());
+#else
+            _timer = new Timer(s => OnTick(), null, -1, -1);
+#endif
 
+#if !NO_APPDOMAIN
             AppDomain.CurrentDomain.DomainUnload += OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit += OnAppDomainUnloading;
+            AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnloading;
+#endif
 
             SetTimer();
         }
 
+#if !NO_APPDOMAIN
         void OnAppDomainUnloading(object sender, EventArgs args)
         {
             CloseAndFlush();
         }
+#endif
 
         void CloseAndFlush()
         {
@@ -72,12 +85,18 @@ namespace Serilog.Sinks.Elasticsearch
                 _unloading = true;
             }
 
+#if !NO_APPDOMAIN
             AppDomain.CurrentDomain.DomainUnload -= OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit -= OnAppDomainUnloading;
+#endif
 
+#if NO_TIMER
+            _timer.Dispose();
+#else
             var wh = new ManualResetEvent(false);
             if (_timer.Dispose(wh))
                 wh.WaitOne();
+#endif
 
             OnTick();
         }
@@ -104,10 +123,11 @@ namespace Serilog.Sinks.Elasticsearch
 
         void SetTimer()
         {
-            // Note, called under _stateLock
-            var infiniteTimespan = TimeSpan.FromMilliseconds(Timeout.Infinite); //< can't use Timeout.InfiniteTimespan in .NET 4
-
-            _timer.Change(_period, infiniteTimespan);
+#if NO_TIMER
+            _timer.Start(_period);
+#else
+            _timer.Change(_period, Timeout.InfiniteTimeSpan);
+#endif
         }
 
         void OnTick()
