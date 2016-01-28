@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Elasticsearch.Net.JsonNet;
-using Elasticsearch.Net.Serialization;
 using FluentAssertions;
 using NUnit.Framework;
+using Serilog.Sinks.Elasticsearch.Tests.Serializer;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {

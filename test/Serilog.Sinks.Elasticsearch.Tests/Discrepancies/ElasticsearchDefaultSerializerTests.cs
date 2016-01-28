@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies

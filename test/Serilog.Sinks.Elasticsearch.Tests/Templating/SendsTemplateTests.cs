@@ -49,10 +49,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         protected void JsonEquals(string json, MethodBase method, string fileName = null)
         {
             var file = this.GetFileFromMethod(method, fileName);
-            var exists = File.Exists(file);
+            var exists = System.IO.File.Exists(file);
             exists.Should().BeTrue(file + "does not exist");
 
-            var expected = File.ReadAllText(file);
+            var expected = System.IO.File.ReadAllText(file);
             var nJson = JObject.Parse(json);
             var nOtherJson = JObject.Parse(expected);
             var equals = JToken.DeepEquals(nJson, nOtherJson);

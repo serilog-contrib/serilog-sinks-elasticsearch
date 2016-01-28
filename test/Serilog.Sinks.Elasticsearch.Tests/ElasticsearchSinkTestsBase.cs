@@ -4,12 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Connection.Configuration;
-using Elasticsearch.Net.JsonNet;
 using FakeItEasy;
 using FluentAssertions;
+using Serilog.Sinks.Elasticsearch;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
+using Serilog.Sinks.Elasticsearch.Tests.Serializer;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -36,26 +35,37 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 Period = TinyWait,
                 Connection = _connection
             };
-            A.CallTo(() => _connection.PutSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
+
+            A.CallTo(() => _connection.Request<Stream>(A<RequestData>._)).ReturnsLazily((RequestData requestData) =>
+            {
+                if (requestData.Method == HttpMethod.PUT || requestData.Method == HttpMethod.POST)
                 {
                     var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPuts.Add(Tuple.Create(uri, Encoding.UTF8.GetString(postData)));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "PUT", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.PostSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
-                {
-                    var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPosts.Add(Encoding.UTF8.GetString(postData));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "POST", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.HeadSync(A<Uri>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, IRequestConfiguration requestConfiguration) =>
+                    _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(requestData.PostData.WrittenBytes)));
+
+                    var response = new ResponseBuilder<Stream>(requestData)
+                    {
+                        StatusCode = 200,
+                        Stream = fixedRespone
+                    };
+
+                    return response.ToResponse();
+                }
+                else if (requestData.Method == HttpMethod.HEAD)
                 {
                     _seenHttpHeads.Add(_templateExistsReturnCode);
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), _templateExistsReturnCode, "HEAD", "/", null);
-                });
+
+                    var response = new ResponseBuilder<Stream>(requestData)
+                    {
+                        StatusCode = _templateExistsReturnCode,
+                        Stream = null
+                    };
+
+                    return response.ToResponse();
+                }
+
+                return null;
+            });
         }
 
         /// <summary>

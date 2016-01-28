@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Elasticsearch.Net.JsonNet;
 using FluentAssertions;
 using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
+using Serilog.Sinks.Elasticsearch.Tests.Serializer;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

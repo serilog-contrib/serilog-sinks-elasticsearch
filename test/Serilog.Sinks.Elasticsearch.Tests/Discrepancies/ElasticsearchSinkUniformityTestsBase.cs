@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using FluentAssertions;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies

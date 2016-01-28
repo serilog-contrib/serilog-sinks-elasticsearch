@@ -4,7 +4,6 @@ using System.Linq;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.Elasticsearch;
 using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
