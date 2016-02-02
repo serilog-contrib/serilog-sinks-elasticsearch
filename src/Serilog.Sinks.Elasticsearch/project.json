@@ -12,7 +12,7 @@
     "Serilog": "2.0.0-*",
     "Serilog.Sinks.RollingFile": "2.0.0-*",
     "Serilog.Sinks.PeriodicBatching": "2.0.0-*",
-    "Elasticsearch.Net": "2.1.0-*"
+    "Elasticsearch.Net": "2.0.0-rc1"
   },
 
   "compilationOptions": {

@@ -6,7 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0843A434-B7E8-4986-BB77-AC8B49D411BE}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		assets\CommonAssemblyInfo.cs = assets\CommonAssemblyInfo.cs
+		Build.ps1 = Build.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2B32DE10-D8F2-4078-8FB9-1C02621F23D8}"

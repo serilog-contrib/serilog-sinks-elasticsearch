@@ -47,9 +47,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Serializer
             writableStream.Write(bytes, 0, bytes.Length);
         }
 
-        public string CreatePropertyName(MemberInfo memberInfo)
+        public IPropertyMapping CreatePropertyMapping(MemberInfo memberInfo)
         {
-            return memberInfo.Name;
+            return new PropertyMapping { Name = memberInfo.Name };
         }
 
         private JsonSerializerSettings CreateSettings()
