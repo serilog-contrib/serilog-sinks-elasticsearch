@@ -88,6 +88,15 @@ namespace Serilog.Sinks.Elasticsearch
                 output.Write("}");
         }
 
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output) {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
 #else
         /// <summary>
         /// Writes out individual renderings of attached properties
@@ -115,6 +124,16 @@ namespace Serilog.Sinks.Elasticsearch
                 output.Write("}");
         }
 
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
+        {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
 #endif
         /// <summary>
         /// Escape the name of the Property before calling ElasticSearch
@@ -124,16 +143,6 @@ namespace Serilog.Sinks.Elasticsearch
             name = DotEscapeFieldName(name);
 
             base.WriteJsonProperty(name, value, ref precedingDelimiter, output);
-        }
-
-        /// <summary>
-        /// Escape the name of the Property before calling ElasticSearch
-        /// </summary>
-        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
-        {
-            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
-
-            base.WriteDictionary(escaped, output);
         }
 
         /// <summary>
