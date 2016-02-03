@@ -116,7 +116,48 @@ namespace Serilog.Sinks.Elasticsearch
         }
 
 #endif
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteJsonProperty(string name, object value, ref string precedingDelimiter, TextWriter output)
+        {
+            name = DotEscapeFieldName(name);
 
+            base.WriteJsonProperty(name, value, ref precedingDelimiter, output);
+        }
+
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
+        {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
+        /// <summary>
+        /// Escapes Dots in Strings and does nothing to objects
+        /// </summary>
+        protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
+        {
+            if (value.Value is string)
+            {
+                return new ScalarValue(DotEscapeFieldName((string)value.Value));
+            }
+
+            return value;
+        }
+        /// <summary>
+        /// Dots are not allowed in Field Names, replaces '.' with '/'
+        /// https://github.com/elastic/elasticsearch/issues/14594
+        /// </summary>
+        protected virtual string DotEscapeFieldName(string value)
+        {
+            if (value == null) return null;
+
+            return value.Replace('.', '/');
+        }
         /// <summary>
         /// Writes out the attached exception
         /// </summary>
