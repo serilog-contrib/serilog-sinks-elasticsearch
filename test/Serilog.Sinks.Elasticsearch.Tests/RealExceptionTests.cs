@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Elasticsearch.Net.JsonNet;
 using FluentAssertions;
-using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
+using Serilog.Sinks.Elasticsearch.Tests.Serializer;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class RealExceptionTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public async Task WhenPassingASerializer_ShouldExpandToJson()
         {
             try
@@ -39,6 +38,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                     logEvent = new LogEvent(timestamp.AddDays(2), LogEventLevel.Information, e, template, properties);
                     sink.Emit(logEvent);
                 }
+
                 _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(1);
                 var json = _seenHttpPosts.First();
                 var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);

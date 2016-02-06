@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Connection.Configuration;
-using Elasticsearch.Net.JsonNet;
-using FakeItEasy;
 using FluentAssertions;
+using Moq;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
+using Serilog.Sinks.Elasticsearch.Tests.Serializer;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -27,35 +26,75 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected ElasticsearchSinkTestsBase()
         {
-            Serilog.Debugging.SelfLog.Out = Console.Out;
+            var connectionMock = new Mock<IConnection>();
+
+            connectionMock.Setup(c => c.Request<VoidResponse>(It.IsAny<RequestData>())).Returns(
+                (RequestData requestData) =>
+                {
+                    if (requestData.Method == HttpMethod.HEAD)
+                    {
+                        _seenHttpHeads.Add(_templateExistsReturnCode);
+
+                        var response = new ResponseBuilder<VoidResponse>(requestData)
+                        {
+                            StatusCode = _templateExistsReturnCode,
+                            Stream = null
+                        };
+
+                        return response.ToResponse();
+                    }
+
+                    if (requestData.Method == HttpMethod.PUT)
+                    {
+                        var fixedRespone = new MemoryStream();
+                        requestData.PostData.Write(fixedRespone, requestData.ConnectionSettings);
+
+                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(fixedRespone.ToArray())));
+
+                        var response = new ResponseBuilder<VoidResponse>(requestData)
+                        {
+                            StatusCode = 200,
+                            Stream = fixedRespone
+                        };
+
+                        return response.ToResponse();
+                    }
+
+                    return null;
+                }
+            );
+
+            connectionMock.Setup(c => c.Request<DynamicResponse>(It.IsAny<RequestData>())).Returns(
+                (RequestData requestData) =>
+                {
+                    if (requestData.Method == HttpMethod.POST)
+                    {
+                        var fixedRespone = new MemoryStream();
+                        requestData.PostData.Write(fixedRespone, requestData.ConnectionSettings);
+
+                        _seenHttpPosts.Add(Encoding.UTF8.GetString(requestData.PostData.WrittenBytes));
+
+                        var response = new ResponseBuilder<DynamicResponse>(requestData)
+                        {
+                            StatusCode = 200,
+                            Stream = fixedRespone
+                        };
+
+                        return response.ToResponse();
+                    }
+
+                    return null;
+                });
+
+            Debugging.SelfLog.Out = Console.Out;
             _serializer = new ElasticsearchJsonNetSerializer();
-            _connection = A.Fake<IConnection>();
+            _connection = connectionMock.Object;
             _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
             {
                 BatchPostingLimit = 2,
                 Period = TinyWait,
                 Connection = _connection
             };
-            A.CallTo(() => _connection.PutSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
-                {
-                    var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPuts.Add(Tuple.Create(uri, Encoding.UTF8.GetString(postData)));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "PUT", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.PostSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
-                {
-                    var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPosts.Add(Encoding.UTF8.GetString(postData));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "POST", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.HeadSync(A<Uri>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, IRequestConfiguration requestConfiguration) =>
-                {
-                    _seenHttpHeads.Add(_templateExistsReturnCode);
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), _templateExistsReturnCode, "HEAD", "/", null);
-                });
         }
 
         /// <summary>
@@ -65,8 +104,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         /// <returns></returns>
         protected IList<SerilogElasticsearchEvent> GetPostedLogEvents(int expectedCount)
         {
-            this._seenHttpPosts.Should().NotBeNullOrEmpty();
-            var totalBulks = this._seenHttpPosts.SelectMany(p => p.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)).ToList();
+            _seenHttpPosts.Should().NotBeNullOrEmpty();
+            var totalBulks = _seenHttpPosts.SelectMany(p => p.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)).ToList();
             totalBulks.Should().NotBeNullOrEmpty().And.HaveCount(expectedCount * 2);
 
             var bulkActions = new List<SerilogElasticsearchEvent>();
@@ -75,7 +114,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 BulkOperation action;
                 try
                 {
-                    action = this.Deserialize<BulkOperation>(totalBulks[i]);
+                    action = Deserialize<BulkOperation>(totalBulks[i]);
                 }
                 catch (Exception e)
                 {
@@ -88,7 +127,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 SerilogElasticsearchEvent actionMetaData;
                 try
                 {
-                    actionMetaData = this.Deserialize<SerilogElasticsearchEvent>(totalBulks[i + 1]);
+                    actionMetaData = Deserialize<SerilogElasticsearchEvent>(totalBulks[i + 1]);
                 }
                 catch (Exception e)
                 {
@@ -102,7 +141,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected T Deserialize<T>(string json)
         {
-            return this._serializer.Deserialize<T>(new MemoryStream(Encoding.UTF8.GetBytes(json)));
+            return _serializer.Deserialize<T>(new MemoryStream(Encoding.UTF8.GetBytes(json)));
         }
     }
 }

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using Elasticsearch.Net;
 using Serilog.Debugging;
 
 namespace Serilog.Sinks.Elasticsearch
@@ -29,7 +30,11 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
+#if NO_TIMER
+        readonly PortableTimer _timer;
+#else
         readonly Timer _timer;
+#endif
         readonly TimeSpan _period;
         readonly object _stateLock = new object();
         volatile bool _unloading;
@@ -48,18 +53,27 @@ namespace Serilog.Sinks.Elasticsearch
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
 
-            _timer = new Timer(s => OnTick());
+#if NO_TIMER
+            _timer = new PortableTimer(cancel => OnTick());
+#else
+            _timer = new Timer(s => OnTick(), null, -1, -1);
+#endif
 
+#if !NO_APPDOMAIN
             AppDomain.CurrentDomain.DomainUnload += OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit += OnAppDomainUnloading;
+            AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnloading;
+#endif
 
             SetTimer();
         }
 
+#if !NO_APPDOMAIN
         void OnAppDomainUnloading(object sender, EventArgs args)
         {
             CloseAndFlush();
         }
+#endif
 
         void CloseAndFlush()
         {
@@ -71,12 +85,18 @@ namespace Serilog.Sinks.Elasticsearch
                 _unloading = true;
             }
 
+#if !NO_APPDOMAIN
             AppDomain.CurrentDomain.DomainUnload -= OnAppDomainUnloading;
             AppDomain.CurrentDomain.ProcessExit -= OnAppDomainUnloading;
+#endif
 
+#if NO_TIMER
+            _timer.Dispose();
+#else
             var wh = new ManualResetEvent(false);
             if (_timer.Dispose(wh))
                 wh.WaitOne();
+#endif
 
             OnTick();
         }
@@ -103,10 +123,11 @@ namespace Serilog.Sinks.Elasticsearch
 
         void SetTimer()
         {
-            // Note, called under _stateLock
-            var infiniteTimespan = TimeSpan.FromMilliseconds(Timeout.Infinite); //< can't use Timeout.InfiniteTimespan in .NET 4
-
-            _timer.Change(_period, infiniteTimespan);
+#if NO_TIMER
+            _timer.Start(_period);
+#else
+            _timer.Change(_period, Timeout.InfiniteTimeSpan);
+#endif
         }
 
         void OnTick()
@@ -127,7 +148,7 @@ namespace Serilog.Sinks.Elasticsearch
                     // Locking the bookmark ensures that though there may be multiple instances of this
                     // class running, only one will ship logs at a time.
 
-                    using (var bookmark = File.Open(_bookmarkFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                    using (var bookmark = System.IO.File.Open(_bookmarkFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
                     {
                         long nextLineBeginsAtOffset;
                         string currentFilePath;
@@ -136,7 +157,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         var fileSet = GetFileSet();
 
-                        if (currentFilePath == null || !File.Exists(currentFilePath))
+                        if (currentFilePath == null || !System.IO.File.Exists(currentFilePath))
                         {
                             nextLineBeginsAtOffset = 0;
                             currentFilePath = fileSet.FirstOrDefault();
@@ -161,7 +182,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         var payload = new List<string>();
 
-                        using (var current = File.Open(currentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var current = System.IO.File.Open(currentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             current.Position = nextLineBeginsAtOffset;
 
@@ -178,7 +199,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         if (count > 0)
                         {
-                            var response = _state.Client.Bulk(payload);
+                            var response = _state.Client.Bulk<DynamicResponse>(payload);
 
                             if (response.Success)
                             {
@@ -205,7 +226,7 @@ namespace Serilog.Sinks.Elasticsearch
                                 // best to move on, though a lock on the current file
                                 // will delay this.
 
-                                File.Delete(fileSet[0]);
+                                System.IO.File.Delete(fileSet[0]);
                             }
                         }
                     }
@@ -232,7 +253,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             try
             {
-                using (var fileStream = File.Open(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                using (var fileStream = System.IO.File.Open(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
                 {
                     return fileStream.Length <= maxLen;
                 }

@@ -1,0 +1,26 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "Serilog.Sinks.Elasticsearch.Tests Class Library",
+
+  "dependencies": {
+    "FluentAssertions": "4.1.1",
+    "Moq": "4.2.1510.2205",
+    "Newtonsoft.Json": "7.0.1",
+    "Serilog.Sinks.Elasticsearch": "2.1.0-beta-*",
+    "xunit": "2.1.0",
+    "xunit.runner.dnx": "2.1.0-rc1-*"
+  },
+
+  "commands": {
+    "test": "xunit.runner.dnx"
+  },
+
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.IO": "4.0.0.0",
+        "System.Net.Http": "4.0.0.0"
+      }
+    }
+  }
+}

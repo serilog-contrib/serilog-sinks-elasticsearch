@@ -2,22 +2,21 @@
 using System.IO;
 using System.Text;
 using FluentAssertions;
-using NUnit.Framework;
 using Serilog.Debugging;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture(Category = "Integration test")]
     public class SendsTemplateHandlesUnavailableServerTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void Should_not_crash_when_server_is_unavaiable()
         {
             // If this crashes, the test will fail
             CreateLoggerThatCrashes();
         }
 
-        [Test]
+        [Fact(Skip = "Integration test")]
         public void Should_write_error_to_self_log()
         {
             var selfLogMessages = new StringBuilder();

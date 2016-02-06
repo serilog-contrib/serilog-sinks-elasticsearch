@@ -4,16 +4,15 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class RealExceptionNoSerializerTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public async Task WhenPassingASerializer_ShouldExpandToJson()
         {
             try

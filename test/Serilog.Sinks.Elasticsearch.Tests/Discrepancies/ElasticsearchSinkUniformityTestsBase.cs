@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using FluentAssertions;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
@@ -42,7 +42,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
                 logger.Error("Test exception. Should not contain an embedded exception object.");
             }
 
-            var postedEvents = this.GetPostedLogEvents(expectedCount: 2);
+            var postedEvents = GetPostedLogEvents(expectedCount: 2);
             Console.WriteLine("BULK OUTPUT BEGIN ==========");
             foreach (var post in _seenHttpPosts)
                 Console.WriteLine(post);
@@ -73,7 +73,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             nastyException.ClassName.Should().Be("classname nasty exception");
             //nastyException.WatsonBuckets.Should().BeEquivalentTo(new byte[] {1,2,3});
 
-
             var secondEvent = postedEvents[1];
             secondEvent.Exceptions.Should().BeNullOrEmpty();
         }
@@ -89,7 +88,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            info.AddValue("Message", this.Message);
+            info.AddValue("Message", Message);
             info.AddValue("HelpURL", "help url");
             info.AddValue("StackTraceString", "stack trace string");
             info.AddValue("RemoteStackTraceString", "remote stack trace string");
