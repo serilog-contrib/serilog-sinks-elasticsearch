@@ -1,21 +1,17 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class DoNotRegisterIfTemplateExistsTests : ElasticsearchSinkTestsBase
     {
-       
         public DoNotRegisterIfTemplateExistsTests()
         {
             _templateExistsReturnCode = 200;
 
             _options.AutoRegisterTemplate = true;
+            _options.Connection = this._connection;
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
@@ -29,14 +25,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             }
         }
 
-        [Test]
+        [Fact]
         public void ShoudNotSendAPutTemplate()
         {
-            this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            this._seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            this._seenHttpPuts.Should().BeNullOrEmpty();
+            _seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            _seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            _seenHttpPuts.Should().BeNullOrEmpty();
         }
-
-
     }
 }

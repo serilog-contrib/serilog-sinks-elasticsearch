@@ -1,13 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class TemplateMatchTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
@@ -29,26 +25,25 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
                 logger.Error("Test exception. Should not contain an embedded exception object.");
             }
 
-            this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            this._seenHttpPuts.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            this._seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            _templatePut = this._seenHttpPuts[0];
+            _seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            _seenHttpPuts.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            _seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
+            _templatePut = _seenHttpPuts[0];
             
         }
 
-        [Test]
+        [Fact]
         public void TemplatePutToCorrectUrl()
         {
-            var uri = this._templatePut.Item1;
+            var uri = _templatePut.Item1;
             uri.AbsolutePath.Should().Be("/_template/dailyindex-logs-template");
         }
 
-        [Test]
+        [Fact]
         public void TemplateMatchShouldReflectConfiguredIndexFormat()
         {
-            var json = this._templatePut.Item2;
+            var json = _templatePut.Item2;
             json.Should().Contain(@"""template"":""dailyindex-*-mycompany""");
         }
-
     }
 }

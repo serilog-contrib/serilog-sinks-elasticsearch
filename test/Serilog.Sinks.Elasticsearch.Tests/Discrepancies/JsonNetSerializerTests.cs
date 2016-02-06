@@ -1,20 +1,16 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
-using Serilog.Sinks.Elasticsearch.Tests.Serializer;
+﻿using Serilog.Sinks.Elasticsearch.Tests.Serializer;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {
-    [TestFixture]
     public class JsonNetSerializerTests : ElasticsearchSinkUniformityTestsBase
     {
         public JsonNetSerializerTests() : base(new ElasticsearchJsonNetSerializer()) { }
 
-        [Test]
+        [Fact]
         public void Should_SerializeToExpandedExceptionObjectWhenExceptionIsSet()
         {
-            this.ThrowAndLogAndCatchBulkOutput("test_with_jsonnet_serializer");
+            ThrowAndLogAndCatchBulkOutput("test_with_jsonnet_serializer");
         }
     }
 

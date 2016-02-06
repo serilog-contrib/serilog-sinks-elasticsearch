@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -17,21 +14,21 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Serializer
 
         public ElasticsearchJsonNetSerializer()
         {
-            this._settings = this.CreateSettings();
+            _settings = CreateSettings();
         }
 
         public T Deserialize<T>(Stream stream)
         {
-            JsonSerializerSettings settings = this._settings;
+            JsonSerializerSettings settings = _settings;
 
-            settings = settings ?? this._settings;
+            settings = settings ?? _settings;
             return (T)JsonSerializer.Create(settings).Deserialize((JsonReader)new JsonTextReader((TextReader)new StreamReader(stream)), typeof(T));
         }
 
         public Task<T> DeserializeAsync<T>(Stream responseStream, CancellationToken cancellationToken = new CancellationToken())
         {
             TaskCompletionSource<T> completionSource = new TaskCompletionSource<T>();
-            T result = this.Deserialize<T>(responseStream);
+            T result = Deserialize<T>(responseStream);
             completionSource.SetResult(result);
             return completionSource.Task;
         }
@@ -43,7 +40,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Serializer
                     ? Newtonsoft.Json.Formatting.Indented
                     : Newtonsoft.Json.Formatting.None;
 
-            var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, jsonFormatting, this._settings));
+            var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, jsonFormatting, _settings));
             writableStream.Write(bytes, 0, bytes.Length);
         }
 

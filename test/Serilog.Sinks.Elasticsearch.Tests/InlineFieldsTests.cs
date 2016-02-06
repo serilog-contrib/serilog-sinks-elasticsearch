@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class InlineFieldsTests : ElasticsearchSinkTestsBase
     {
-
-        [Test]
+        [Fact]
         public async Task UsesCustomPropertyNames()
         {
             try
@@ -53,5 +51,4 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             }
         }
     }
-
 }

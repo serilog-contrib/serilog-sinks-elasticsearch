@@ -4,14 +4,13 @@ using System.Linq;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class CustomIndexTypeNameTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void CustomIndex_And_TypeName_EndsUpInTheOutput()
         {
             //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
@@ -51,5 +50,4 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         }
     }
-
 }

@@ -3,15 +3,13 @@
   "description": "Serilog.Sinks.Elasticsearch.Tests Class Library",
 
   "dependencies": {
-    "NUnitLite": "3.0.1",
-    "xunit": "2.1.0",
-    "xunit.runner.visualstudio": "2.1.0",
-    "xunit.runner.dnx": "2.1.0-rc1-build204",
-    "FakeItEasy": "1.25.3",
-    "Moq": "4.2.1510.2205",
     "FluentAssertions": "4.1.1",
+    "Moq": "4.2.1510.2205",
     "Newtonsoft.Json": "7.0.1",
-    "Serilog.Sinks.Elasticsearch": "2.1.0-alpha"
+    "Serilog.Sinks.Elasticsearch": "2.1.0-beta-*",
+    "xunit": "2.1.0",
+    "xunit.runner.dnx": "2.1.0-rc1-*",
+    "xunit.runner.visualstudio": "2.1.0"
   },
 
   "commands": {

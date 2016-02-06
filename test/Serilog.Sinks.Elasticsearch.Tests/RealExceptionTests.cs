@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Elasticsearch.Net;
-using FakeItEasy;
 using FluentAssertions;
-using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.Elasticsearch.Tests.Serializer;
@@ -42,9 +38,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                     logEvent = new LogEvent(timestamp.AddDays(2), LogEventLevel.Information, e, template, properties);
                     sink.Emit(logEvent);
                 }
-
-                A.CallTo(() => _connection.Request<Stream>(A<RequestData>.Ignored)).MustHaveHappened();
-                A.CallTo(() => _connection.RequestAsync<Stream>(A<RequestData>.Ignored)).MustHaveHappened();
 
                 _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(1);
                 var json = _seenHttpPosts.First();

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
     public class IndexDeciderTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void IndexDecider_EndsUpInTheOutput()
         {
             //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
@@ -44,7 +44,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
             //serilog by default simpy .ToString()'s unknown objects
             bulkJsonPieces[3].Should().Contain("Complex\":\"{");
-
         }
     }
 }

@@ -104,6 +104,16 @@ namespace Serilog.Sinks.Elasticsearch
 
         private void WriteExceptionSerializationInfo(Exception exception, ref string delim, TextWriter output, int depth)
         {
+#if NO_SERIALIZATION
+            var helpUrl = exception.HelpLink;
+            var stackTrace = exception.StackTrace;
+            var remoteStackTrace = string.Empty;
+            var remoteStackIndex = string.Empty;
+            var exceptionMethod = string.Empty;
+            var hresult = exception.HResult;
+            var source = exception.Source;
+            var className = string.Empty;
+#else
             var si = new SerializationInfo(exception.GetType(), new FormatterConverter());
             var sc = new StreamingContext();
             exception.GetObjectData(si, sc);
@@ -117,8 +127,7 @@ namespace Serilog.Sinks.Elasticsearch
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
             //var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
-
-            //TODO Loop over ISerializable data
+#endif
 
             output.Write(delim);
             output.Write("{");

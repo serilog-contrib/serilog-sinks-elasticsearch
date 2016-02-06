@@ -55,7 +55,6 @@ namespace Serilog.Sinks.Elasticsearch
         public ITextFormatter Formatter { get { return this._formatter; } }
         public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
 
-
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
         {
             if (string.IsNullOrWhiteSpace(options.IndexFormat)) throw new ArgumentException("options.IndexFormat");
@@ -70,11 +69,16 @@ namespace Serilog.Sinks.Elasticsearch
             _typeName = options.TypeName;
             _options = options;
 
-            // TODO: ravenger review this
+            Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
+            if (options.Serializer != null)
+            {
+                serializerFactory = (s) => options.Serializer;
+            }
+
             var configuration = new ConnectionConfiguration(
                 options.ConnectionPool,
                 options.Connection,
-                connectionConfiguration => options.Serializer)
+                serializerFactory)
                 .RequestTimeout(TimeSpan.FromMilliseconds(options.ConnectionTimeout));
 
             if (options.ModifyConnectionSettings != null)
