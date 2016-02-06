@@ -89,43 +89,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             Debugging.SelfLog.Out = Console.Out;
             _serializer = new ElasticsearchJsonNetSerializer();
             _connection = connectionMock.Object;
-            _options = new ElasticsearchSinkOptions(new Uri("http://dev3.fantlab.org:9200/"))
+            _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
             {
                 BatchPostingLimit = 2,
                 Period = TinyWait,
                 Connection = _connection
             };
-
-            //A.CallTo(() => _connection.Request<Stream>(A<RequestData>._)).ReturnsLazily((RequestData requestData) =>
-            //{
-            //    if (requestData.Method == HttpMethod.PUT || requestData.Method == HttpMethod.POST)
-            //    {
-            //        var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-            //        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(requestData.PostData.WrittenBytes)));
-
-            //        var response = new ResponseBuilder<Stream>(requestData)
-            //        {
-            //            StatusCode = 200,
-            //            Stream = fixedRespone
-            //        };
-
-            //        return response.ToResponse();
-            //    }
-            //    else if (requestData.Method == HttpMethod.HEAD)
-            //    {
-            //        _seenHttpHeads.Add(_templateExistsReturnCode);
-
-            //        var response = new ResponseBuilder<Stream>(requestData)
-            //        {
-            //            StatusCode = _templateExistsReturnCode,
-            //            Stream = null
-            //        };
-
-            //        return response.ToResponse();
-            //    }
-
-            //    return null;
-            //});
         }
 
         /// <summary>
