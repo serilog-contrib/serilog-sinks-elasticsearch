@@ -15,9 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.ConnectionPool;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -80,7 +78,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// The connection timeout (in milliseconds) when sending bulk operations to elasticsearch (defaults to 5000)
         /// </summary>
-        public int ConnectionTimeout { get; set; }
+        public TimeSpan ConnectionTimeout { get; set; }
 
         /// <summary>
         /// When true fields will be written at the root of the json document
@@ -143,7 +141,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
-            this.ConnectionTimeout = 5000;
+            this.ConnectionTimeout = TimeSpan.FromSeconds(5);
         }
 
         /// <summary>
