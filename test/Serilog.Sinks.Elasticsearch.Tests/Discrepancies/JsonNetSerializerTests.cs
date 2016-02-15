@@ -1,8 +1,5 @@
-﻿using System;
-using System.Linq;
-using Elasticsearch.Net.JsonNet;
-using Elasticsearch.Net.Serialization;
-using FluentAssertions;
+﻿using Elasticsearch.Net;
+using Nest;
 using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
@@ -10,7 +7,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
     [TestFixture]
     public class JsonNetSerializerTests : ElasticsearchSinkUniformityTestsBase
     {
-        public JsonNetSerializerTests() : base(new ElasticsearchJsonNetSerializer()) { }
+        public JsonNetSerializerTests() : base(new JsonNetSerializer(new ConnectionSettings())) { }
 
         [Test]
         public void Should_SerializeToExpandedExceptionObjectWhenExceptionIsSet()
