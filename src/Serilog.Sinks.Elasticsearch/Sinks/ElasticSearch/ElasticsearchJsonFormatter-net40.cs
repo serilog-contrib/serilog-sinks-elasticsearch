@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
@@ -120,8 +120,7 @@ namespace Serilog.Sinks.ElasticSearch
         {
             if (_serializer != null)
             {
-                var json = _serializer.Serialize(value, SerializationFormatting.None);
-                var jsonString = Encoding.UTF8.GetString(json);
+                var jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
                 output.Write(jsonString);
                 return;
             }
