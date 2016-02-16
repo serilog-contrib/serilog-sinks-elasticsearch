@@ -69,7 +69,12 @@ namespace Serilog.Sinks.Elasticsearch
             _typeName = options.TypeName;
             _options = options;
 
-            ConnectionConfiguration configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, s => options.Serializer)
+            Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
+            if (options.Serializer != null)
+            {
+                serializerFactory = s => options.Serializer;
+            }
+            ConnectionConfiguration configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
                 .RequestTimeout(options.ConnectionTimeout);
 
             if (options.ModifyConnectionSettings != null)
