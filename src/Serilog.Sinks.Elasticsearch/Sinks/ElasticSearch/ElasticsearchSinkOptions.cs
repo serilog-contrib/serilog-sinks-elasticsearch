@@ -141,7 +141,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
-            this.ConnectionTimeout = TimeSpan.FromSeconds(5);
+            this.ConnectionTimeout = TimeSpan.FromSeconds(60);
         }
 
         /// <summary>

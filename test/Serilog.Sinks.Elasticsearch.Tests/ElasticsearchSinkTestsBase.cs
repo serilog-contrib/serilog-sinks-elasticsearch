@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,18 +29,32 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             Serilog.Debugging.SelfLog.Out = Console.Out;
             _serializer = new JsonNetSerializer(new ConnectionSettings());
             _connection = A.Fake<IConnection>();
-            _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+            IConnectionPool connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
+            _options = new ElasticsearchSinkOptions(connectionPool)
             {
                 BatchPostingLimit = 2,
                 Period = TinyWait,
                 Connection = _connection
             };
 
-
-            A.CallTo(() => _connection.Request<ElasticsearchResponse<Stream>>(A<RequestData>._))
+            A.CallTo(() => _connection.Request<DynamicResponse>(A<RequestData>._))
                 .ReturnsLazily((RequestData requestData) =>
                 {
-                    return new ElasticsearchResponse<ElasticsearchResponse<Stream>>(200, new[] { 200 });
+                    MemoryStream ms = new MemoryStream();
+                    requestData.PostData.Write(ms, new ConnectionConfiguration());
+                    switch (requestData.Method)
+                    {
+                        case HttpMethod.PUT:
+                            _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                            break;
+                        case HttpMethod.POST:
+                            _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                            break;
+                        case HttpMethod.HEAD:
+                            _seenHttpHeads.Add(_templateExistsReturnCode);
+                            break;
+                    }
+                    return new ElasticsearchResponse<DynamicResponse>(200, new[] { 200 });
                 });
         }
 
