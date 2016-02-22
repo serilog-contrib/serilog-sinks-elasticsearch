@@ -80,6 +80,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (options.ModifyConnectionSettings != null)
                 configuration = options.ModifyConnectionSettings(configuration);
 
+            configuration.ThrowExceptions();
             _client = new ElasticLowLevelClient(configuration);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
@@ -120,10 +121,10 @@ namespace Serilog.Sinks.Elasticsearch
 
             try
             {
-                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
+                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
                 if (templateExistsResponse.HttpStatusCode == 200) return;
 
-                var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
+                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
                 {
                     template = this._templateMatchString,
                     settings = new Dictionary<string, string>

@@ -41,7 +41,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 .ReturnsLazily((RequestData requestData) =>
                 {
                     MemoryStream ms = new MemoryStream();
-                    requestData.PostData.Write(ms, new ConnectionConfiguration());
+                    if(requestData.PostData != null)
+                        requestData.PostData.Write(ms, new ConnectionConfiguration());
+
                     switch (requestData.Method)
                     {
                         case HttpMethod.PUT:
@@ -54,7 +56,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                             _seenHttpHeads.Add(_templateExistsReturnCode);
                             break;
                     }
-                    return new ElasticsearchResponse<DynamicResponse>(200, new[] { 200 });
+                    return new ElasticsearchResponse<DynamicResponse>(_templateExistsReturnCode, new[] { 200, 404 });
                 });
         }
 
