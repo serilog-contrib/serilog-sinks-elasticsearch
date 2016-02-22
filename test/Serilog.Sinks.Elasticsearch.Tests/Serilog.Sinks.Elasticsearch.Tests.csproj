@@ -89,14 +89,15 @@
     <Compile Include="Templating\DoNotRegisterTemplateIfItExists.cs" />
     <Compile Include="Templating\TemplateMatchTests.cs" />
     <Compile Include="Templating\SendsTemplateTests.cs" />
+    <Compile Include="TestDataHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Templating\template.json">
+    <EmbeddedResource Include="Templating\template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Serilog.Sinks.ElasticSearch\Serilog.Sinks.ElasticSearch.csproj">
