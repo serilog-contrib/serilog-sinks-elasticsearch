@@ -17,8 +17,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Serialization;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -43,7 +41,7 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ITextFormatter _formatter;
         private readonly ITextFormatter _durableFormatter;
 
-        private readonly ElasticsearchClient _client;
+        private readonly ElasticLowLevelClient _client;
 
         readonly string _typeName;
         private readonly bool _registerTemplateOnStartup;
@@ -52,7 +50,7 @@ namespace Serilog.Sinks.Elasticsearch
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
         public ElasticsearchSinkOptions Options { get { return this._options; } }
-        public IElasticsearchClient Client { get { return this._client; } }
+        public IElasticLowLevelClient Client { get { return this._client; } }
         public ITextFormatter Formatter { get { return this._formatter; } }
         public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
 
@@ -71,14 +69,19 @@ namespace Serilog.Sinks.Elasticsearch
             _typeName = options.TypeName;
             _options = options;
 
-            var configuration = new ConnectionConfiguration(options.ConnectionPool)
-                .SetTimeout(options.ConnectionTimeout)
-                .SetMaximumAsyncConnections(20);
+            Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
+            if (options.Serializer != null)
+            {
+                serializerFactory = s => options.Serializer;
+            }
+            ConnectionConfiguration configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
+                .RequestTimeout(options.ConnectionTimeout);
 
             if (options.ModifyConnectionSettings != null)
                 configuration = options.ModifyConnectionSettings(configuration);
 
-            _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
+            configuration.ThrowExceptions();
+            _client = new ElasticLowLevelClient(configuration);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
@@ -101,8 +104,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         public string Serialize(object o)
         {
-            var bytes = _client.Serializer.Serialize(o, SerializationFormatting.None);
-            return Encoding.UTF8.GetString(bytes);
+            return _client.Serializer.SerializeToString(o, SerializationFormatting.None);
         }
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
@@ -119,10 +121,10 @@ namespace Serilog.Sinks.Elasticsearch
 
             try
             {
-                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
+                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
                 if (templateExistsResponse.HttpStatusCode == 200) return;
 
-                var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
+                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
                 {
                     template = this._templateMatchString,
                     settings = new Dictionary<string, string>

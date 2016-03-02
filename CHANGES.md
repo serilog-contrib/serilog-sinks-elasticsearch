@@ -1,3 +1,6 @@
+3.0
+ * *BREAKING CHANGE* This sink now uses the Elasticsearch.Net 2.x library to be compatible with Elasticsearch version 2. This is a breaking change, use a 2.x version of the sink to support Elasticsearch 1.x versions.
+
 2.0.49
  * Fixed typo: ModifyConnectionSetttings to ModifyConnectionSettings.
 

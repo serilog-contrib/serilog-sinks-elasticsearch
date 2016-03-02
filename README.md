@@ -13,6 +13,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - Be able to customize the store; specify the index name being used, the serializer or the connections to the server (load balanced).
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
 - Automatically create the right mappings for the best usage of the log events in ES.
+- Version 3 is compatible with Elasticsearch 2.
 
 ## Quick start
 
@@ -51,6 +52,10 @@ And start writing your events using Serilog.
 - [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
 - Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
 - Report issues to the Serilog [issue tracker](https://github.com/serilog/serilog/issues). PR welcome, but do this against the dev branch.
+
+### Breaking changes for version 3
+
+Starting from version 3, the sink supports the Elasticsearch.Net 2 package and Elasticsearch version 2. If you need Elasticsearch 1.x support, then stick with version 2 of the sink.
 
 ### Breaking changes for version 2
 
