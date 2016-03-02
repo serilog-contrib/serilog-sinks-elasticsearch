@@ -3,16 +3,16 @@
   <metadata>
     <id>Serilog.Sinks.Elasticsearch</id>
     <version>$version$</version>
-    <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe</authors>
-    <description>The perfect way for .NET apps to write structured log events to Elasticsearch.</description>
+    <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Konstantin Erman</authors>
+    <description>The perfect way for .NET apps to write structured log events to Elasticsearch 2.x.</description>
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
     <tags>serilog logging elasticsearch</tags>
     <dependencies>
-      <dependency id="Serilog" version="[1.4.204,2)" />
-      <dependency id="Elasticsearch.Net" version="1.1.2" />
+      <dependency id="Serilog" version="[1.5.14,2)" />
+      <dependency id="Elasticsearch.Net" version="2.0.2" />
     </dependencies>
   </metadata>
   <files>

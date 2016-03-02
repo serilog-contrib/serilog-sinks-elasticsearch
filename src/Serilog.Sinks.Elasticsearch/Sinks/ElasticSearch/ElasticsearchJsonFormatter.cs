@@ -19,8 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
@@ -252,8 +251,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (_serializer != null)
             {
-                var json = _serializer.Serialize(value, SerializationFormatting.None);
-                var jsonString = Encoding.UTF8.GetString(json);
+                string jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
                 output.Write(jsonString);
                 return;
             }
