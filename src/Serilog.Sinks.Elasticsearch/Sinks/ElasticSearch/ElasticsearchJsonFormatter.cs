@@ -149,13 +149,10 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
         {
-            if (value.Value is string)
-            {
-                return new ScalarValue(DotEscapeFieldName((string)value.Value));
-            }
-
-            return value;
+            var s = value.Value as string;
+            return s != null ? new ScalarValue(DotEscapeFieldName(s)) : value;
         }
+
         /// <summary>
         /// Dots are not allowed in Field Names, replaces '.' with '/'
         /// https://github.com/elastic/elasticsearch/issues/14594
@@ -166,6 +163,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             return value.Replace('.', '/');
         }
+
         /// <summary>
         /// Writes out the attached exception
         /// </summary>
@@ -196,7 +194,6 @@ namespace Serilog.Sinks.Elasticsearch
             var hresult = si.GetInt32("HResult");
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
-            //var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
 
             //TODO Loop over ISerializable data
 
