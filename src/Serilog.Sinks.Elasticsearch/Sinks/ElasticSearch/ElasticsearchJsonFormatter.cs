@@ -87,6 +87,15 @@ namespace Serilog.Sinks.Elasticsearch
                 output.Write("}");
         }
 
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output) {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
 #else
         /// <summary>
         /// Writes out individual renderings of attached properties
@@ -114,7 +123,46 @@ namespace Serilog.Sinks.Elasticsearch
                 output.Write("}");
         }
 
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
+        {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
 #endif
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteJsonProperty(string name, object value, ref string precedingDelimiter, TextWriter output)
+        {
+            name = DotEscapeFieldName(name);
+
+            base.WriteJsonProperty(name, value, ref precedingDelimiter, output);
+        }
+
+        /// <summary>
+        /// Escapes Dots in Strings and does nothing to objects
+        /// </summary>
+        protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
+        {
+            var s = value.Value as string;
+            return s != null ? new ScalarValue(DotEscapeFieldName(s)) : value;
+        }
+
+        /// <summary>
+        /// Dots are not allowed in Field Names, replaces '.' with '/'
+        /// https://github.com/elastic/elasticsearch/issues/14594
+        /// </summary>
+        protected virtual string DotEscapeFieldName(string value)
+        {
+            if (value == null) return null;
+
+            return value.Replace('.', '/');
+        }
 
         /// <summary>
         /// Writes out the attached exception
@@ -146,7 +194,6 @@ namespace Serilog.Sinks.Elasticsearch
             var hresult = si.GetInt32("HResult");
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
-            //var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
 
             //TODO Loop over ISerializable data
 
