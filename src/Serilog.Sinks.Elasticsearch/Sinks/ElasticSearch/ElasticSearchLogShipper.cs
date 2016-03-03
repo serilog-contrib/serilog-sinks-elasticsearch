@@ -105,7 +105,7 @@ namespace Serilog.Sinks.Elasticsearch
         void SetTimer()
         {
             // Note, called under _stateLock
-            var infiniteTimespan = TimeSpan.FromMilliseconds(Timeout.Infinite); //< can't use Timeout.InfiniteTimespan in .NET 4
+            var infiniteTimespan = Timeout.InfiniteTimeSpan;
 
             _timer.Change(_period, infiniteTimespan);
         }
