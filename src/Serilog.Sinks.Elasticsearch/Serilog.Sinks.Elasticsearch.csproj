@@ -73,6 +73,7 @@
     <Compile Include="Sinks\Elasticsearch\ElasticsearchSink.cs" />
     <Compile Include="Sinks\Elasticsearch\ElasticsearchSinkOptions.cs" />
     <Compile Include="Sinks\Elasticsearch\ElasticsearchSinkState.cs" />
+    <Compile Include="Sinks\Elasticsearch\ExponentialBackoffConnectionSchedule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\Serilog.snk">

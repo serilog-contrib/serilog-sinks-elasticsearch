@@ -31,7 +31,7 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 throw new ArgumentNullException("options");
             }
-            
+
             return new ElasticsearchSinkState(options);
         }
 
@@ -151,15 +151,15 @@ namespace Serilog.Sinks.Elasticsearch
                                         type = "string", index = "analyzed", omit_norms = true
                                     }
                                 }}},
-                                { 
-                                    new { string_fields = new 
+                                {
+                                    new { string_fields = new
                                     {
                                         match = "*",
                                         match_mapping_type = "string",
-                                        mapping = new 
+                                        mapping = new
                                         {
                                             type = "string", index = "analyzed", omit_norms = true,
-                                            fields = new 
+                                            fields = new
                                             {
                                                 raw = new
                                                 {
