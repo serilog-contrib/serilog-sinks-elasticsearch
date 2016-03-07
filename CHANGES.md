@@ -1,3 +1,6 @@
+3.0.128
+ * SpecificVersion set to False in order not to be dependent on a version of Elasticsearch or Serilog.
+
 3.0.125
  * Dropped support for .NET 4 since the Elasticsearch.NET client also does not support this version of the framework anymore. 
 
