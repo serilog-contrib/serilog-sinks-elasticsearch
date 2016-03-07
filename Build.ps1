@@ -1,5 +1,5 @@
 param(
-    [String] $majorMinor = "0.0",  # 2.0
+    [String] $majorMinor = "0.0",  # 3.0
     [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
     [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
     [Switch] $notouch
@@ -51,7 +51,6 @@ function Invoke-NuGetPack($version)
 function Invoke-Build($project, $majorMinor, $patch, $customLogger, $notouch)
 {
     $solution = "$project.sln"
-    $solution4 = "$project-net40.sln"
     $package="$majorMinor.$patch"
 
     Write-Output "Building $project $package"
@@ -66,7 +65,6 @@ function Invoke-Build($project, $majorMinor, $patch, $customLogger, $notouch)
 
     Install-NuGetPackages $solution
     
-    Invoke-MSBuild $solution4 $customLogger
     Invoke-MSBuild $solution $customLogger
 
     Invoke-NuGetPack $package
