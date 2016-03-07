@@ -56,6 +56,12 @@ And start writing your events using Serilog.
 ### Breaking changes for version 3
 
 Starting from version 3, the sink supports the Elasticsearch.Net 2 package and Elasticsearch version 2. If you need Elasticsearch 1.x support, then stick with version 2 of the sink.
+The function 
+```csharp
+protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events)
+```
+now uses a generic type. This allows you to map to either DynamicResponse when using Elasticsearch.NET or to BulkResponse if you want to use NEST.
+ 
 
 ### Breaking changes for version 2
 
