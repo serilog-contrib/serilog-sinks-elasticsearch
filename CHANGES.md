@@ -1,3 +1,6 @@
+3.0.121
+ * protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) function now uses a generic type. This allows you to map to either DynamicResponse or to BulkResponse if you want to use NEST.
+ 
 3.0.112
  * Added exponential backoff strategy when unable to send data to Elasticsearch when using the durable sink option.
 
