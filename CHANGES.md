@@ -1,3 +1,6 @@
+3.0.112
+ * Added exponential backoff strategy when unable to send data to Elasticsearch when using the durable sink option.
+
 3.0.98
  * Field names cannot contain a dot in ES 2, so they will get replaced by a / instead. See https://github.com/elastic/elasticsearch/issues/14594
 
