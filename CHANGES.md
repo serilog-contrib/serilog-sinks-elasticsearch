@@ -1,3 +1,6 @@
+3.0.125
+ * Dropped support for .NET 4 since the Elasticsearch.NET client also does not support this version of the framework anymore. 
+
 3.0.121
  * protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) function now uses a generic type. This allows you to map to either DynamicResponse or to BulkResponse if you want to use NEST.
  
