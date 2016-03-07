@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Nest;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -61,7 +61,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual ElasticsearchResponse<DynamicResponse> EmitBatchChecked(IEnumerable<LogEvent> events)
+        protected virtual ElasticsearchResponse<BulkResponse> EmitBatchChecked(IEnumerable<LogEvent> events)
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
@@ -78,7 +78,7 @@ namespace Serilog.Sinks.Elasticsearch
                 _state.Formatter.Format(e, sw);
                 payload.Add(sw.ToString());
             }
-            return _state.Client.Bulk<DynamicResponse>(payload);
+            return _state.Client.Bulk<BulkResponse>(payload);
         }
     }
 }

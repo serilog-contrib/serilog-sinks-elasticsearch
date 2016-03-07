@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Elasticsearch.Net;
+using Nest;
 using Serilog.Debugging;
 
 namespace Serilog.Sinks.Elasticsearch
@@ -181,7 +182,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         if (count > 0)
                         {
-                            var response = _state.Client.Bulk<DynamicResponse>(payload);
+                            var response = _state.Client.Bulk<BulkResponse>(payload);
 
                             if (response.Success)
                             {
