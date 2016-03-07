@@ -37,7 +37,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 Connection = _connection
             };
 
-            A.CallTo(() => _connection.Request<DynamicResponse>(A<RequestData>._))
+            A.CallTo(() => _connection.Request<BulkResponse>(A<RequestData>._))
                 .ReturnsLazily((RequestData requestData) =>
                 {
                     MemoryStream ms = new MemoryStream();
@@ -56,7 +56,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                             _seenHttpHeads.Add(_templateExistsReturnCode);
                             break;
                     }
-                    return new ElasticsearchResponse<DynamicResponse>(_templateExistsReturnCode, new[] { 200, 404 });
+                    return new ElasticsearchResponse<BulkResponse>(_templateExistsReturnCode, new[] { 200, 404 });
                 });
         }
 

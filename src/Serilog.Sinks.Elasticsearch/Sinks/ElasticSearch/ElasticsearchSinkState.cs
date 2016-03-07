@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
+using Nest;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -121,10 +122,10 @@ namespace Serilog.Sinks.Elasticsearch
 
             try
             {
-                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
+                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<BulkResponse>(this._templateName);
                 if (templateExistsResponse.HttpStatusCode == 200) return;
 
-                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
+                var result = this._client.IndicesPutTemplateForAll<BulkResponse>(this._templateName, new
                 {
                     template = this._templateMatchString,
                     settings = new Dictionary<string, string>
