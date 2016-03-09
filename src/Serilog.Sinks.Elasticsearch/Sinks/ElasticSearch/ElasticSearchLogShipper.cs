@@ -171,9 +171,9 @@ namespace Serilog.Sinks.Elasticsearch
                             string nextLine;
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
-                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
-                                var actionJson = _state.Serialize(action);
-                                payload.Add(actionJson);
+                                //var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                                //var actionJson = _state.Serialize(action);
+                                payload.Add($"{{\"index\":{{\"_index\":\"{indexName}\",\"_type\":\"{_state.Options.TypeName}\"}}}}");
                                 payload.Add(nextLine);
                                 ++count;
                             }
