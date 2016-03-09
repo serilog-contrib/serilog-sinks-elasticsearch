@@ -13,6 +13,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - Be able to customize the store; specify the index name being used, the serializer or the connections to the server (load balanced).
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
 - Automatically create the right mappings for the best usage of the log events in ES.
+- Version 3 is compatible with Elasticsearch 2.
 
 ## Quick start
 
@@ -50,7 +51,19 @@ And start writing your events using Serilog.
 - How to use the [durability](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/durability) mode.
 - [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
 - Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
-- Report issues to the Serilog [issue tracker](https://github.com/serilog/serilog/issues?q=is%3Aopen+is%3Aissue+label%3Aelasticsearch). PR welcome, but do this against the dev branch.
+- Report issues to the [issue tracker](https://github.com/serilog/serilog-sinks-elasticsearch/issues). PR welcome, but please do this against the dev branch.
+- For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
+
+### Breaking changes for version 3
+
+Starting from version 3, the sink supports the Elasticsearch.Net 2 package and Elasticsearch version 2. If you need Elasticsearch 1.x support, then stick with version 2 of the sink.
+The function 
+```csharp
+protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events)
+```
+now uses a generic type. This allows you to map to either DynamicResponse when using Elasticsearch.NET or to BulkResponse if you want to use NEST.
+
+We also dropped support for .NET 4 since the Elasticsearch.NET client also does not support this version of the framework anymore. If you need to use .net 4, then you need to stick with the 2.x version of the sink.
 
 ### Breaking changes for version 2
 

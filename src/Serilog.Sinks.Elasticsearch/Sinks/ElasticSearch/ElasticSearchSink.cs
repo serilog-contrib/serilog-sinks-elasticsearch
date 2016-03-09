@@ -101,7 +101,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual ElasticsearchResponse<DynamicDictionary> EmitBatchChecked(IEnumerable<LogEvent> events)
+        protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T: class
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
@@ -118,7 +118,7 @@ namespace Serilog.Sinks.Elasticsearch
                 _state.Formatter.Format(e, sw);
                 payload.Add(sw.ToString());
             }
-            return _state.Client.Bulk(payload);
+            return _state.Client.Bulk<T>(payload);
         }
     }
 }
