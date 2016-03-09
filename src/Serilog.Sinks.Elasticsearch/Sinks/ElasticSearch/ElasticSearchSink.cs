@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
@@ -54,27 +55,59 @@ namespace Serilog.Sinks.Elasticsearch
         /// </remarks>
         protected override void EmitBatch(IEnumerable<LogEvent> events)
         {
-            var result = this.EmitBatchChecked(events);
+            var eventsMaterialized = events.ToArray();
+
+            var result = EmitBatchChecked(eventsMaterialized);
 
             // Handle the results from ES, check if there are any errors.
-            if (result.Success && result.Response["errors"] == true)
+            if (!result.Success)
             {
+                if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
+                {
+                    // ES reports an error, output the error to the selflog
+                    SelfLog.WriteLine("Failed to store batch of {0} events into Elasticsearch. Elasticsearch reports the following: {1}",
+                        eventsMaterialized.Length,
+                        result.ServerError?.Error?.Reason);
+                }
 
-                var indexer = 0;
-                var items = result.Response["items"];
+                if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) && _state.Options.FailureSink != null)
+                {
+                    foreach (LogEvent e in eventsMaterialized)
+                    {
+                        // Send to a failure sink
+                        try
+                        {
+                            _state.Options.FailureSink.Emit(e);
+                        }
+                        catch (Exception ex)
+                        {
+                            // We do not let this fail too
+                            SelfLog.WriteLine("Caught exception {0} while emitting to failure sink {1}.", ex, _state.Options.FailureSink);
+                        }
+                    }
+                }
+            }
+            else if (result.Body["errors"] == true)
+            {
+                dynamic body = result.Body;
+
+                var i = 0;
+                var items = body.items;
                 foreach (var item in items)
                 {
-                    if (item.create != null && item.create.error != null)
+                    if (item.index != null && item.index.status != 200)
                     {
-                        var e = events.ElementAt(indexer);
+                        var e = eventsMaterialized[i];
+
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
                         {
                             // ES reports an error, output the error to the selflog
                             SelfLog.WriteLine("Failed to store event with template '{0}' into Elasticsearch. Elasticsearch reports for index {1} the following: {2}",
                                 e.MessageTemplate,
-                                item.create._index,
-                                item.create.error);
+                                item.index._index,
+                                item.index.error);
                         }
+
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) && _state.Options.FailureSink != null)
                         {
                             // Send to a failure sink
@@ -85,11 +118,12 @@ namespace Serilog.Sinks.Elasticsearch
                             catch (Exception ex)
                             {
                                 // We do not let this fail too
-                                SelfLog.WriteLine("Caught exception {0} while emitting to sink {1}.", ex, _state.Options.FailureSink);
+                                SelfLog.WriteLine("Caught exception {0} while emitting to failure sink {1}.", ex, _state.Options.FailureSink);
                             }
                         }
                     }
-                    indexer++;
+
+                    i++;
                 }
 
 
@@ -101,24 +135,26 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual ElasticsearchResponse<DynamicDictionary> EmitBatchChecked(IEnumerable<LogEvent> events)
+        protected virtual ElasticsearchResponse<DynamicResponse> EmitBatchChecked(IEnumerable<LogEvent> events)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            if (events == null || !events.Any())
+            if (events == null)
                 return null;
 
             var payload = new List<string>();
             foreach (var e in events)
             {
                 var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
-                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
-                var actionJson = _state.Serialize(action);
-                payload.Add(actionJson);
+                payload.Add($"{{\"index\":{{\"_index\":\"{indexName}\",\"_type\":\"{_state.Options.TypeName}\"}}}}");
                 var sw = new StringWriter();
                 _state.Formatter.Format(e, sw);
                 payload.Add(sw.ToString());
             }
-            return _state.Client.Bulk(payload);
+
+            if (payload.Count == 0)
+                return null;
+
+            return _state.Client.Bulk<DynamicResponse>(payload);
         }
     }
 }

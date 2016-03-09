@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Elasticsearch.Net.JsonNet;
 using FluentAssertions;
+using Nest;
 using NUnit.Framework;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -26,7 +26,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 var timestamp = new DateTimeOffset(2013, 05, 28, 22, 10, 20, 666, TimeSpan.FromHours(10));
                 var messageTemplate = "{Song}++";
                 var template = new MessageTemplateParser().Parse(messageTemplate);
-                _options.Serializer = new ElasticsearchJsonNetSerializer();
+                _options.Serializer = new JsonNetSerializer(new ConnectionSettings());
                 using (var sink = new ElasticsearchSink(_options))
                 {
                     var properties = new List<LogEventProperty>

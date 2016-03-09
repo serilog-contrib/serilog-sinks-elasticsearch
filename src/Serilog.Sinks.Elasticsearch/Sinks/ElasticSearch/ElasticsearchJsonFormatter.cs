@@ -19,8 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using Elasticsearch.Net.Serialization;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting.Json;
 using Serilog.Parsing;
@@ -60,35 +59,7 @@ namespace Serilog.Sinks.Elasticsearch
             _serializer = serializer;
             _inlineFields = inlineFields;
         }
-
-#if NET4
-        /// <summary>
-        /// Writes out individual renderings of attached properties
-        /// </summary>
-        protected override void WriteRenderings(IGrouping<string, PropertyToken>[] tokensWithFormat, IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
-        {
-            output.Write(",\"{0}\":{{", "renderings");
-            WriteRenderingsValues(tokensWithFormat, properties, output);
-            output.Write("}");
-        }
-
-        /// <summary>
-        /// Writes out the attached properties
-        /// </summary>
-        protected override void WriteProperties(IDictionary<string, LogEventPropertyValue> properties, TextWriter output)
-        {
-            if (!_inlineFields)
-                output.Write(",\"{0}\":{{", "fields");
-            else
-                output.Write(",");
-
-            WritePropertiesValues(properties, output);
-
-            if (!_inlineFields)
-                output.Write("}");
-        }
-
-#else
+       
         /// <summary>
         /// Writes out individual renderings of attached properties
         /// </summary>
@@ -115,7 +86,45 @@ namespace Serilog.Sinks.Elasticsearch
                 output.Write("}");
         }
 
-#endif
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
+        {
+            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
+
+            base.WriteDictionary(escaped, output);
+        }
+
+        /// <summary>
+        /// Escape the name of the Property before calling ElasticSearch
+        /// </summary>
+        protected override void WriteJsonProperty(string name, object value, ref string precedingDelimiter, TextWriter output)
+        {
+            name = DotEscapeFieldName(name);
+
+            base.WriteJsonProperty(name, value, ref precedingDelimiter, output);
+        }
+
+        /// <summary>
+        /// Escapes Dots in Strings and does nothing to objects
+        /// </summary>
+        protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
+        {
+            var s = value.Value as string;
+            return s != null ? new ScalarValue(DotEscapeFieldName(s)) : value;
+        }
+
+        /// <summary>
+        /// Dots are not allowed in Field Names, replaces '.' with '/'
+        /// https://github.com/elastic/elasticsearch/issues/14594
+        /// </summary>
+        protected virtual string DotEscapeFieldName(string value)
+        {
+            if (value == null) return null;
+
+            return value.Replace('.', '/');
+        }
 
         /// <summary>
         /// Writes out the attached exception
@@ -147,7 +156,6 @@ namespace Serilog.Sinks.Elasticsearch
             var hresult = si.GetInt32("HResult");
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
-            //var watsonBuckets = si.GetValue("WatsonBuckets", typeof(byte[])) as byte[];
 
             //TODO Loop over ISerializable data
 
@@ -198,9 +206,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.WriteJsonProperty("Name", name, ref delim, output);
             this.WriteJsonProperty("AssemblyName", an.Name, ref delim, output);
             this.WriteJsonProperty("AssemblyVersion", an.Version.ToString(), ref delim, output);
-#if !NET4
             this.WriteJsonProperty("AssemblyCulture", an.CultureName, ref delim, output);
-#endif
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Signature", signature, ref delim, output);
             this.WriteJsonProperty("MemberType", memberType, ref delim, output);
@@ -252,8 +258,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (_serializer != null)
             {
-                var json = _serializer.Serialize(value, SerializationFormatting.None);
-                var jsonString = Encoding.UTF8.GetString(json);
+                string jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
                 output.Write(jsonString);
                 return;
             }

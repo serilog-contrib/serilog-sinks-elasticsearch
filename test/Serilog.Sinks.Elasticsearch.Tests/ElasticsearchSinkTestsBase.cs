@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Connection.Configuration;
-using Elasticsearch.Net.JsonNet;
 using FakeItEasy;
 using FluentAssertions;
+using Nest;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
@@ -21,40 +20,43 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected readonly List<string> _seenHttpPosts = new List<string>();
         protected readonly List<int> _seenHttpHeads = new List<int>();
         protected readonly List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
-        private ElasticsearchJsonNetSerializer _serializer;
+        private JsonNetSerializer _serializer;
 
         protected int _templateExistsReturnCode = 404;
 
         protected ElasticsearchSinkTestsBase()
         {
             Serilog.Debugging.SelfLog.Out = Console.Out;
-            _serializer = new ElasticsearchJsonNetSerializer();
+            _serializer = new JsonNetSerializer(new ConnectionSettings());
             _connection = A.Fake<IConnection>();
-            _options = new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+            IConnectionPool connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
+            _options = new ElasticsearchSinkOptions(connectionPool)
             {
                 BatchPostingLimit = 2,
                 Period = TinyWait,
                 Connection = _connection
             };
-            A.CallTo(() => _connection.PutSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
+
+            A.CallTo(() => _connection.Request<DynamicResponse>(A<RequestData>._))
+                .ReturnsLazily((RequestData requestData) =>
                 {
-                    var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPuts.Add(Tuple.Create(uri, Encoding.UTF8.GetString(postData)));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "PUT", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.PostSync(A<Uri>._, A<byte[]>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, byte[] postData, IRequestConfiguration requestConfiguration) =>
-                {
-                    var fixedRespone = new MemoryStream(Encoding.UTF8.GetBytes(@"{ ""ok"": true }"));
-                    _seenHttpPosts.Add(Encoding.UTF8.GetString(postData));
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), 200, "POST", "/", postData, fixedRespone);
-                });
-            A.CallTo(() => _connection.HeadSync(A<Uri>._, A<IRequestConfiguration>._))
-                .ReturnsLazily((Uri uri, IRequestConfiguration requestConfiguration) =>
-                {
-                    _seenHttpHeads.Add(_templateExistsReturnCode);
-                    return ElasticsearchResponse<Stream>.Create(new ConnectionConfiguration(), _templateExistsReturnCode, "HEAD", "/", null);
+                    MemoryStream ms = new MemoryStream();
+                    if(requestData.PostData != null)
+                        requestData.PostData.Write(ms, new ConnectionConfiguration());
+
+                    switch (requestData.Method)
+                    {
+                        case HttpMethod.PUT:
+                            _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                            break;
+                        case HttpMethod.POST:
+                            _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                            break;
+                        case HttpMethod.HEAD:
+                            _seenHttpHeads.Add(_templateExistsReturnCode);
+                            break;
+                    }
+                    return new ElasticsearchResponse<DynamicResponse>(_templateExistsReturnCode, new[] { 200, 404 });
                 });
         }
 
