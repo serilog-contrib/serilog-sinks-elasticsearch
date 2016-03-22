@@ -143,7 +143,27 @@ namespace Serilog.Sinks.Elasticsearch
 
         private void WriteExceptionSerializationInfo(Exception exception, ref string delim, TextWriter output, int depth)
         {
+            output.Write(delim);
+            output.Write("{");
+            delim = "";
+            WriteSingleException(exception, ref delim, output, depth);
+            output.Write("}");
 
+            delim = ",";
+            if (exception.InnerException != null && depth < 20)
+                this.WriteExceptionSerializationInfo(exception.InnerException, ref delim, output, ++depth);
+        }
+
+        /// <summary>
+        /// Writes the properties of a single exception, without inner exceptions
+        /// Callers are expected to open and close the json object themselves.
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <param name="delim"></param>
+        /// <param name="output"></param>
+        /// <param name="depth"></param>
+        protected void WriteSingleException(Exception exception, ref string delim, TextWriter output, int depth)
+        {
             var si = new SerializationInfo(exception.GetType(), new FormatterConverter());
             var sc = new StreamingContext();
             exception.GetObjectData(si, sc);
@@ -159,9 +179,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             //TODO Loop over ISerializable data
 
-            output.Write(delim);
-            output.Write("{");
-            delim = "";
+            
             this.WriteJsonProperty("Depth", depth, ref delim, output);
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Message", exception.Message, ref delim, output);
@@ -178,10 +196,6 @@ namespace Serilog.Sinks.Elasticsearch
             //Skip for now
             //this.WriteJsonProperty("WatsonBuckets", watsonBuckets, ref delim, output);
 
-            output.Write("}");
-            delim = ",";
-            if (exception.InnerException != null && depth < 20)
-                this.WriteExceptionSerializationInfo(exception.InnerException, ref delim, output, ++depth);
         }
 
         private void WriteStructuredExceptionMethod(string exceptionMethodString, ref string delim, TextWriter output)

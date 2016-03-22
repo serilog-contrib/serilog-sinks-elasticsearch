@@ -8,6 +8,7 @@ using Elasticsearch.Net;
 using FakeItEasy;
 using FluentAssertions;
 using Nest;
+using NUnit.Framework;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
@@ -17,13 +18,21 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         static readonly TimeSpan TinyWait = TimeSpan.FromMilliseconds(50);
         protected readonly IConnection _connection;
         protected readonly ElasticsearchSinkOptions _options;
-        protected readonly List<string> _seenHttpPosts = new List<string>();
-        protected readonly List<int> _seenHttpHeads = new List<int>();
-        protected readonly List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
+        protected List<string> _seenHttpPosts = new List<string>();
+        protected List<int> _seenHttpHeads = new List<int>();
+        protected List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
         private JsonNetSerializer _serializer;
 
         protected int _templateExistsReturnCode = 404;
 
+        [SetUp]
+        public void BeforeEach()
+        {
+            _seenHttpPosts = new List<string>();
+            _seenHttpHeads = new List<int>();
+            _seenHttpPuts = new List<Tuple<Uri, string>>();
+
+        }
         protected ElasticsearchSinkTestsBase()
         {
             Serilog.Debugging.SelfLog.Out = Console.Out;
