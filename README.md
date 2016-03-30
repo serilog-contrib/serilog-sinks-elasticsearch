@@ -54,10 +54,24 @@ And start writing your events using Serilog.
 - Report issues to the [issue tracker](https://github.com/serilog/serilog-sinks-elasticsearch/issues). PR welcome, but please do this against the dev branch.
 - For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
 
+### A note about Kibana
+In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
+by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`.
+
+However, not all features in Kibana work just as well with JSON arrays - for instance, including
+exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsJsonObjectFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
+
+To use it, simply specify it as the `CustomFormatter` when creating the sink:
+```csharp
+    new ElasticsearchSink(new ElasticsearchSinkOptions(url)
+    {
+      CustomFormatter = new ExceptionAsJsonObjectFormatter(renderMessage:true)
+    });
+```
 ### Breaking changes for version 3
 
 Starting from version 3, the sink supports the Elasticsearch.Net 2 package and Elasticsearch version 2. If you need Elasticsearch 1.x support, then stick with version 2 of the sink.
-The function 
+The function
 ```csharp
 protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events)
 ```
