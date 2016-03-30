@@ -12,14 +12,14 @@ using Serilog.Sinks.Elasticsearch.Tests.Domain;
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
     [TestFixture]
-    public class KibanaFriendlyJsonFormatterTests : ElasticsearchSinkTestsBase
+    public class ExceptionAsJsonObjectFormatterTests : ElasticsearchSinkTestsBase
     {
         private static readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
         [SetUp]
         public void BeforeEach()
         {
-            _options.CustomFormatter = new KibanaFriendlyJsonFormatter(renderMessage:true);
+            _options.CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage:true);
         }
 
         [Test]

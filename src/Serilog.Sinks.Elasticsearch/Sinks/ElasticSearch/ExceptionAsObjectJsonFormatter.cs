@@ -13,10 +13,10 @@ namespace Serilog.Sinks.Elasticsearch
     /// Note that using this formatter comes at the cost that the exception tree 
     /// with inner exceptions can grow deep.
     /// </summary>
-    public class KibanaFriendlyJsonFormatter : ElasticsearchJsonFormatter
+    public class ExceptionAsObjectJsonFormatter : ElasticsearchJsonFormatter
     {
         /// <summary>
-        /// Constructs a <see cref="KibanaFriendlyJsonFormatter"/>.
+        /// Constructs a <see cref="ExceptionAsObjectJsonFormatter"/>.
         /// </summary>
         /// <param name="omitEnclosingObject">If true, the properties of the event will be written to
         /// the output without enclosing braces. Otherwise, if false, each event will be written as a well-formed
@@ -29,7 +29,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        public KibanaFriendlyJsonFormatter(bool omitEnclosingObject = false, string closingDelimiter = null, bool renderMessage = false, IFormatProvider formatProvider = null, IElasticsearchSerializer serializer = null, bool inlineFields = false) : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields)
+        public ExceptionAsObjectJsonFormatter(bool omitEnclosingObject = false, string closingDelimiter = null, bool renderMessage = false, IFormatProvider formatProvider = null, IElasticsearchSerializer serializer = null, bool inlineFields = false) : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields)
         {
         }
 
