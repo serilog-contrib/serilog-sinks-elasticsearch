@@ -81,6 +81,7 @@
     <Compile Include="Discrepancies\NoSerializerTests.cs" />
     <Compile Include="InlineFieldsTests.cs" />
     <Compile Include="IndexDeciderTests.cs" />
+    <Compile Include="ExceptionAsJsonObjectFormatterTests.cs" />
     <Compile Include="RealExceptionNoSerializerTests.cs" />
     <Compile Include="RealExceptionTests.cs" />
     <Compile Include="PropertyNameTests.cs" />

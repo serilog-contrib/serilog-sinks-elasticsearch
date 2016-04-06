@@ -1,12 +1,15 @@
+3.0.130
+ * Added an optional ExceptionAsJsonObjectFormatter to support serializing exceptions as a single object (not as an array).
+ 
 3.0.128
  * SpecificVersion set to False in order not to be dependent on a version of Elasticsearch or Serilog.
 
 3.0.125
- * Dropped support for .NET 4 since the Elasticsearch.NET client also does not support this version of the framework anymore. 
+ * Dropped support for .NET 4 since the Elasticsearch.NET client also does not support this version of the framework anymore.
 
 3.0.121
  * protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) function now uses a generic type. This allows you to map to either DynamicResponse or to BulkResponse if you want to use NEST.
- 
+
 3.0.112
  * Added exponential backoff strategy when unable to send data to Elasticsearch when using the durable sink option.
 
@@ -20,7 +23,7 @@
  * Fixed typo: ModifyConnectionSetttings to ModifyConnectionSettings.
 
 2.0.42
- * Added an overload so the AppSettings reader can be used to configure the ES sink. 
+ * Added an overload so the AppSettings reader can be used to configure the ES sink.
 
 2.0.38
  * Fixes an issue where the index decider was not properly used with pusing events thorugh the ElasticLogShipper.
