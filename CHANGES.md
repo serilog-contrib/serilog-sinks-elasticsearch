@@ -1,5 +1,6 @@
-3.0.next
- * Add ExceptionAsJsonObjectFormatter to support serializing exceptions as a single object (not as an array).
+3.0.130
+ * Added an optional ExceptionAsJsonObjectFormatter to support serializing exceptions as a single object (not as an array).
+ 
 3.0.128
  * SpecificVersion set to False in order not to be dependent on a version of Elasticsearch or Serilog.
 

@@ -56,7 +56,7 @@ And start writing your events using Serilog.
 
 ### A note about Kibana
 In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
-by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`.
+by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`. Use the 'Depth' field to traverse the inner exceptions flow. 
 
 However, not all features in Kibana work just as well with JSON arrays - for instance, including
 exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsJsonObjectFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
