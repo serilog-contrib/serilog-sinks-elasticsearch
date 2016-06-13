@@ -33,6 +33,7 @@ namespace Serilog.Sinks.Elasticsearch
     {
         readonly IElasticsearchSerializer _serializer;
         readonly bool _inlineFields;
+        private readonly IDictionary<LogEventLevel, string> _logEventLevelNames;
 
         /// <summary>
         /// Construct a <see cref="ElasticsearchJsonFormatter"/>.
@@ -48,18 +49,21 @@ namespace Serilog.Sinks.Elasticsearch
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
+        /// <param name="logEventLevelNames">Dictionary to override level names instead of using enum values</param>
         public ElasticsearchJsonFormatter(bool omitEnclosingObject = false,
             string closingDelimiter = null,
             bool renderMessage = false,
             IFormatProvider formatProvider = null,
             IElasticsearchSerializer serializer = null,
-            bool inlineFields = false)
+            bool inlineFields = false,
+            IDictionary<LogEventLevel, string> logEventLevelNames = null)
             : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider)
         {
             _serializer = serializer;
             _inlineFields = inlineFields;
+            _logEventLevelNames = logEventLevelNames ?? new Dictionary<LogEventLevel, string>();
         }
-       
+
         /// <summary>
         /// Writes out individual renderings of attached properties
         /// </summary>
@@ -179,7 +183,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             //TODO Loop over ISerializable data
 
-            
+
             this.WriteJsonProperty("Depth", depth, ref delim, output);
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Message", exception.Message, ref delim, output);
@@ -251,8 +255,10 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         protected override void WriteLevel(LogEventLevel level, ref string delim, TextWriter output)
         {
-            var stringLevel = Enum.GetName(typeof(LogEventLevel), level);
-            WriteJsonProperty("level", stringLevel, ref delim, output);
+            var levelName = _logEventLevelNames.ContainsKey(level)
+                ? _logEventLevelNames[level]
+                : Enum.GetName(typeof(LogEventLevel), level);
+            WriteJsonProperty("level", levelName, ref delim, output);
         }
 
         /// <summary>

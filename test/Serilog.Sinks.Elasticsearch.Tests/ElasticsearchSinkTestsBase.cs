@@ -15,7 +15,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 {
     public abstract class ElasticsearchSinkTestsBase
     {
-        static readonly TimeSpan TinyWait = TimeSpan.FromMilliseconds(50);
+        protected static readonly TimeSpan TinyWait = TimeSpan.FromMilliseconds(50);
         protected readonly IConnection _connection;
         protected readonly ElasticsearchSinkOptions _options;
         protected List<string> _seenHttpPosts = new List<string>();
@@ -51,6 +51,36 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 {
                     MemoryStream ms = new MemoryStream();
                     if(requestData.PostData != null)
+                        requestData.PostData.Write(ms, new ConnectionConfiguration());
+
+                    switch (requestData.Method)
+                    {
+                        case HttpMethod.PUT:
+                            _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                            break;
+                        case HttpMethod.POST:
+                            _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                            break;
+                        case HttpMethod.HEAD:
+                            _seenHttpHeads.Add(_templateExistsReturnCode);
+                            break;
+                    }
+                    return new ElasticsearchResponse<DynamicResponse>(_templateExistsReturnCode, new[] { 200, 404 });
+                });
+        }
+
+        protected ElasticsearchSinkTestsBase(ElasticsearchSinkOptions option)
+        {
+            Serilog.Debugging.SelfLog.Out = Console.Out;
+            _serializer = new JsonNetSerializer(new ConnectionSettings());
+            _connection = option.Connection;
+            _options = option;
+
+            A.CallTo(() => _connection.Request<DynamicResponse>(A<RequestData>._))
+                .ReturnsLazily((RequestData requestData) =>
+                {
+                    MemoryStream ms = new MemoryStream();
+                    if (requestData.PostData != null)
                         requestData.PostData.Write(ms, new ConnectionConfiguration());
 
                     switch (requestData.Method)

@@ -132,6 +132,11 @@ namespace Serilog.Sinks.Elasticsearch
         public ITextFormatter CustomDurableFormatter { get; set; }
 
         /// <summary>
+        /// Customizes the names of the log event level names in the logged message. 
+        /// </summary>
+        public IDictionary<LogEventLevel, string> LogEventLevelNameOverrider { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         protected ElasticsearchSinkOptions()
@@ -142,6 +147,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
             this.ConnectionTimeout = TimeSpan.FromSeconds(60);
+            this.LogEventLevelNameOverrider = new Dictionary<LogEventLevel, string>();
         }
 
         /// <summary>
