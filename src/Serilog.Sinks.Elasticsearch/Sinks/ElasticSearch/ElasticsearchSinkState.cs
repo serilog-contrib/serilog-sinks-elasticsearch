@@ -88,14 +88,17 @@ namespace Serilog.Sinks.Elasticsearch
                 renderMessage: true,
                 closingDelimiter: string.Empty,
                 serializer: options.Serializer,
-                inlineFields: options.InlineFields
+                inlineFields: options.InlineFields,
+                logEventLevelNames: options.LogEventLevelNameOverrider
+
             );
             _durableFormatter = options.CustomDurableFormatter ?? new ElasticsearchJsonFormatter(
                formatProvider: options.FormatProvider,
                renderMessage: true,
                closingDelimiter: Environment.NewLine,
                serializer: options.Serializer,
-               inlineFields: options.InlineFields
+               inlineFields: options.InlineFields,
+               logEventLevelNames:options.LogEventLevelNameOverrider
            );
 
             _registerTemplateOnStartup = options.AutoRegisterTemplate;
