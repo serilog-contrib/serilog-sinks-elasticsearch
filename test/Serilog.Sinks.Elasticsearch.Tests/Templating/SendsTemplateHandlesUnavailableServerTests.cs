@@ -21,7 +21,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         public void Should_write_error_to_self_log()
         {
             var selfLogMessages = new StringBuilder();
-            SelfLog.Out = new StringWriter(selfLogMessages);
+            SelfLog.Enable(new StringWriter(selfLogMessages));
 
             // Exception occurs on creation - should be logged
             CreateLoggerThatCrashes();

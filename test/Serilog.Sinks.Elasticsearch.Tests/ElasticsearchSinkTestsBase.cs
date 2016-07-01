@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,6 +8,7 @@ using FakeItEasy;
 using FluentAssertions;
 using Nest;
 using NUnit.Framework;
+using Serilog.Debugging;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
@@ -35,7 +35,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         }
         protected ElasticsearchSinkTestsBase()
         {
-            Serilog.Debugging.SelfLog.Out = Console.Out;
+            SelfLog.Enable(Console.Out);
             _serializer = new JsonNetSerializer(new ConnectionSettings());
             _connection = A.Fake<IConnection>();
             IConnectionPool connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
