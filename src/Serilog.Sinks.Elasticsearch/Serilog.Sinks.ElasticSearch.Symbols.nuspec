@@ -11,7 +11,7 @@
     <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
     <tags>serilog logging elasticsearch</tags>
     <dependencies>
-      <dependency id="Serilog" version="2" />
+      <dependency id="Serilog" version="2.0" />
       <dependency id="Elasticsearch.Net" version="2.3.3" />
     </dependencies>
   </metadata>
