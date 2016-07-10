@@ -12,7 +12,10 @@
     <tags>serilog logging elasticsearch</tags>
     <dependencies>
       <dependency id="Serilog" version="2.0" />
-      <dependency id="Elasticsearch.Net" version="2.3.3" />
+      <dependency id="Elasticsearch.Net" version="2.4.1" />
+      <dependency id="Serilog.Sinks.File" version="2.1.0" />
+      <dependency id="Serilog.Sinks.PeriodicBatching" version="2.0.0" />
+      <dependency id="Serilog.Sinks.RollingFile" version="2.1.0" />
     </dependencies>
   </metadata>
   <files>
