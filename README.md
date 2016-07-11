@@ -12,7 +12,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - All properties are stored inside fields in ES. This allows you to query on all the relevant data but also run analytics over this data.
 - Be able to customize the store; specify the index name being used, the serializer or the connections to the server (load balanced).
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
-- Automatically create the right mappings for the best usage of the log events in ES.
+- Automatically create the right mappings for the best usage of the log events in ES or automatically upload your own custom mapping.
 - Version 3 is compatible with Elasticsearch 2.
 
 ## Quick start
