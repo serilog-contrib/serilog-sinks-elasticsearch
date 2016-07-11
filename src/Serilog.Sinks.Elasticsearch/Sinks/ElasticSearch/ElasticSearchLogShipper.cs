@@ -130,7 +130,7 @@ namespace Serilog.Sinks.Elasticsearch
                     // Locking the bookmark ensures that though there may be multiple instances of this
                     // class running, only one will ship logs at a time.
 
-                    using (var bookmark = File.Open(_bookmarkFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                    using (var bookmark = System.IO.File.Open(_bookmarkFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
                     {
                         long nextLineBeginsAtOffset;
                         string currentFilePath;
@@ -139,7 +139,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         var fileSet = GetFileSet();
 
-                        if (currentFilePath == null || !File.Exists(currentFilePath))
+                        if (currentFilePath == null || !System.IO.File.Exists(currentFilePath))
                         {
                             nextLineBeginsAtOffset = 0;
                             currentFilePath = fileSet.FirstOrDefault();
@@ -164,7 +164,7 @@ namespace Serilog.Sinks.Elasticsearch
 
                         var payload = new List<string>();
 
-                        using (var current = File.Open(currentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var current = System.IO.File.Open(currentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             current.Position = nextLineBeginsAtOffset;
 
@@ -215,7 +215,7 @@ namespace Serilog.Sinks.Elasticsearch
                                 // best to move on, though a lock on the current file
                                 // will delay this.
 
-                                File.Delete(fileSet[0]);
+                                System.IO.File.Delete(fileSet[0]);
                             }
                         }
                     }
@@ -243,7 +243,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             try
             {
-                using (var fileStream = File.Open(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                using (var fileStream = System.IO.File.Open(file, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
                 {
                     return fileStream.Length <= maxLen;
                 }
