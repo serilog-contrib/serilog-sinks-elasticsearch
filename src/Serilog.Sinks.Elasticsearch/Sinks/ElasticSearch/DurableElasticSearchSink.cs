@@ -26,7 +26,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         readonly RollingFileSink _sink;
         readonly ElasticsearchLogShipper _shipper;
-        private readonly ElasticsearchSinkState _state;
+        readonly ElasticsearchSinkState _state;
 
         public DurableElasticsearchSink(ElasticsearchSinkOptions options)
         {

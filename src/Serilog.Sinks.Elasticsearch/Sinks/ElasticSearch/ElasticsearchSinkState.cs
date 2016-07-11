@@ -17,8 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Connection;
-using Elasticsearch.Net.Serialization;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -28,11 +27,12 @@ namespace Serilog.Sinks.Elasticsearch
     {
         public static ElasticsearchSinkState Create(ElasticsearchSinkOptions options)
         {
-            if (options == null) throw new ArgumentNullException("options");
-            var state = new ElasticsearchSinkState(options);
-            if (state.Options.AutoRegisterTemplate)
-                state.RegisterTemplateIfNeeded();
-            return state;
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
+            return new ElasticsearchSinkState(options);
         }
 
         private readonly ElasticsearchSinkOptions _options;
@@ -41,7 +41,7 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ITextFormatter _formatter;
         private readonly ITextFormatter _durableFormatter;
 
-        private readonly ElasticsearchClient _client;
+        private readonly ElasticLowLevelClient _client;
 
         readonly string _typeName;
         private readonly bool _registerTemplateOnStartup;
@@ -50,7 +50,7 @@ namespace Serilog.Sinks.Elasticsearch
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
         public ElasticsearchSinkOptions Options { get { return this._options; } }
-        public IElasticsearchClient Client { get { return this._client; } }
+        public IElasticLowLevelClient Client { get { return this._client; } }
         public ITextFormatter Formatter { get { return this._formatter; } }
         public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
 
@@ -69,14 +69,19 @@ namespace Serilog.Sinks.Elasticsearch
             _typeName = options.TypeName;
             _options = options;
 
-            var configuration = new ConnectionConfiguration(options.ConnectionPool)
-                .SetTimeout(options.ConnectionTimeout)
-                .SetMaximumAsyncConnections(20);
+            Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
+            if (options.Serializer != null)
+            {
+                serializerFactory = s => options.Serializer;
+            }
+            ConnectionConfiguration configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
+                .RequestTimeout(options.ConnectionTimeout);
 
-            if (options.ModifyConnectionSetttings != null)
-                configuration = options.ModifyConnectionSetttings(configuration);
+            if (options.ModifyConnectionSettings != null)
+                configuration = options.ModifyConnectionSettings(configuration);
 
-            _client = new ElasticsearchClient(configuration, connection: options.Connection, serializer: options.Serializer);
+            configuration.ThrowExceptions();
+            _client = new ElasticLowLevelClient(configuration);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
@@ -93,14 +98,13 @@ namespace Serilog.Sinks.Elasticsearch
                inlineFields: options.InlineFields
            );
 
-            this._registerTemplateOnStartup = options.AutoRegisterTemplate;
+            _registerTemplateOnStartup = options.AutoRegisterTemplate;
         }
 
 
         public string Serialize(object o)
         {
-            var bytes = _client.Serializer.Serialize(o, SerializationFormatting.None);
-            return Encoding.UTF8.GetString(bytes);
+            return _client.Serializer.SerializeToString(o, SerializationFormatting.None);
         }
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
@@ -115,31 +119,33 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (!this._registerTemplateOnStartup) return;
 
-            if (!this._options.OverwriteTemplate)
+            try
             {
-                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<VoidResponse>(this._templateName);
-                if (templateExistsResponse.HttpStatusCode == 200) return;
-            }
-
-            if (_options.GetTemplateContent != null)
-            {
-                this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, _options.GetTemplateContent());
-            }
-            else
-            {
-                var result = this._client.IndicesPutTemplateForAll<VoidResponse>(this._templateName, new
+                if (!this._options.OverwriteTemplate)
                 {
-                    template = this._templateMatchString,
-                    settings = new Dictionary<string, string>
+                    var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
+                    if (templateExistsResponse.HttpStatusCode == 200) return;
+                }
+
+                if (_options.GetTemplateContent != null)
+                {
+                    this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, _options.GetTemplateContent());
+                }
+                else
+                {
+                    var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
+                    {
+                        template = this._templateMatchString,
+                        settings = new Dictionary<string, string>
                     {
                         {"index.refresh_interval", "5s"}
                     },
-                    mappings = new
-                    {
-                        _default_ = new
+                        mappings = new
                         {
-                            _all = new { enabled = true },
-                            dynamic_templates = new List<Object>
+                            _default_ = new
+                            {
+                                _all = new { enabled = true, omit_norms = true },
+                                dynamic_templates = new List<Object>
                             {
                                 //when you use serilog as an adaptor for third party frameworks
                                 //where you have no control over the log message they typically
@@ -173,7 +179,7 @@ namespace Serilog.Sinks.Elasticsearch
                                     }}
                                 }
                             },
-                            properties = new Dictionary<string, object>
+                                properties = new Dictionary<string, object>
                             {
                                 { "message", new { type = "string", index =  "analyzed" } },
                                 { "exceptions", new
@@ -195,12 +201,15 @@ namespace Serilog.Sinks.Elasticsearch
                                     }
                                 } }
                             }
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
-
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("Failed to create the template. {0}", ex);
+            }
         }
-
     }
 }

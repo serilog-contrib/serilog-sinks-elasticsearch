@@ -21,6 +21,8 @@ using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.Elasticsearch
 {
+    using global::Elasticsearch.Net;
+
     /// <summary>
     /// Writes log events as documents to ElasticSearch.
     /// </summary>
@@ -37,6 +39,7 @@ namespace Serilog.Sinks.Elasticsearch
             : base(options.BatchPostingLimit, options.Period)
         {
 	        _state = ElasticsearchSinkState.Create(options);
+            _state.RegisterTemplateIfNeeded();
         }
 
         /// <summary>
@@ -50,22 +53,32 @@ namespace Serilog.Sinks.Elasticsearch
         /// </remarks>
         protected override void EmitBatch(IEnumerable<LogEvent> events)
         {
+            this.EmitBatchChecked<DynamicResponse>(events);
+        }
+
+        /// <summary>
+        /// Emit a batch of log events, running to completion synchronously.
+        /// </summary>
+        /// <param name="events">The events to emit.</param>
+        /// <returns>Response from Elasticsearch</returns>
+        protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T: class
+        {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
-                return;
+                return null;
 
             var payload = new List<string>();
             foreach (var e in events)
             {
                 var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
                 var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
-	            var actionJson = _state.Serialize(action);
+                var actionJson = _state.Serialize(action);
                 payload.Add(actionJson);
                 var sw = new StringWriter();
                 _state.Formatter.Format(e, sw);
                 payload.Add(sw.ToString());
             }
-            _state.Client.Bulk(payload);
+            return _state.Client.Bulk<T>(payload);
         }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -10,8 +7,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
     [TestFixture]
     public class DoNotRegisterIfTemplateExistsTests : ElasticsearchSinkTestsBase
     {
-       
-        public DoNotRegisterIfTemplateExistsTests()
+        private void DoRegister()
         {
             _templateExistsReturnCode = 200;
 
@@ -30,13 +26,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
         [Test]
-        public void ShoudNotSendAPutTemplate()
+        public void WhenTempplateExists_ShoudNotSendAPutTemplate()
         {
+            DoRegister();
             this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
             this._seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
             this._seenHttpPuts.Should().BeNullOrEmpty();
         }
-
-
     }
 }

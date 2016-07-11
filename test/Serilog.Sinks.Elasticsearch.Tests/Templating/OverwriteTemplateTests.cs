@@ -11,7 +11,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
     public class OverwriteTemplateTests : ElasticsearchSinkTestsBase
     {
 
-        public OverwriteTemplateTests()
+        public void DoRegister()
         {
             _templateExistsReturnCode = 200;
 
@@ -33,6 +33,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         [Test]
         public void ShouldOverwriteTemplate()
         {
+            DoRegister();
             this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
             this._seenHttpHeads.Should().BeNullOrEmpty();
             this._seenHttpPuts.Should().NotBeNullOrEmpty().And.HaveCount(1);
