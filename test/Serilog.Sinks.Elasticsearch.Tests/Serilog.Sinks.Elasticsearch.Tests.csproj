@@ -87,6 +87,8 @@
     <Compile Include="PropertyNameTests.cs" />
     <Compile Include="CustomIndexTypeNameTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Templating\OverwriteTemplateTests.cs" />
+    <Compile Include="Templating\RegisterCustomTemplateTests.cs" />
     <Compile Include="Templating\SendsTemplateHandlesUnavailableServerTests.cs" />
     <Compile Include="Templating\DoNotRegisterTemplateIfItExists.cs" />
     <Compile Include="Templating\TemplateMatchTests.cs" />
