@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0843A434-B7E8-4986-BB77-AC8B49D411BE}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{66B10686-4C73-4D5E-8638-98475879E989}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Sample", "sample\Serilog.Sinks.Elasticsearch.Sample\Serilog.Sinks.Elasticsearch.Sample.csproj", "{98531343-A353-4C4B-AD45-55F4777CF281}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{1D53197A-9D70-4E36-A1AF-16A1AC8E598B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,10 @@ Global
 		{66B10686-4C73-4D5E-8638-98475879E989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66B10686-4C73-4D5E-8638-98475879E989}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66B10686-4C73-4D5E-8638-98475879E989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98531343-A353-4C4B-AD45-55F4777CF281}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98531343-A353-4C4B-AD45-55F4777CF281}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98531343-A353-4C4B-AD45-55F4777CF281}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98531343-A353-4C4B-AD45-55F4777CF281}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,5 +46,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B} = {2B32DE10-D8F2-4078-8FB9-1C02621F23D8}
 		{66B10686-4C73-4D5E-8638-98475879E989} = {4F5E635B-1710-4899-AF85-3D30E64C0172}
+		{98531343-A353-4C4B-AD45-55F4777CF281} = {1D53197A-9D70-4E36-A1AF-16A1AC8E598B}
 	EndGlobalSection
 EndGlobal
