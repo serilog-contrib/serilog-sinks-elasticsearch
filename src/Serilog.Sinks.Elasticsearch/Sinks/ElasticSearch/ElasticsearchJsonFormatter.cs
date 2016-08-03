@@ -59,7 +59,7 @@ namespace Serilog.Sinks.Elasticsearch
             _serializer = serializer;
             _inlineFields = inlineFields;
         }
-       
+
         /// <summary>
         /// Writes out individual renderings of attached properties
         /// </summary>
@@ -164,6 +164,17 @@ namespace Serilog.Sinks.Elasticsearch
         /// <param name="depth"></param>
         protected void WriteSingleException(Exception exception, ref string delim, TextWriter output, int depth)
         {
+#if NO_SERIALIZATION
+            var helpUrl = exception.HelpLink;
+            var stackTrace = exception.StackTrace;
+            var remoteStackTrace = string.Empty;
+            var remoteStackIndex = string.Empty;
+            var exceptionMethod = string.Empty;
+            var hresult = exception.HResult;
+            var source = exception.Source;
+            var className = string.Empty;
+
+#else
             var si = new SerializationInfo(exception.GetType(), new FormatterConverter());
             var sc = new StreamingContext();
             exception.GetObjectData(si, sc);
@@ -176,10 +187,11 @@ namespace Serilog.Sinks.Elasticsearch
             var hresult = si.GetInt32("HResult");
             var source = si.GetString("Source");
             var className = si.GetString("ClassName");
+#endif
 
             //TODO Loop over ISerializable data
 
-            
+
             this.WriteJsonProperty("Depth", depth, ref delim, output);
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Message", exception.Message, ref delim, output);

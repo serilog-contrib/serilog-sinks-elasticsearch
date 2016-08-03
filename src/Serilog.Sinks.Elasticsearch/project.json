@@ -1,0 +1,39 @@
+{
+  "version": "4.0.0",
+  "buildOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "Elasticsearch.Net": "2.4.1",
+    "Serilog": "2.0.0",
+    "Serilog.Sinks.File": "2.0.0",
+    "Serilog.Sinks.PeriodicBatching": "2.0.0",
+    "Serilog.Sinks.RollingFile": "2.0.0"
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": ["DEBUG", "TRACE"]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": ["RELEASE", "TRACE"],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "net45": {
+      "buildOptions": { "define": [ ] },
+      "dependencies": {
+      }
+    },
+    "netstandard1.3": {
+      "buildOptions": { "define": ["DOTNETCORE", "NO_SERIALIZATION" , "NO_TIMER"] },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  }
+}

@@ -16,20 +16,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.Elasticsearch
 {
-    using global::Elasticsearch.Net;
-
     /// <summary>
     /// Writes log events as documents to ElasticSearch.
     /// </summary>
     public class ElasticsearchSink : PeriodicBatchingSink
     {
 
-	    private readonly ElasticsearchSinkState _state;
+        private readonly ElasticsearchSinkState _state;
 
         /// <summary>
         /// Creates a new ElasticsearchSink instance with the provided options
@@ -38,7 +37,7 @@ namespace Serilog.Sinks.Elasticsearch
         public ElasticsearchSink(ElasticsearchSinkOptions options)
             : base(options.BatchPostingLimit, options.Period)
         {
-	        _state = ElasticsearchSinkState.Create(options);
+            _state = ElasticsearchSinkState.Create(options);
             _state.RegisterTemplateIfNeeded();
         }
 
