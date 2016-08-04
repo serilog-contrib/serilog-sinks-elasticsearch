@@ -1,21 +1,24 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0843A434-B7E8-4986-BB77-AC8B49D411BE}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Serilog.Sinks.Elasticsearch", "src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.xproj", "{A2317307-13D2-4209-9D2F-9430FFDD8A9C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.xproj", "{667F95F7-28AF-48FA-9B69-FF5434AFB064}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6-5BA9-4987-80CF-DF9F23F54947}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		assets\CommonAssemblyInfo.cs = assets\CommonAssemblyInfo.cs
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		Build.ps1 = Build.ps1
+		CHANGES.md = CHANGES.md
+		global.json = global.json
+		LICENSE = LICENSE
+		README.md = README.md
+		src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec = src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2B32DE10-D8F2-4078-8FB9-1C02621F23D8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4F5E635B-1710-4899-AF85-3D30E64C0172}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch", "src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj", "{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{66B10686-4C73-4D5E-8638-98475879E989}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,20 +26,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{66B10686-4C73-4D5E-8638-98475879E989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66B10686-4C73-4D5E-8638-98475879E989}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66B10686-4C73-4D5E-8638-98475879E989}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66B10686-4C73-4D5E-8638-98475879E989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{E12881F7-B522-4E42-BCCC-4A81F42F8D8B} = {2B32DE10-D8F2-4078-8FB9-1C02621F23D8}
-		{66B10686-4C73-4D5E-8638-98475879E989} = {4F5E635B-1710-4899-AF85-3D30E64C0172}
 	EndGlobalSection
 EndGlobal
