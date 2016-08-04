@@ -1,74 +1,41 @@
-param(
-    [String] $majorMinor = "0.0",  # 3.0
-    [String] $patch = "0",         # $env:APPVEYOR_BUILD_VERSION
-    [String] $customLogger = "",   # C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll
-    [Switch] $notouch
-)
 
-function Set-AssemblyVersions($informational, $assembly)
-{
-    (Get-Content assets/CommonAssemblyInfo.cs) |
-        ForEach-Object { $_ -replace """1.0.0.0""", """$assembly""" } |
-        ForEach-Object { $_ -replace """1.0.0""", """$informational""" } |
-        ForEach-Object { $_ -replace """1.1.1.1""", """$($informational).0""" } |
-        Set-Content assets/CommonAssemblyInfo.cs
-}
+$branch = @{ $true = $env:APPVEYOR_REPO_BRANCH; $false = $(git symbolic-ref --short -q HEAD) }[$env:APPVEYOR_REPO_BRANCH -ne $NULL];
+$revision = @{ $true = "{0:00000}" -f [convert]::ToInt32("0" + $env:APPVEYOR_BUILD_NUMBER, 10); $false = "local" }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
+$suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch.Length)))-$revision"}[$branch -eq "master" -and $revision -ne "local"]
 
-function Install-NuGetPackages($solution)
-{
-    nuget restore "$solution"
-}
+$solution = "$project.sln"
+$test = "test\\Serilog.Sinks.Elasticsearch.Tests\\project.json"
+$project = "src\\Serilog.Sinks.Elasticsearch\\project.json"
 
-function Invoke-MSBuild($solution, $customLogger)
+function Invoke-Build()
 {
-    if ($customLogger)
+    Write-Output "Building $suffix"
+
+    & dotnet restore $test --verbosity Warning
+    & dotnet restore $project --verbosity Warning
+
+
+    & dotnet test $test -c Release
+    if($LASTEXITCODE -ne 0) 
     {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release /logger:"$customLogger"
+        Write-Output "The tests failed"
+        exit 1 
     }
-    else
+    if ($suffix -ne "")
     {
-        msbuild "$solution" /verbosity:minimal /p:Configuration=Release
+        & dotnet pack $project -c Release -o .\artifacts  --version-suffix=$suffix
     }
-}
-
-function Invoke-NuGetPackProj($csproj)
-{
-    nuget pack -Prop Configuration=Release -Symbols $csproj
-}
-
-function Invoke-NuGetPackSpec($nuspec, $version)
-{
-    nuget pack $nuspec -Version $version -OutputDirectory ..\..\
-}
-
-function Invoke-NuGetPack($version)
-{
-    ls src/**/*.csproj |
-        Where-Object { -not ($_.Name -like "*net40*") } |
-        ForEach-Object { Invoke-NuGetPackProj $_ }
-}
-
-function Invoke-Build($project, $majorMinor, $patch, $customLogger, $notouch)
-{
-    $solution = "$project.sln"
-    $package="$majorMinor.$patch"
-
-    Write-Output "Building $project $package"
-
-    if (-not $notouch)
+    else 
     {
-        $assembly = "$majorMinor.0.0"
-
-        Write-Output "Assembly version will be set to $assembly"
-        Set-AssemblyVersions $package $assembly
+        & dotnet pack $project -c Release -o .\artifacts 
     }
-
-    Install-NuGetPackages $solution
-    
-    Invoke-MSBuild $solution $customLogger
-
-    Invoke-NuGetPack $package
+    if($LASTEXITCODE -ne 0) 
+    {
+        Write-Output "Packing the sink failed"
+        exit 1 
+    }
+    Write-Output "Building $suffix done"
 }
 
 $ErrorActionPreference = "Stop"
-Invoke-Build "serilog-sinks-elasticsearch" $majorMinor $patch $customLogger $notouch
+Invoke-Build 

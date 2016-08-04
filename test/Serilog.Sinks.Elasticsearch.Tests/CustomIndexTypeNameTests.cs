@@ -5,14 +5,13 @@ using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.Elasticsearch;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class CustomIndexTypeNameTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void CustomIndex_And_TypeName_EndsUpInTheOutput()
         {
             //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
@@ -25,6 +24,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             {
                 var properties = new List<LogEventProperty> { new LogEventProperty("Song", new ScalarValue("New Macabre")) };
                 var e = new LogEvent(timestamp, LogEventLevel.Information, null, template, properties);
+                //one off 
+                sink.Emit(e);
+
                 sink.Emit(e);
                 var exception = new ArgumentException("parameter");
                 properties = new List<LogEventProperty>
@@ -36,9 +38,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 sink.Emit(e);
             }
 
-            _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(1);
-            var json = _seenHttpPosts.First();
-            var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var bulkJsonPieces = this.AssertSeenHttpPosts(_seenHttpPosts, 4);
+
             bulkJsonPieces.Should().HaveCount(4);
             bulkJsonPieces[0].Should().Contain(@"""_index"":""event-index-2013.05.28");
             bulkJsonPieces[0].Should().Contain(@"""_type"":""custom-event-type");
@@ -47,10 +48,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             bulkJsonPieces[2].Should().Contain(@"""_type"":""custom-event-type");
             bulkJsonPieces[3].Should().Contain("Old Macabre");
 
-            //serilog by default simpy .ToString()'s unknown objects
-            bulkJsonPieces[3].Should().Contain("Complex\":\"{");
+            bulkJsonPieces[3].Should().Contain("Complex\":{");
 
         }
+
     }
 
 }

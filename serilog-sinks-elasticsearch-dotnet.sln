@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6
 		global.json = global.json
 		LICENSE = LICENSE
 		README.md = README.md
+		src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec = src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec
 	EndProjectSection
 EndProject
 Global

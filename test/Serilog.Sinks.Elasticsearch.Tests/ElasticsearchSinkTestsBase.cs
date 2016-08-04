@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Elasticsearch.Net;
-using FakeItEasy;
 using FluentAssertions;
 using Nest;
-using NUnit.Framework;
+using Xunit;
 using Serilog.Debugging;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 
@@ -25,48 +25,22 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected int _templateExistsReturnCode = 404;
 
-        [SetUp]
-        public void BeforeEach()
+        protected ElasticsearchSinkTestsBase()
         {
             _seenHttpPosts = new List<string>();
             _seenHttpHeads = new List<int>();
             _seenHttpPuts = new List<Tuple<Uri, string>>();
 
-        }
-        protected ElasticsearchSinkTestsBase()
-        {
-            SelfLog.Enable(Console.Out);
-            _serializer = new JsonNetSerializer(new ConnectionSettings());
-            _connection = A.Fake<IConnection>();
-            IConnectionPool connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
+            var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
+            _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, () => _templateExistsReturnCode);
+            _serializer = new JsonNetSerializer(new ConnectionSettings(connectionPool, _connection));
             _options = new ElasticsearchSinkOptions(connectionPool)
             {
                 BatchPostingLimit = 2,
-                Period = TinyWait,
-                Connection = _connection
+                //Period = TinyWait,
+                Connection = _connection,
+                Serializer = _serializer
             };
-
-            A.CallTo(() => _connection.Request<DynamicResponse>(A<RequestData>._))
-                .ReturnsLazily((RequestData requestData) =>
-                {
-                    MemoryStream ms = new MemoryStream();
-                    if(requestData.PostData != null)
-                        requestData.PostData.Write(ms, new ConnectionConfiguration());
-
-                    switch (requestData.Method)
-                    {
-                        case HttpMethod.PUT:
-                            _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
-                            break;
-                        case HttpMethod.POST:
-                            _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
-                            break;
-                        case HttpMethod.HEAD:
-                            _seenHttpHeads.Add(_templateExistsReturnCode);
-                            break;
-                    }
-                    return new ElasticsearchResponse<DynamicResponse>(_templateExistsReturnCode, new[] { 200, 404 });
-                });
         }
 
         /// <summary>
@@ -114,6 +88,68 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected T Deserialize<T>(string json)
         {
             return this._serializer.Deserialize<T>(new MemoryStream(Encoding.UTF8.GetBytes(json)));
+        }
+
+        protected async Task ThrowAsync()
+        { 
+            await Task.Delay(1);
+            throw new Exception("boom!");
+        }
+
+        protected string[] AssertSeenHttpPosts(List<string> _seenHttpPosts, int lastN)
+        {
+            _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(2);
+            var json = string.Join("", _seenHttpPosts);
+            var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            
+            bulkJsonPieces.Count().Should().BeGreaterOrEqualTo(lastN);
+            var skip = Math.Max(0, bulkJsonPieces.Count() - lastN);
+
+            return bulkJsonPieces.Skip(skip).Take(lastN).ToArray();
+        }
+
+
+        public class ConnectionStub : InMemoryConnection
+        {
+            private Func<int> _templateExistReturnCode;
+            private List<int> _seenHttpHeads;
+            private List<string> _seenHttpPosts;
+            private List<Tuple<Uri, string>> _seenHttpPuts;
+
+            public ConnectionStub(
+                List<string> _seenHttpPosts,
+                List<int> _seenHttpHeads,
+                List<Tuple<Uri, string>> _seenHttpPuts,
+                Func<int> templateExistReturnCode
+                )
+            {
+                this._seenHttpPosts = _seenHttpPosts;
+                this._seenHttpHeads = _seenHttpHeads;
+                this._seenHttpPuts = _seenHttpPuts;
+                this._templateExistReturnCode = templateExistReturnCode;
+            }
+
+            public override ElasticsearchResponse<TReturn> Request<TReturn>(RequestData requestData)
+            {
+
+                MemoryStream ms = new MemoryStream();
+                if (requestData.PostData != null)
+                    requestData.PostData.Write(ms, new ConnectionConfiguration());
+
+                switch (requestData.Method)
+                {
+                    case HttpMethod.PUT:
+                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                        break;
+                    case HttpMethod.POST:
+                        _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                        break;
+                    case HttpMethod.HEAD:
+                        _seenHttpHeads.Add(this._templateExistReturnCode());
+                        break;
+                }
+                return new ElasticsearchResponse<TReturn>(this._templateExistReturnCode(), new[] { 200, 404 });
+            }
         }
     }
 }

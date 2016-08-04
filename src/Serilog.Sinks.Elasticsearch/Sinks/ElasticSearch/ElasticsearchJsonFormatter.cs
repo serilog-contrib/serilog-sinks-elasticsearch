@@ -168,7 +168,7 @@ namespace Serilog.Sinks.Elasticsearch
             var helpUrl = exception.HelpLink;
             var stackTrace = exception.StackTrace;
             var remoteStackTrace = string.Empty;
-            var remoteStackIndex = string.Empty;
+            var remoteStackIndex = -1;
             var exceptionMethod = string.Empty;
             var hresult = exception.HResult;
             var source = exception.Source;
