@@ -19,7 +19,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch.CrossPlatform
+namespace Serilog.Sinks.Elasticsearch.CrossPlatform
 {
     class PortableTimer : IDisposable
     {

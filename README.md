@@ -21,7 +21,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink in code or using the appSettings reader (v2.0.42+) as shown below.
+Register the sink in code or using the appSettings reader (from v2.0.42+) as shown below.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
@@ -70,7 +70,7 @@ To use it, simply specify it as the `CustomFormatter` when creating the sink:
 ```
 ### Breaking changes for version 4
 
-Starting from version 4, the sink has been upgraded to work with Serilog 2.0.
+Starting from version 4, the sink has been upgraded to work with Serilog 2.0 and has .NET Core support.
 
 ### Breaking changes for version 3
 

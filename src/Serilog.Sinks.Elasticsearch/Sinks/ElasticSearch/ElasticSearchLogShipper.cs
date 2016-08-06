@@ -23,7 +23,7 @@ using System.Threading;
 using Elasticsearch.Net;
 using Serilog.Debugging;
 #if NO_TIMER
-using Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch.CrossPlatform;
+using Serilog.Sinks.Elasticsearch.CrossPlatform;
 #endif
 
 namespace Serilog.Sinks.Elasticsearch
