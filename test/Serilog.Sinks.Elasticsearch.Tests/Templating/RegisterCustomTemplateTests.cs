@@ -7,15 +7,15 @@ using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    public class TemplateMatchTests : ElasticsearchSinkTestsBase
+    public class RegisterCustomTemplateTests : ElasticsearchSinkTestsBase
     {
+        private const string CustomTemplateContent = @"{ template: ""my-custom-template-*"" }";
         private readonly Tuple<Uri, string> _templatePut;
 
-        public TemplateMatchTests()
+        public RegisterCustomTemplateTests()
         {
             _options.AutoRegisterTemplate = true;
-            _options.IndexFormat = "dailyindex-{0:yyyy.MM.dd}-mycompany";
-            _options.TemplateName = "dailyindex-logs-template";
+            _options.GetTemplateContent = () => CustomTemplateContent;
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
@@ -30,24 +30,13 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 
             this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);
             this._seenHttpPuts.Should().NotBeNullOrEmpty().And.HaveCount(1);
-            this._seenHttpHeads.Should().NotBeNullOrEmpty().And.HaveCount(1);
             _templatePut = this._seenHttpPuts[0];
-            
         }
 
         [Fact]
-        public void TemplatePutToCorrectUrl()
+        public void ShouldRegisterCustomTemplate()
         {
-            var uri = this._templatePut.Item1;
-            uri.AbsolutePath.Should().Be("/_template/dailyindex-logs-template");
+            this._templatePut.Item2.Should().BeEquivalentTo(CustomTemplateContent);
         }
-
-        [Fact]
-        public void TemplateMatchShouldReflectConfiguredIndexFormat()
-        {
-            var json = this._templatePut.Item2;
-            json.Should().Contain(@"""template"":""dailyindex-*-mycompany""");
-        }
-
     }
 }

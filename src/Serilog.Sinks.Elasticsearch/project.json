@@ -1,0 +1,80 @@
+{
+  "version": "4.1.0",
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../assets/Serilog.snk",
+    "xmlDoc": true
+  },
+  "authors": [
+    "Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors"
+  ],
+  "tools": {
+    "dotnet-version": "1.1.0",
+    "dotnet-gitversion": {
+      "version": "*",
+      "imports": [
+        "dotnet"
+      ]
+    }
+  },
+  "packOptions": {
+    "tags": [
+      "serilog",
+      "elasticsearch",
+      "logging",
+      "event",
+      "collector"
+    ],
+    "projectUrl": "https://github.com/serilog/serilog-sinks-elasticsearch",
+    "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
+    "iconUrl": "http://serilog.net/images/serilog-sink-nuget.png",
+    "summary": "The perfect way for .NET apps to write structured log events to Elasticsearch.",
+    "releaseNotes": "https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md"
+  },
+  "dependencies": {
+    "Elasticsearch.Net": "2.4.2",
+    "Serilog": "2.0.0",
+    "Serilog.Sinks.File": "2.0.0",
+    "Serilog.Sinks.PeriodicBatching": "2.0.0",
+    "Serilog.Sinks.RollingFile": "2.0.0"
+  },
+  "configurations": {
+    "Debug": {
+      "buildOptions": {
+        "define": [
+          "DEBUG",
+          "TRACE"
+        ]
+      }
+    },
+    "Release": {
+      "buildOptions": {
+        "define": [
+          "RELEASE",
+          "TRACE"
+        ],
+        "optimize": true
+      }
+    }
+  },
+  "frameworks": {
+    "net45": {
+      "buildOptions": {
+        "define": []
+      },
+      "dependencies": {}
+    },
+    "netstandard1.3": {
+      "buildOptions": {
+        "define": [
+          "DOTNETCORE",
+          "NO_SERIALIZATION",
+          "NO_TIMER"
+        ]
+      },
+      "dependencies": {
+        "NETStandard.Library": "1.6.0"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 version: '{build}'
 build_script:
-- ps: ./Build.ps1 -majorMinor "4.0" -patch "$env:APPVEYOR_BUILD_VERSION" -customLogger "C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+- ps: ./Build.ps1 
+test: off
 artifacts:
 - path: Serilog.Sinks.Elasticsearch*.nupkg
 deploy:

@@ -1,14 +1,13 @@
 ﻿using Elasticsearch.Net;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {
-    [TestFixture]
     public class ElasticsearchDefaultSerializerTests : ElasticsearchSinkUniformityTestsBase
     {
         public ElasticsearchDefaultSerializerTests() : base(new ElasticsearchDefaultSerializer()) { }
 
-        [Test]
+        [Fact]
         public void Should_SerializeToExpandedExceptionObjectWhenExceptionIsSet()
         {
             this.ThrowAndLogAndCatchBulkOutput("test_with_default_serializer");

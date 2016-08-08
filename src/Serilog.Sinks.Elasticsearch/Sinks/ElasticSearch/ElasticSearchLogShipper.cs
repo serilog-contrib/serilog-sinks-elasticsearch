@@ -22,6 +22,9 @@ using System.Text;
 using System.Threading;
 using Elasticsearch.Net;
 using Serilog.Debugging;
+#if NO_TIMER
+using Serilog.Sinks.Elasticsearch.CrossPlatform;
+#endif
 
 namespace Serilog.Sinks.Elasticsearch
 {
@@ -30,7 +33,11 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
+#if NO_TIMER
+        readonly PortableTimer _timer;
+#else
         readonly Timer _timer;
+#endif
 
         readonly ExponentialBackoffConnectionSchedule _connectionSchedule;
         readonly object _stateLock = new object();
@@ -51,17 +58,12 @@ namespace Serilog.Sinks.Elasticsearch
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
 
-            _timer = new Timer(s => OnTick());
-
-            AppDomain.CurrentDomain.DomainUnload += OnAppDomainUnloading;
-            AppDomain.CurrentDomain.ProcessExit += OnAppDomainUnloading;
-
+#if NO_TIMER
+            _timer = new PortableTimer(cancel => OnTick());
+#else
+            _timer = new Timer(s => OnTick(), null, -1, -1);
+#endif
             SetTimer();
-        }
-
-        void OnAppDomainUnloading(object sender, EventArgs args)
-        {
-            CloseAndFlush();
         }
 
         void CloseAndFlush()
@@ -74,12 +76,15 @@ namespace Serilog.Sinks.Elasticsearch
                 _unloading = true;
             }
 
-            AppDomain.CurrentDomain.DomainUnload -= OnAppDomainUnloading;
-            AppDomain.CurrentDomain.ProcessExit -= OnAppDomainUnloading;
+
+#if NO_TIMER
+            _timer.Dispose();
+#else
 
             var wh = new ManualResetEvent(false);
             if (_timer.Dispose(wh))
                 wh.WaitOne();
+#endif
 
             OnTick();
         }
@@ -108,8 +113,11 @@ namespace Serilog.Sinks.Elasticsearch
         {
             // Note, called under _stateLock
             var infiniteTimespan = Timeout.InfiniteTimeSpan;
-
+#if NO_TIMER
+            _timer.Start(_connectionSchedule.NextInterval);
+#else
             _timer.Change(_connectionSchedule.NextInterval, infiniteTimespan);
+#endif
         }
 
         void OnTick()

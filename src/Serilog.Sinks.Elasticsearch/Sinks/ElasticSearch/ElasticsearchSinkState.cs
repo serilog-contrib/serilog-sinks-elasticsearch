@@ -121,22 +121,31 @@ namespace Serilog.Sinks.Elasticsearch
 
             try
             {
-                var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
-                if (templateExistsResponse.HttpStatusCode == 200) return;
-
-                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
+                if (!this._options.OverwriteTemplate)
                 {
-                    template = this._templateMatchString,
-                    settings = new Dictionary<string, string>
+                    var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
+                    if (templateExistsResponse.HttpStatusCode == 200) return;
+                }
+
+                if (_options.GetTemplateContent != null)
+                {
+                    this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, _options.GetTemplateContent());
+                }
+                else
+                {
+                    var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
+                    {
+                        template = this._templateMatchString,
+                        settings = new Dictionary<string, string>
                     {
                         {"index.refresh_interval", "5s"}
                     },
-                    mappings = new
-                    {
-                        _default_ = new
+                        mappings = new
                         {
-                            _all = new { enabled = true, omit_norms = true },
-                            dynamic_templates = new List<Object>
+                            _default_ = new
+                            {
+                                _all = new { enabled = true, omit_norms = true },
+                                dynamic_templates = new List<Object>
                             {
                                 //when you use serilog as an adaptor for third party frameworks
                                 //where you have no control over the log message they typically
@@ -170,7 +179,7 @@ namespace Serilog.Sinks.Elasticsearch
                                     }}
                                 }
                             },
-                            properties = new Dictionary<string, object>
+                                properties = new Dictionary<string, object>
                             {
                                 { "message", new { type = "string", index =  "analyzed" } },
                                 { "exceptions", new
@@ -192,15 +201,15 @@ namespace Serilog.Sinks.Elasticsearch
                                     }
                                 } }
                             }
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
             catch (Exception ex)
             {
                 SelfLog.WriteLine("Failed to create the template. {0}", ex);
             }
         }
-
     }
 }

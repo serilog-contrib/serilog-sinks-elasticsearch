@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -10,7 +10,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 {
     public class IndexDeciderTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void IndexDecider_EndsUpInTheOutput()
         {
             //DO NOTE that you cant send objects as scalar values through Logger.*("{Scalar}", {});
@@ -22,6 +22,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             {
                 var properties = new List<LogEventProperty> { new LogEventProperty("Song", new ScalarValue("New Macabre")) };
                 var e = new LogEvent(timestamp, LogEventLevel.Information, null, template, properties);
+                //one off 
+                sink.Emit(e);
+
+
                 sink.Emit(e);
                 var exception = new ArgumentException("parameter");
                 properties = new List<LogEventProperty>
@@ -33,17 +37,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 sink.Emit(e);
             }
 
-            _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(1);
-            var json = _seenHttpPosts.First();
-            var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            bulkJsonPieces.Should().HaveCount(4);
+            var bulkJsonPieces = this.AssertSeenHttpPosts(_seenHttpPosts, 4);
             bulkJsonPieces[0].Should().Contain(@"""_index"":""logstash-information-2013.05.28");
             bulkJsonPieces[1].Should().Contain("New Macabre");
             bulkJsonPieces[2].Should().Contain(@"""_index"":""logstash-fatal-2011.05.28");
             bulkJsonPieces[3].Should().Contain("Old Macabre");
 
             //serilog by default simpy .ToString()'s unknown objects
-            bulkJsonPieces[3].Should().Contain("Complex\":\"{");
+            bulkJsonPieces[3].Should().Contain("Complex\":{");
 
         }
     }
