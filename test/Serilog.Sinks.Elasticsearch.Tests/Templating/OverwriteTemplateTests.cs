@@ -3,11 +3,10 @@ using System.IO;
 using System.Reflection;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class OverwriteTemplateTests : ElasticsearchSinkTestsBase
     {
 
@@ -30,7 +29,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             }
         }
 
-        [Test]
+        [Fact]
         public void ShouldOverwriteTemplate()
         {
             DoRegister();

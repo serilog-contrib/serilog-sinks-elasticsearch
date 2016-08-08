@@ -13,7 +13,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - Be able to customize the store; specify the index name being used, the serializer or the connections to the server (load balanced).
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
 - Automatically create the right mappings for the best usage of the log events in ES or automatically upload your own custom mapping.
-- Version 3 is compatible with Elasticsearch 2.
+- Starting from version 3, compatible with Elasticsearch 2.
 
 ## Quick start
 
@@ -21,7 +21,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink in code or using the appSettings reader (v2.0.42+) as shown below.
+Register the sink in code or using the appSettings reader (from v2.0.42+) as shown below.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
@@ -68,6 +68,10 @@ To use it, simply specify it as the `CustomFormatter` when creating the sink:
       CustomFormatter = new ExceptionAsJsonObjectFormatter(renderMessage:true)
     });
 ```
+### Breaking changes for version 4
+
+Starting from version 4, the sink has been upgraded to work with Serilog 2.0 and has .NET Core support.
+
 ### Breaking changes for version 3
 
 Starting from version 3, the sink supports the Elasticsearch.Net 2 package and Elasticsearch version 2. If you need Elasticsearch 1.x support, then stick with version 2 of the sink.

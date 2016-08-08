@@ -4,25 +4,24 @@ using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NUnit.Framework;
+using Xunit;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class ExceptionAsJsonObjectFormatterTests : ElasticsearchSinkTestsBase
     {
         private static readonly MessageTemplateParser _messageTemplateParser = new MessageTemplateParser();
 
-        [SetUp]
-        public void BeforeEach()
-        {
+        public ExceptionAsJsonObjectFormatterTests() : base()
+        { 
+
             _options.CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage:true);
         }
 
-        [Test]
+        [Fact]
         public void WhenLoggingAnEvent_OutputsValidJson()
         {
             const string expectedMessage = "test";
@@ -37,28 +36,30 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             eventWritten.Message.Should().Be(expectedMessage);
         }
 
-        [Test]
+        [Fact]
         public void WhenLogging_WithException_ExceptionShouldBeRenderedInExceptionField()
         {
             const string expectedExceptionMessage = "test exception";
 
             using (var sink = new ElasticsearchSink(_options))
             {
-                sink.Emit(LogEventWithMessage("test", new ApplicationException(expectedExceptionMessage)));
+                sink.Emit(LogEventWithMessage("test", new Exception(expectedExceptionMessage)));
             }
 
             var eventWritten = AssertAndGetJsonEvents().First();
             var exceptionInfo = eventWritten.Exception;
             exceptionInfo.Should().NotBeNull();
             exceptionInfo.Message.Should().Be(expectedExceptionMessage);
-            exceptionInfo.ClassName.Should().Be("System.ApplicationException");
+#if !DOTNETCORE
+            exceptionInfo.ClassName.Should().Be("System.Exception");
+#endif
         }
 
-        [Test]
+        [Fact]
         public void WhenLogging_ExceptionWithInner_ExceptionShouldIncludeInnerExceptions()
         {
             var inner = new InvalidOperationException();
-            var exception = new ApplicationException("outer", inner);
+            var exception = new Exception("outer", inner);
 
             using (var sink = new ElasticsearchSink(_options))
             {

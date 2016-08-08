@@ -53,6 +53,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             firstEvent.Exceptions[0].Message.Should().NotBeNullOrWhiteSpace()
                 .And.Be(exceptionMessage);
             var realException = firstEvent.Exceptions[0];
+#if !NO_SERIALIZATION
             realException.ExceptionMethod.Should().NotBeNull();
             realException.ExceptionMethod.Name.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.AssemblyName.Should().NotBeNullOrWhiteSpace();
@@ -64,13 +65,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             var nastyException = firstEvent.Exceptions[1];
             nastyException.Depth.Should().Be(1);
             nastyException.Message.Should().Be("nasty inner exception");
-            nastyException.HelpUrl.Should().Be("help url");
             nastyException.StackTraceString.Should().Be("stack trace string");
+            nastyException.HelpUrl.Should().Be("help url");
             nastyException.RemoteStackTraceString.Should().Be("remote stack trace string");
             nastyException.RemoteStackIndex.Should().Be(1);
+            nastyException.ClassName.Should().Be("classname nasty exception");
             nastyException.HResult.Should().Be(123123);
             nastyException.Source.Should().Be("source");
-            nastyException.ClassName.Should().Be("classname nasty exception");
+#endif
             //nastyException.WatsonBuckets.Should().BeEquivalentTo(new byte[] {1,2,3});
 
 
@@ -87,11 +89,13 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
         public NastyException(string message) : base(message) { }
         public NastyException(string message, Exception innerException) : base(message, innerException) { }
 
+#if !NO_SERIALIZATION
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue("Message", this.Message);
             info.AddValue("HelpURL", "help url");
             info.AddValue("StackTraceString", "stack trace string");
+
             info.AddValue("RemoteStackTraceString", "remote stack trace string");
             info.AddValue("RemoteStackIndex", 1);
             info.AddValue("ExceptionMethod", "exception method");
@@ -100,5 +104,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             info.AddValue("ClassName", "classname nasty exception");
             info.AddValue("WatsonBuckets", new byte[] { 1, 2, 3 }, typeof(byte[]));
         }
+#endif
     }
 }

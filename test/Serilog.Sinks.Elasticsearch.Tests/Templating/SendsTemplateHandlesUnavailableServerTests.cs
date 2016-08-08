@@ -2,33 +2,38 @@
 using System.IO;
 using System.Text;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 using Serilog.Debugging;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture(Category = "Integration test")]
+    [Collection("isolation")]
     public class SendsTemplateHandlesUnavailableServerTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public void Should_not_crash_when_server_is_unavaiable()
         {
             // If this crashes, the test will fail
             CreateLoggerThatCrashes();
         }
 
-        [Test]
+        [Fact]
         public void Should_write_error_to_self_log()
         {
             var selfLogMessages = new StringBuilder();
-            SelfLog.Out = new StringWriter(selfLogMessages);
+            SelfLog.Enable(new StringWriter(selfLogMessages));
 
             // Exception occurs on creation - should be logged
             CreateLoggerThatCrashes();
 
             var selfLogContents = selfLogMessages.ToString();
             selfLogContents.Should().Contain("Failed to create the template");
+#if !DOTNETCORE
             selfLogContents.Should().Contain("WebException");
+#else
+                selfLogContents.Should().Contain("HttpRequestException");
+#endif
+
         }
 
         private static ILogger CreateLoggerThatCrashes()

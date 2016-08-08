@@ -1,3 +1,6 @@
+4.x
+ * *BREAKING CHANGE* This sink now uses Serilog 2.0. This is a breaking change, please use a version >=3.x of the sink if you want to use Serilog 1.x.
+
 3.0.130
  * Added an optional ExceptionAsJsonObjectFormatter to support serializing exceptions as a single object (not as an array).
  

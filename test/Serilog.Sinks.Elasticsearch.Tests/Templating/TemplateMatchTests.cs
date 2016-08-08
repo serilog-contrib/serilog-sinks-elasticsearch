@@ -3,11 +3,10 @@ using System.IO;
 using System.Reflection;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class TemplateMatchTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
@@ -36,14 +35,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             
         }
 
-        [Test]
+        [Fact]
         public void TemplatePutToCorrectUrl()
         {
             var uri = this._templatePut.Item1;
             uri.AbsolutePath.Should().Be("/_template/dailyindex-logs-template");
         }
 
-        [Test]
+        [Fact]
         public void TemplateMatchShouldReflectConfiguredIndexFormat()
         {
             var json = this._templatePut.Item2;

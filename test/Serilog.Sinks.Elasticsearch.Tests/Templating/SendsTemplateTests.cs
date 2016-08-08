@@ -3,11 +3,10 @@ using System.IO;
 using System.Reflection;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class SendsTemplateTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
@@ -33,13 +32,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
 
-        [Test]
+        [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
-            this.JsonEquals(this._templatePut.Item2, MethodBase.GetCurrentMethod(), "template");
+            var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
+            this.JsonEquals(this._templatePut.Item2, method, "template");
         }
 
-        [Test]
+        [Fact]
         public void TemplatePutToCorrectUrl()
         {
             var uri = this._templatePut.Item1;
@@ -48,7 +48,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 
         protected void JsonEquals(string json, MethodBase method, string fileName = null)
         {
-            var expected = TestDataHelper.ReadEmbeddedResource(Assembly.GetExecutingAssembly(), "template.json");
+#if DOTNETCORE
+            var assembly = typeof(SendsTemplateTests).GetTypeInfo().Assembly;
+#else
+            var assembly = Assembly.GetExecutingAssembly();
+#endif
+            var expected = TestDataHelper.ReadEmbeddedResource(assembly, "template.json");
             
             var nJson = JObject.Parse(json);
             var nOtherJson = JObject.Parse(expected);

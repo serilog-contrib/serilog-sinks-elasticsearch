@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 using Serilog.Events;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
-    [TestFixture]
     public class RealExceptionNoSerializerTests : ElasticsearchSinkTestsBase
     {
-        [Test]
+        [Fact]
         public async Task WhenPassingASerializer_ShouldExpandToJson()
         {
             try
             {
-                await new HttpClient().GetStringAsync("http://i.do.not.exist");
+                await this.ThrowAsync();
             }
             catch (Exception e)
             {
@@ -34,20 +32,21 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         new LogEventProperty("Complex", new ScalarValue(new { A  = 1, B = 2}))
                     };
                     var logEvent = new LogEvent(timestamp, LogEventLevel.Information, null, template, properties);
+                    //one off
+                    sink.Emit(logEvent);
+
                     sink.Emit(logEvent);
                     logEvent = new LogEvent(timestamp.AddDays(2), LogEventLevel.Information, e, template, properties);
                     sink.Emit(logEvent);
                 }
-                _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(1);
-                var json = _seenHttpPosts.First();
-                var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                bulkJsonPieces.Should().HaveCount(4);
+
+                var bulkJsonPieces = this.AssertSeenHttpPosts(_seenHttpPosts, 4);
                 bulkJsonPieces[0].Should().Contain(@"""_index"":""logstash-2013.05.28");
                 bulkJsonPieces[1].Should().Contain("New Macabre");
                 bulkJsonPieces[1].Should().NotContain("Properties\"");
                 bulkJsonPieces[2].Should().Contain(@"""_index"":""logstash-2013.05.30");
 
-                bulkJsonPieces[3].Should().Contain("Complex\":\"{");
+                bulkJsonPieces[3].Should().Contain("Complex\":{");
                 bulkJsonPieces[3].Should().Contain("exceptions\":[{\"Depth\":0");
             }
         }

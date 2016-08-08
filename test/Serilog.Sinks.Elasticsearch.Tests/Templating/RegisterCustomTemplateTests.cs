@@ -3,11 +3,10 @@ using System.IO;
 using System.Reflection;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class RegisterCustomTemplateTests : ElasticsearchSinkTestsBase
     {
         private const string CustomTemplateContent = @"{ template: ""my-custom-template-*"" }";
@@ -34,7 +33,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             _templatePut = this._seenHttpPuts[0];
         }
 
-        [Test]
+        [Fact]
         public void ShouldRegisterCustomTemplate()
         {
             this._templatePut.Item2.Should().BeEquivalentTo(CustomTemplateContent);

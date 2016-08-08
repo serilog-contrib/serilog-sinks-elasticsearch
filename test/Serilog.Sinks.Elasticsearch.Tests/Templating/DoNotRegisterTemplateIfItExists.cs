@@ -1,10 +1,9 @@
 ﻿using System;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    [TestFixture]
     public class DoNotRegisterIfTemplateExistsTests : ElasticsearchSinkTestsBase
     {
         private void DoRegister()
@@ -25,7 +24,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             }
         }
 
-        [Test]
+        [Fact]
         public void WhenTempplateExists_ShoudNotSendAPutTemplate()
         {
             DoRegister();
