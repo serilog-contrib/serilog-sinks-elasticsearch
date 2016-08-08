@@ -28,11 +28,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 
             var selfLogContents = selfLogMessages.ToString();
             selfLogContents.Should().Contain("Failed to create the template");
-#if !DOTNETCORE
-            selfLogContents.Should().Contain("WebException");
-#else
-                selfLogContents.Should().Contain("HttpRequestException");
-#endif
 
         }
 
