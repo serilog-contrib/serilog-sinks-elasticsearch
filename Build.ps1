@@ -11,7 +11,7 @@ function Invoke-Build()
     & dotnet restore $project --verbosity Warning
 	
 	# calculate version, only when on a branch
-	if ($(git symbolic-ref HEAD) -ne 'fatal: ref HEAD is not a symbolic ref')
+	if ($(git log -n 1 --pretty=%d HEAD).Trim() -ne '(HEAD)')
 	{
 		Write-Output "Determining version number using gitversion"
         
@@ -21,7 +21,7 @@ function Invoke-Build()
     }
     else
     {
-		Write-Output "In a detached HEAD mode, unable to determine version number using gitversion"		
+		Write-Output "In a detached HEAD mode, unable to determine the version number using gitversion"		
     }
   
 
