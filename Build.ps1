@@ -11,7 +11,7 @@ function Invoke-Build()
     & dotnet restore $project --verbosity Warning
 	
 	# calculate version, only when on a branch
-	if ($(git symbolic-ref --short -q HEAD))
+	if ($(git symbolic-ref HEAD) -ne 'fatal: ref HEAD is not a symbolic ref')
 	{
 		Write-Output "Determining version number using gitversion"
         
