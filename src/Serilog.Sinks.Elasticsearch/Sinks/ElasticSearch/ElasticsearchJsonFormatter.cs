@@ -21,7 +21,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Elasticsearch.Net;
 using Serilog.Events;
-using Serilog.Formatting.Json;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.Elasticsearch
@@ -29,7 +28,7 @@ namespace Serilog.Sinks.Elasticsearch
     /// <summary>
     /// Custom Json formatter that respects the configured property name handling and forces 'Timestamp' to @timestamp
     /// </summary>
-    public class ElasticsearchJsonFormatter : JsonFormatter
+    public class ElasticsearchJsonFormatter : DefaultJsonFormatter
     {
         readonly IElasticsearchSerializer _serializer;
         readonly bool _inlineFields;
