@@ -36,6 +36,7 @@ namespace Serilog.Sinks.Elasticsearch
         readonly string _bookmarkFilename;
         readonly string _logFolder;
         readonly string _candidateSearchPath;
+        readonly ExponentialBackoffConnectionSchedule _connectionSchedule;
 
         bool _didRegisterTemplateIfNeeded;
 
@@ -47,6 +48,7 @@ namespace Serilog.Sinks.Elasticsearch
             _bookmarkFilename = Path.GetFullPath(_state.Options.BufferBaseFilename + ".bookmark");
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
+            _connectionSchedule = new ExponentialBackoffConnectionSchedule(_state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5));
 
             _timer = new Timer(s => OnTick());
 
@@ -106,7 +108,7 @@ namespace Serilog.Sinks.Elasticsearch
             // Note, called under _stateLock
             var infiniteTimespan = TimeSpan.FromMilliseconds(Timeout.Infinite); //< can't use Timeout.InfiniteTimespan in .NET 4
 
-            _timer.Change(_period, infiniteTimespan);
+            _timer.Change(_connectionSchedule.NextInterval, infiniteTimespan);
         }
 
         void OnTick()
@@ -183,14 +185,22 @@ namespace Serilog.Sinks.Elasticsearch
                             if (response.Success)
                             {
                                 WriteBookmark(bookmark, nextLineBeginsAtOffset, currentFilePath);
+                                _connectionSchedule.MarkSuccess();
                             }
                             else
                             {
+                                _connectionSchedule.MarkFailure();
                                 SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}", response.HttpStatusCode, response.OriginalException);
+                                SelfLog.WriteLine("Will wait {0} seconds before retry", _connectionSchedule.NextInterval);
+                                break;
                             }
                         }
                         else
                         {
+                            // For whatever reason, there's nothing waiting to send. This means we should try connecting again at the
+                            // regular interval, so mark the attempt as successful.
+                            _connectionSchedule.MarkSuccess();
+
                             // Only advance the bookmark if no other process has the
                             // current file locked, and its length is as we found it.
 
@@ -215,6 +225,8 @@ namespace Serilog.Sinks.Elasticsearch
             catch (Exception ex)
             {
                 SelfLog.WriteLine("Exception while emitting periodic batch from {0}: {1}", this, ex);
+                _connectionSchedule.MarkFailure();
+                SelfLog.WriteLine("Will wait {0} before retry", _connectionSchedule.NextInterval);
             }
             finally
             {
