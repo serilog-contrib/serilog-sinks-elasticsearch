@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "Serilog.Sinks.Elasticsearch": { "target": "project" },
-    "Serilog": "2.1.0",
     "Serilog.Sinks.ColoredConsole": "2.0.0",
     "dotnet-test-nunit": "3.4.0-beta-1",
     "xunit": "2.2.0-beta2-build3300",
