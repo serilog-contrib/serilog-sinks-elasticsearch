@@ -10,10 +10,20 @@ function Invoke-Build()
     & dotnet restore $test --verbosity Warning
     & dotnet restore $project --verbosity Warning
 	
-	# calculate version
-	& cd $projectFolder 
-	& dotnet gitversion $project --verbosity Warning
-	& cd "..\\.."
+	# calculate version, only when on a branch
+	if ($(git log -n 1 --pretty=%d HEAD).Trim() -ne '(HEAD)')
+	{
+		Write-Output "Determining version number using gitversion"
+        
+		& cd $projectFolder 
+		& dotnet gitversion $project --verbosity Warning
+		& cd "..\\.."
+    }
+    else
+    {
+		Write-Output "In a detached HEAD mode, unable to determine the version number using gitversion"		
+    }
+  
 
     & dotnet test $test -c Release
     if($LASTEXITCODE -ne 0) 
