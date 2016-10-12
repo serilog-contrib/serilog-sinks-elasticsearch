@@ -103,7 +103,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "indexFormat": "custom-index-{0:yyyy.MM}",
           "templateName": "myCustomTemplate"
         }       
-    ]]
+    }]
   }
 }
 ```
