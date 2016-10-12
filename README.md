@@ -55,6 +55,7 @@ And start writing your events using Serilog.
 - For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
 
 ### A note about Kibana
+
 In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
 by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`. Use the 'Depth' field to traverse the inner exceptions flow. 
 
@@ -62,12 +63,53 @@ However, not all features in Kibana work just as well with JSON arrays - for ins
 exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsJsonObjectFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
 
 To use it, simply specify it as the `CustomFormatter` when creating the sink:
+
 ```csharp
     new ElasticsearchSink(new ElasticsearchSinkOptions(url)
     {
       CustomFormatter = new ExceptionAsJsonObjectFormatter(renderMessage:true)
     });
 ```
+
+### JSON `appsettings.json` configuration
+
+To use the Elasticsearch sink with _Microsoft.Extensions.Configuration_, for example with ASP.NET Core or .NET Core, use the [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration) package. First install that package if you have not already done so:
+
+```powershell
+Install-Package Serilog.Settings.Configuration
+```
+
+Instead of configuring the sink directly in code, call `ReadFrom.Configuration()`:
+
+```csharp
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .CreateLogger();
+```
+
+In your `appsettings.json` file, under the `Serilog` node, :
+
+```json
+{
+  "Serilog": {
+    "WriteTo": [{ 
+        "Name": "Elasticsearch", 
+        "Args": { 
+          "nodeUris": "http://localhost:9200;http://remotehost:9200/",
+          "indexFormat": "custom-index-{0:yyyy.MM}",
+          "templateName": "myCustomTemplate"
+        }       
+    ]]
+  }
+}
+```
+
+See the XML `<appSettings>` example above for a discussion of available `Args` options.
+
 ### Breaking changes for version 4
 
 Starting from version 4, the sink has been upgraded to work with Serilog 2.0 and has .NET Core support.
