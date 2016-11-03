@@ -42,10 +42,13 @@ namespace Serilog
         /// </remarks>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
         /// <param name="options">Provides options specific to the Elasticsearch sink</param>
+        /// <param name="queueSizeLimit">The maximum number of events that will be held in-memory while waiting to ship them to
+        /// Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>
         /// <returns>LoggerConfiguration object</returns>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
-            ElasticsearchSinkOptions options = null)
+            ElasticsearchSinkOptions options = null,
+            int queueSizeLimit = ElasticsearchSink.DefaultQueueSizeLimit)
         {
             //TODO make sure we do not kill appdata injection
             //TODO handle bulk errors and write to self log, what does logstash do in this case?
@@ -53,8 +56,11 @@ namespace Serilog
 
             options = options ?? new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
 
-            var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
-                ? (ILogEventSink)new ElasticsearchSink(options)
+            if (queueSizeLimit < 0)
+                throw new ArgumentOutOfRangeException(nameof(queueSizeLimit), "Queue size limit must be positive number above zero.");
+
+            ILogEventSink sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
+                ? (ILogEventSink)new ElasticsearchSink(options, queueSizeLimit)
                 : new DurableElasticsearchSink(options);
 
             return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
@@ -76,7 +82,7 @@ namespace Serilog
             string templateName = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
-                throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
+                throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
 
             IEnumerable<Uri> nodes = nodeUris
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)

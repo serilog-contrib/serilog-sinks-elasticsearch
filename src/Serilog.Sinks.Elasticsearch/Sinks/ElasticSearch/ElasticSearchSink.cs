@@ -34,8 +34,11 @@ namespace Serilog.Sinks.Elasticsearch
         /// Creates a new ElasticsearchSink instance with the provided options
         /// </summary>
         /// <param name="options">Options configuring how the sink behaves, may NOT be null</param>
-        public ElasticsearchSink(ElasticsearchSinkOptions options)
-            : base(options.BatchPostingLimit, options.Period)
+        /// <param name="queueSizeLimit">The maximum number of events that will be held in-memory while waiting to ship them to
+        /// Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>
+
+        public ElasticsearchSink(ElasticsearchSinkOptions options, int queueSizeLimit = ElasticsearchSink.DefaultQueueSizeLimit)
+            : base(options.BatchPostingLimit, options.Period, queueSizeLimit)
         {
             _state = ElasticsearchSinkState.Create(options);
             _state.RegisterTemplateIfNeeded();
@@ -79,5 +82,10 @@ namespace Serilog.Sinks.Elasticsearch
             }
             return _state.Client.Bulk<T>(payload);
         }
+
+        /// <summary>
+        /// The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped.
+        /// </summary>
+        public const int DefaultQueueSizeLimit = 100000;
     }
 }
