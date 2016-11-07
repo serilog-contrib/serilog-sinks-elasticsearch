@@ -1,12 +1,12 @@
 {
-  "version": "0.0.0",
+  "version": "4.1.0-f-minlevel0001",
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../assets/Serilog.snk",
     "xmlDoc": true
   },
   "authors": [
-    "Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors"
+    "Michiel van Oudheusden", "Martijn Laarman", "Mogens Heller Grabe", "Serilog Contributors"
   ],
   "tools": {
     "dotnet-version": "1.1.0",
