@@ -41,15 +41,17 @@ namespace Serilog
         /// You can automatically create one by specifying this in the options.
         /// </remarks>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
-        /// <param name="options">Provides options specific to the Elasticsearch sink</param>
+        /// <param name="options">Provides options specific to the Elasticsearch sink.</param>
+        /// <param name="restrictedToMinimumLevel">The minimum level for events passed through the sink.</param>
         /// <returns>LoggerConfiguration object</returns>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
-            ElasticsearchSinkOptions options = null)
+            ElasticsearchSinkOptions options = null,
+            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum)
         {
             //TODO make sure we do not kill appdata injection
             //TODO handle bulk errors and write to self log, what does logstash do in this case?
-            //TODO NEST trace logging ID's to corrolate requests to eachother
+            //TODO NEST trace logging ID's to correlate requests to eachother
 
             options = options ?? new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
 
@@ -57,7 +59,12 @@ namespace Serilog
                 ? (ILogEventSink)new ElasticsearchSink(options)
                 : new DurableElasticsearchSink(options);
 
-            return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
+#pragma warning disable CS0618 // Type or member is obsolete
+            // This can be removed once MinimumLogEventLevel is completely removed.
+            var levelIncludingLegacySetting = options.MinimumLogEventLevel ?? restrictedToMinimumLevel;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            return loggerSinkConfiguration.Sink(sink, levelIncludingLegacySetting);
         }
 
         /// <summary>
@@ -67,13 +74,15 @@ namespace Serilog
         /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
+        /// <param name="restrictedToMinimumLevel">The minimum level for events passed through the sink.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
             string nodeUris,
             string indexFormat = null,
-            string templateName = null)
+            string templateName = null,
+            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -95,7 +104,7 @@ namespace Serilog
                 options.TemplateName = templateName;
             }
 
-            return Elasticsearch(loggerSinkConfiguration, options);
+            return Elasticsearch(loggerSinkConfiguration, options, restrictedToMinimumLevel);
         }
     }
 }

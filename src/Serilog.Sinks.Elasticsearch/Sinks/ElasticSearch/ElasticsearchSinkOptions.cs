@@ -18,6 +18,7 @@ using System.Linq;
 using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Formatting;
+using System.ComponentModel;
 
 namespace Serilog.Sinks.Elasticsearch
 {
@@ -100,6 +101,8 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// The minimum log event level required in order to write an event to the sink.
         /// </summary>
+        [Obsolete("Please use `restrictedToMinimumLevel` when adding the sink to the logger configuration.")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public LogEventLevel? MinimumLogEventLevel { get; set; }
 
         ///<summary>
