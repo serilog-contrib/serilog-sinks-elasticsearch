@@ -38,7 +38,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
                 sink.Emit(new LogEvent(DateTime.Now, LogEventLevel.Information, null, new MessageTemplateParser().Parse("@MyProperty"), properties));
                 sink.Emit(new LogEvent(DateTime.Now, LogEventLevel.Information, null, new MessageTemplateParser().Parse("@MyProperty"), properties));
-                
+                sink.Emit(new LogEvent(DateTime.Now, LogEventLevel.Information, null, new MessageTemplateParser().Parse("@MyProperty"), properties));
+
+
             }
             var bulkJsonPieces = this.AssertSeenHttpPosts(_seenHttpPosts, 4);
             bulkJsonPieces[1].ShouldBeEquivalentTo(
