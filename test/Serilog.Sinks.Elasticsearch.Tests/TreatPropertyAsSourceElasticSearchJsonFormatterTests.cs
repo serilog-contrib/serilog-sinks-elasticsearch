@@ -14,7 +14,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
     public class TreatPropertyAsSourceElasticSearchJsonFormatterTests : ElasticsearchSinkTestsBase
     {
         [Fact]
-        public async Task TreatPropertyAsSource()
+        public void TreatPropertyAsSource()
         {
             using (var sink = new ElasticsearchSink(new ElasticsearchSinkOptions(
                 new SingleNodeConnectionPool(new Uri("http://localhost:9200")))
