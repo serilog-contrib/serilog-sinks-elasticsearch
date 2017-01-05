@@ -37,22 +37,8 @@ namespace Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch
         ///        "Level": "Information",
         ///      }
         /// </param>
-        /// <param name="omitEnclosingObject">If true, the properties of the event will be written to
-        /// the output without enclosing braces. Otherwise, if false, each event will be written as a well-formed
-        /// JSON object.</param>
-        /// <param name="closingDelimiter">A string that will be written after each log event is formatted.
-        /// If null, <see cref="Environment.NewLine"/> will be used. Ignored if <paramref name="omitEnclosingObject"/>
-        /// is true.</param>
-        /// <param name="renderMessage">If true, the message will be rendered and written to the output as a
-        /// property named RenderedMessage.</param>
-        /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
-        /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
-        /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        public TreatPropertyAsSourceElasticsearchJsonFormatter(string propertyNameToBeTreatedAsSource, bool omitEnclosingObject = false, string closingDelimiter = null,
-            bool renderMessage = false,
-            IFormatProvider formatProvider = null, IElasticsearchSerializer serializer = null, bool inlineFields = false)
-            : base(omitEnclosingObject, closingDelimiter, renderMessage,
-                formatProvider, serializer, inlineFields)
+        public TreatPropertyAsSourceElasticsearchJsonFormatter(string propertyNameToBeTreatedAsSource)
+            : base(renderMessage:false, inlineFields:true)
         {
             _propertyNameToBeTreatedAsSource = propertyNameToBeTreatedAsSource.ToLowerInvariant();
         }
