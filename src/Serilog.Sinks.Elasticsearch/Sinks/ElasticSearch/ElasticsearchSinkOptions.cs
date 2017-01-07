@@ -63,12 +63,12 @@ namespace Serilog.Sinks.Elasticsearch
         public string IndexFormat { get; set; }
 
         ///<summary>
-        /// The default elasticsearch type name to use for the log events defaults to: logevent
+        /// The default elasticsearch type name to use for the log events. Defaults to: logevent.
         /// </summary>
         public string TypeName { get; set; }
 
         ///<summary>
-        /// The maximum number of events to post in a single batch.
+        /// The maximum number of events to post in a single batch. Defaults to: 50.
         /// </summary>
         public int BatchPostingLimit { get; set; }
 
@@ -83,17 +83,17 @@ namespace Serilog.Sinks.Elasticsearch
         public IFormatProvider FormatProvider { get; set; }
 
         ///<summary>
-        /// Allows you to override the connection used to communicate with elasticsearch
+        /// Allows you to override the connection used to communicate with elasticsearch.
         /// </summary>
         public IConnection Connection { get; set; }
 
         /// <summary>
-        /// The connection timeout (in milliseconds) when sending bulk operations to elasticsearch (defaults to 5000)
+        /// The connection timeout (in milliseconds) when sending bulk operations to elasticsearch (defaults to 5000).
         /// </summary>
         public TimeSpan ConnectionTimeout { get; set; }
 
         /// <summary>
-        /// When true fields will be written at the root of the json document
+        /// When true fields will be written at the root of the json document.
         /// </summary>
         public bool InlineFields { get; set; }
 
@@ -129,7 +129,7 @@ namespace Serilog.Sinks.Elasticsearch
         public long? BufferFileSizeLimitBytes { get; set; }
 
         /// <summary>
-        /// The interval between checking the buffer files
+        /// The interval between checking the buffer files.
         /// </summary>
         public TimeSpan? BufferLogShippingInterval { get; set; }
 

@@ -38,6 +38,14 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.nodeUris" value="http://localhost:9200;http://remotehost:9200"/>
     <add key="serilog:write-to:Elasticsearch.indexFormat" value="custom-index-{0:yyyy.MM}"/>
     <add key="serilog:write-to:Elasticsearch.templateName" value="myCustomTemplate"/>
+    <add key="serilog:write-to:Elasticsearch.typeName" value="myCustomLogEventType"/>
+    <add key="serilog:write-to:Elasticsearch.batchPostingLimit" value="50"/>
+    <add key="serilog:write-to:Elasticsearch.period" value="2"/>
+    <add key="serilog:write-to:Elasticsearch.inlineFields" value="true"/>
+    <add key="serilog:write-to:Elasticsearch.minimumLogEventLevel" value="Warning"/>
+    <add key="serilog:write-to:Elasticsearch.bufferBaseFilename" value="C:\Temp\SerilogElasticBuffer"/>
+    <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
+    <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>
   </appSettings>
 ```
 
@@ -101,7 +109,15 @@ In your `appsettings.json` file, under the `Serilog` node, :
         "Args": { 
           "nodeUris": "http://localhost:9200;http://remotehost:9200/",
           "indexFormat": "custom-index-{0:yyyy.MM}",
-          "templateName": "myCustomTemplate"
+          "templateName": "myCustomTemplate",
+          "typeName": "myCustomLogEventType",
+          "batchPostingLimit": 50,
+          "period": 2000,
+					"inlineFields": true,
+          "minimumLogEventLevel": "Warning",
+					"bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
+          "bufferFileSizeLimitBytes": 5242880,
+          "bufferLogShippingInterval": 5000
         }       
     }]
   }
