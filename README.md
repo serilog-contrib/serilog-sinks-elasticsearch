@@ -113,9 +113,9 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "typeName": "myCustomLogEventType",
           "batchPostingLimit": 50,
           "period": 2000,
-					"inlineFields": true,
+          "inlineFields": true,
           "minimumLogEventLevel": "Warning",
-					"bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
+          "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000
         }       
