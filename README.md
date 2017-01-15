@@ -91,6 +91,7 @@ Instead of configuring the sink directly in code, call `ReadFrom.Configuration()
 
 ```csharp
 var configuration = new ConfigurationBuilder()
+    .SetBasePath(env.ContentRootPath)
     .AddJsonFile("appsettings.json")
     .Build();
 
