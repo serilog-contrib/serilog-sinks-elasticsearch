@@ -62,6 +62,42 @@ And start writing your events using Serilog.
 - Report issues to the [issue tracker](https://github.com/serilog/serilog-sinks-elasticsearch/issues). PR welcome, but please do this against the dev branch.
 - For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
 
+### Treating a specified property as source in ElasticSearch
+
+Custom Json formatter that treats a specified destructing property as the full source.
+Suitable for situations where you want only your destructed property as the content 
+that ends up in elasticsearch and want to avoid any other extra information. For example
+if your object if fully self contained with its own timestamp and everything then you would 
+want to avoid the extra time and other properties added by the json formatter and also want to
+avoid your main object appearing as a property of another top level object.
+For example if your object has properties Timestamp, Level, Prop1 and Prop2 then it will look like the following
+in elasticearch and no other extra information will be added if you log it like 
+
+```csharp
+_seriLogger.Information("{@MyProperty}", new {Timestamp = DateTime.UtcNow, Level="Error", Prop1="Prop1value", Prop2="Prop2Value"});
+```
+
+then it appears as the following json in elasticearch:
+
+```json
+"_source": {
+	"Timestamp": "2017-01-03T04:17:24.7896225Z",
+    "Level": "Information",
+	"Prop1": "Prop1value",
+	"Prop2": "Prop2Value"
+} 
+```
+To use it, simply specify it as the `CustomFormatter` when creating the sink:
+
+```csharp
+    new ElasticsearchSink(new ElasticsearchSinkOptions(url)
+    {
+		CustomFormatter = new TreatPropertyAsSourceElasticsearchJsonFormatter("MyProperty")
+    });
+```
+where MyProperty is name that appears in the destructing template like "{@MyProperty}" as above.
+
+
 ### A note about Kibana
 
 In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
