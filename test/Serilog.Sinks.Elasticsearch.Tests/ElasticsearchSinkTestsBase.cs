@@ -34,6 +34,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
             _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, () => _templateExistsReturnCode);
             _serializer = new JsonNetSerializer(new ConnectionSettings(connectionPool, _connection));
+        
             _options = new ElasticsearchSinkOptions(connectionPool)
             {
                 BatchPostingLimit = 2,
