@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -67,13 +68,29 @@ namespace Serilog
         /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
+        /// <param name="typeName"><see cref="ElasticsearchSinkOptions.TypeName"/></param>
+        /// <param name="batchPostingLimit"><see cref="ElasticsearchSinkOptions.BatchPostingLimit"/></param>
+        /// <param name="period"><see cref="ElasticsearchSinkOptions.Period"/></param>
+        /// <param name="inlineFields"><see cref="ElasticsearchSinkOptions.InlineFields"/></param>
+        /// <param name="minimumLogEventLevel"><see cref="ElasticsearchSinkOptions.MinimumLogEventLevel"/></param>
+        /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
+        /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
+        /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
             this LoggerSinkConfiguration loggerSinkConfiguration,
             string nodeUris,
             string indexFormat = null,
-            string templateName = null)
+            string templateName = null,
+            string typeName = "logevent",
+            int batchPostingLimit = 50,
+            int period = 2,
+            bool inlineFields = false,
+            LogEventLevel minimumLogEventLevel = LogEventLevel.Information,
+            string bufferBaseFilename = null,
+            long? bufferFileSizeLimitBytes = null,
+            long bufferLogShippingInterval = 5000)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -94,6 +111,29 @@ namespace Serilog
                 options.AutoRegisterTemplate = true;
                 options.TemplateName = templateName;
             }
+
+            if (!string.IsNullOrWhiteSpace(typeName))
+            {
+                options.TypeName = typeName;
+            }
+
+            options.BatchPostingLimit = batchPostingLimit;
+            options.Period = TimeSpan.FromSeconds(period);
+            options.InlineFields = inlineFields;
+            options.MinimumLogEventLevel = minimumLogEventLevel;
+
+            if (!string.IsNullOrWhiteSpace(bufferBaseFilename))
+            {
+                Path.GetFullPath(bufferBaseFilename);       // validate path
+                options.BufferBaseFilename = bufferBaseFilename;
+            }
+
+            if (bufferFileSizeLimitBytes.HasValue)
+            {
+                options.BufferFileSizeLimitBytes = bufferFileSizeLimitBytes.Value;
+            }
+
+            options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }

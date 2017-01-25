@@ -38,6 +38,14 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.nodeUris" value="http://localhost:9200;http://remotehost:9200"/>
     <add key="serilog:write-to:Elasticsearch.indexFormat" value="custom-index-{0:yyyy.MM}"/>
     <add key="serilog:write-to:Elasticsearch.templateName" value="myCustomTemplate"/>
+    <add key="serilog:write-to:Elasticsearch.typeName" value="myCustomLogEventType"/>
+    <add key="serilog:write-to:Elasticsearch.batchPostingLimit" value="50"/>
+    <add key="serilog:write-to:Elasticsearch.period" value="2"/>
+    <add key="serilog:write-to:Elasticsearch.inlineFields" value="true"/>
+    <add key="serilog:write-to:Elasticsearch.minimumLogEventLevel" value="Warning"/>
+    <add key="serilog:write-to:Elasticsearch.bufferBaseFilename" value="C:\Temp\SerilogElasticBuffer"/>
+    <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
+    <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>
   </appSettings>
 ```
 
@@ -55,19 +63,70 @@ And start writing your events using Serilog.
 - For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
 
 ### A note about Kibana
+
 In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
 by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`. Use the 'Depth' field to traverse the inner exceptions flow. 
 
 However, not all features in Kibana work just as well with JSON arrays - for instance, including
-exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsJsonObjectFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
+exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsObjectJsonFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
 
 To use it, simply specify it as the `CustomFormatter` when creating the sink:
+
 ```csharp
     new ElasticsearchSink(new ElasticsearchSinkOptions(url)
     {
       CustomFormatter = new ExceptionAsJsonObjectFormatter(renderMessage:true)
     });
 ```
+
+### JSON `appsettings.json` configuration
+
+To use the Elasticsearch sink with _Microsoft.Extensions.Configuration_, for example with ASP.NET Core or .NET Core, use the [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration) package. First install that package if you have not already done so:
+
+```powershell
+Install-Package Serilog.Settings.Configuration
+```
+
+Instead of configuring the sink directly in code, call `ReadFrom.Configuration()`:
+
+```csharp
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(env.ContentRootPath)
+    .AddJsonFile("appsettings.json")
+    .Build();
+
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(configuration)
+    .CreateLogger();
+```
+
+In your `appsettings.json` file, under the `Serilog` node, :
+
+```json
+{
+  "Serilog": {
+    "WriteTo": [{ 
+        "Name": "Elasticsearch", 
+        "Args": { 
+          "nodeUris": "http://localhost:9200;http://remotehost:9200/",
+          "indexFormat": "custom-index-{0:yyyy.MM}",
+          "templateName": "myCustomTemplate",
+          "typeName": "myCustomLogEventType",
+          "batchPostingLimit": 50,
+          "period": 2000,
+          "inlineFields": true,
+          "minimumLogEventLevel": "Warning",
+          "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
+          "bufferFileSizeLimitBytes": 5242880,
+          "bufferLogShippingInterval": 5000
+        }       
+    }]
+  }
+}
+```
+
+See the XML `<appSettings>` example above for a discussion of available `Args` options.
+
 ### Breaking changes for version 4
 
 Starting from version 4, the sink has been upgraded to work with Serilog 2.0 and has .NET Core support.
