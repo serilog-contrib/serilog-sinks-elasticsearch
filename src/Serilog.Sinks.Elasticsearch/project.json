@@ -1,5 +1,5 @@
 {
-  "version": "4.1.1-unstable0174",
+  "version": "4.1.1",
   "buildOptions": {
     "warningsAsErrors": true,
     "keyFile": "../../assets/Serilog.snk",
