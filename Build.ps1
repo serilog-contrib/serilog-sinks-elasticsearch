@@ -7,6 +7,12 @@ function Invoke-Build()
 {
     Write-Output "Building"
 
+	if(Test-Path .\artifacts) {
+		echo "build: Cleaning .\artifacts"
+		Remove-Item .\artifacts -Force -Recurse
+	}
+
+
     & dotnet restore $test --verbosity Warning
     & dotnet restore $project --verbosity Warning
 	
