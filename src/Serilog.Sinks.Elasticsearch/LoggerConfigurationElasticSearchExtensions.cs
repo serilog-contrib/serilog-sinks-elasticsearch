@@ -20,6 +20,7 @@ using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
+using System.Collections.Specialized;
 
 namespace Serilog
 {
@@ -76,6 +77,7 @@ namespace Serilog
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
+        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>        
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -90,7 +92,8 @@ namespace Serilog
             LogEventLevel minimumLogEventLevel = LogEventLevel.Information,
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
-            long bufferLogShippingInterval = 5000)
+            long bufferLogShippingInterval = 5000,
+            string connectionGlobalHeaders = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -134,6 +137,22 @@ namespace Serilog
             }
 
             options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
+
+            if (!string.IsNullOrWhiteSpace(connectionGlobalHeaders))
+            {
+                NameValueCollection headers = new NameValueCollection();
+                connectionGlobalHeaders
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList()
+                    .ForEach(headerValueStr =>
+                    {
+                        var headerValue = headerValueStr.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                        headers.Add(headerValue[0], headerValue[1]);
+                    });
+
+                options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
+            }
+
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
