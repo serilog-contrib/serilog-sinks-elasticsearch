@@ -49,10 +49,6 @@ namespace Serilog
             this LoggerSinkConfiguration loggerSinkConfiguration,
             ElasticsearchSinkOptions options = null)
         {
-            //TODO make sure we do not kill appdata injection
-            //TODO handle bulk errors and write to self log, what does logstash do in this case?
-            //TODO NEST trace logging ID's to corrolate requests to eachother
-
             options = options ?? new ElasticsearchSinkOptions(new[] { new Uri(DefaultNodeUri) });
 
             var sink = string.IsNullOrWhiteSpace(options.BufferBaseFilename)
@@ -73,11 +69,11 @@ namespace Serilog
         /// <param name="batchPostingLimit"><see cref="ElasticsearchSinkOptions.BatchPostingLimit"/></param>
         /// <param name="period"><see cref="ElasticsearchSinkOptions.Period"/></param>
         /// <param name="inlineFields"><see cref="ElasticsearchSinkOptions.InlineFields"/></param>
-        /// <param name="minimumLogEventLevel"><see cref="ElasticsearchSinkOptions.MinimumLogEventLevel"/></param>
+        /// <param name="minimumLogEventLevel">The minimum log event level required in order to write an event to the sink.</param>
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
-        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>        
+        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -89,7 +85,7 @@ namespace Serilog
             int batchPostingLimit = 50,
             int period = 2,
             bool inlineFields = false,
-            LogEventLevel minimumLogEventLevel = LogEventLevel.Information,
+            LogEventLevel minimumLogEventLevel = LevelAlias.Minimum,
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
@@ -152,7 +148,6 @@ namespace Serilog
 
                 options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
             }
-
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
