@@ -69,7 +69,7 @@ namespace Serilog
         /// <param name="batchPostingLimit"><see cref="ElasticsearchSinkOptions.BatchPostingLimit"/></param>
         /// <param name="period"><see cref="ElasticsearchSinkOptions.Period"/></param>
         /// <param name="inlineFields"><see cref="ElasticsearchSinkOptions.InlineFields"/></param>
-        /// <param name="minimumLogEventLevel">The minimum log event level required in order to write an event to the sink.</param>
+        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
@@ -85,7 +85,7 @@ namespace Serilog
             int batchPostingLimit = 50,
             int period = 2,
             bool inlineFields = false,
-            LogEventLevel minimumLogEventLevel = LevelAlias.Minimum,
+            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
@@ -119,7 +119,7 @@ namespace Serilog
             options.BatchPostingLimit = batchPostingLimit;
             options.Period = TimeSpan.FromSeconds(period);
             options.InlineFields = inlineFields;
-            options.MinimumLogEventLevel = minimumLogEventLevel;
+            options.MinimumLogEventLevel = restrictedToMinimumLevel;
 
             if (!string.IsNullOrWhiteSpace(bufferBaseFilename))
             {
