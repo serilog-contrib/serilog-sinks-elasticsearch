@@ -26,7 +26,6 @@ namespace Serilog.Sinks.Elasticsearch
     /// </summary>
     public class ElasticsearchSinkOptions
     {
-
         /// <summary>
         /// When set to true the sink will register an index template for the logs in elasticsearch.
         /// This template is optimized to deal with serilog events
@@ -116,7 +115,6 @@ namespace Serilog.Sinks.Elasticsearch
         /// Function to decide which index to write the LogEvent to
         /// </summary>
         public Func<LogEvent, DateTimeOffset, string> IndexDecider { get; set; }
-
 
         /// <summary>
         /// Optional path to directory that can be used as a log shipping buffer for increasing the reliability of the log forwarding.
