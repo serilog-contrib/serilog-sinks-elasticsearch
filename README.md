@@ -76,7 +76,7 @@ To use it, simply specify it as the `CustomFormatter` when creating the sink:
 ```csharp
     new ElasticsearchSink(new ElasticsearchSinkOptions(url)
     {
-      CustomFormatter = new ExceptionAsJsonObjectFormatter(renderMessage:true)
+      CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage:true)
     });
 ```
 
