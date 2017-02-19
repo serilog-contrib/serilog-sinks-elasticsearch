@@ -142,7 +142,7 @@ namespace Serilog
                     .ToList()
                     .ForEach(headerValueStr =>
                     {
-                        var headerValue = headerValueStr.Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+                        var headerValue = headerValueStr.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
                         headers.Add(headerValue[0], headerValue[1]);
                     });
 
