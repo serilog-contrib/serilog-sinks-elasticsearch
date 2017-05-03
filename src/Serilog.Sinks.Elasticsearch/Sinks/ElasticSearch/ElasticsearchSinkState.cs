@@ -133,13 +133,18 @@ namespace Serilog.Sinks.Elasticsearch
                 }
                 else
                 {
+                    var settings = new Dictionary<string, string>
+                    {
+                        {"index.refresh_interval", "5s"}
+                    };
+
+                    if (_options.NumberOfShards.HasValue)
+                        settings.Add("number_of_shards", _options.NumberOfShards.Value.ToString());
+
                     var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
                     {
                         template = this._templateMatchString,
-                        settings = new Dictionary<string, string>
-                    {
-                        {"index.refresh_interval", "5s"}
-                    },
+                        settings = settings,
                         mappings = new
                         {
                             _default_ = new
