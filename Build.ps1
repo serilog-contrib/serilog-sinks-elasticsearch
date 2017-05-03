@@ -12,7 +12,6 @@ function Invoke-Build()
 		Remove-Item .\artifacts -Force -Recurse
 	}
 
-
     & dotnet restore $test --verbosity Warning
     & dotnet restore $project --verbosity Warning
 	
@@ -22,7 +21,7 @@ function Invoke-Build()
 		Write-Output "Determining version number using gitversion"
         
 		& cd $projectFolder 
-		& dotnet gitversion $project --verbosity Warning
+		& dotnet gitversion  --verbosity Warning
 		& cd "..\\.."
     }
     else
