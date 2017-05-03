@@ -1,3 +1,6 @@
+5.1
+ * You can specify the number of shards when creating the template mapping. 
+
 5.0
  * To make the sink work in line with the other sinks, there is a breaking change as described in PR (https://github.com/serilog/serilog-sinks-elasticsearch/pull/94). minimumLogEventLevel is renamed to restrictedToMinimumLevel. The behaviour is now also consistent when you set the minimum level.
 
