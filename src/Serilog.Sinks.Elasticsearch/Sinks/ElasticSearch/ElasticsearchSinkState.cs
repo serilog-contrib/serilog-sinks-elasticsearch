@@ -85,14 +85,14 @@ namespace Serilog.Sinks.Elasticsearch
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
-                renderMessage: true,
+                renderMessage: options.RenderMessage,
                 closingDelimiter: string.Empty,
                 serializer: options.Serializer,
                 inlineFields: options.InlineFields
             );
             _durableFormatter = options.CustomDurableFormatter ?? new ElasticsearchJsonFormatter(
                formatProvider: options.FormatProvider,
-               renderMessage: true,
+               renderMessage: options.RenderMessage,
                closingDelimiter: Environment.NewLine,
                serializer: options.Serializer,
                inlineFields: options.InlineFields
