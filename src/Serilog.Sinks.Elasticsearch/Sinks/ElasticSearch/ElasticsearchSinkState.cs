@@ -140,6 +140,9 @@ namespace Serilog.Sinks.Elasticsearch
 
                     if (_options.NumberOfShards.HasValue)
                         settings.Add("number_of_shards", _options.NumberOfShards.Value.ToString());
+					
+					if (_options.NumberOfReplicas.HasValue)
+                        settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
                     var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
                     {
