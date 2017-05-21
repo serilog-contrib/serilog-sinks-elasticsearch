@@ -35,7 +35,7 @@
     "Elasticsearch.Net": "2.4.2",
     "Serilog": "2.2.1",
     "Serilog.Sinks.File": "3.0.1",
-    "Serilog.Sinks.PeriodicBatching": "2.0.0",
+    "Serilog.Sinks.PeriodicBatching": "2.1.0",
     "Serilog.Sinks.RollingFile": "3.0.1"
   },
   "configurations": {
