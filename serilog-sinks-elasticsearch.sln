@@ -1,11 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Serilog.Sinks.Elasticsearch", "src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.xproj", "{A2317307-13D2-4209-9D2F-9430FFDD8A9C}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.xproj", "{667F95F7-28AF-48FA-9B69-FF5434AFB064}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6-5BA9-4987-80CF-DF9F23F54947}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -20,20 +16,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6
 		src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec = src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch", "src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj", "{EEB0D119-687E-444E-BF14-9BDAEC9BA3EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2317307-13D2-4209-9D2F-9430FFDD8A9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{667F95F7-28AF-48FA-9B69-FF5434AFB064}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEB0D119-687E-444E-BF14-9BDAEC9BA3EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB0D119-687E-444E-BF14-9BDAEC9BA3EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB0D119-687E-444E-BF14-9BDAEC9BA3EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB0D119-687E-444E-BF14-9BDAEC9BA3EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
