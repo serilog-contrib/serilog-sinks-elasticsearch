@@ -1,7 +1,7 @@
 $solution = "$project.sln"
-$test = "test\\Serilog.Sinks.Elasticsearch.Tests\\project.json"
+$test = "test\\Serilog.Sinks.Elasticsearch.Tests\\Serilog.Sinks.Elasticsearch.Tests.csproj"
 $projectFolder = "src\\Serilog.Sinks.Elasticsearch"
-$project = $projectFolder + "\\project.json"
+$project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
 
 function Invoke-Build()
 {
