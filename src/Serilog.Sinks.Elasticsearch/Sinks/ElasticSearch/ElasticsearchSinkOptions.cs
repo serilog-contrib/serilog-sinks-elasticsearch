@@ -50,6 +50,18 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public bool OverwriteTemplate { get; set; }
 
+        /// <summary>
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to override the default number of shards.
+        /// If not provided, this will default to the default number_of_shards configured in Elasticsearch.
+        /// </summary>
+        public int? NumberOfShards { get; set; }
+		
+		/// <summary>
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to override the default number of replicas.
+        /// If not provided, this will default to the default number_of_replicas configured in Elasticsearch.
+        /// </summary>
+        public int? NumberOfReplicas { get; set; }
+
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
