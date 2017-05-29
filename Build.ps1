@@ -6,15 +6,17 @@ $project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
 function Invoke-Build()
 {
     Write-Output "Building"
-    & choco install dotnetcore --version 1.1.0
 
 	if(Test-Path .\artifacts) {
 		echo "build: Cleaning .\artifacts"
 		Remove-Item .\artifacts -Force -Recurse
 	}
 
-    & dotnet restore $test --verbosity Warning
-    & dotnet restore $project --verbosity Warning
+    #& dotnet restore $test --verbosity Warning
+    #& dotnet restore $project --verbosity Warning
+
+    & nuget restore $test
+    & nuget restore $project
 	
 	# calculate version, only when on a branch
 	if ($(git log -n 1 --pretty=%d HEAD).Trim() -ne '(HEAD)')
