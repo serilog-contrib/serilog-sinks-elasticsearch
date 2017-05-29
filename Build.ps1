@@ -15,8 +15,10 @@ function Invoke-Build()
     #& dotnet restore $test --verbosity Warning
     #& dotnet restore $project --verbosity Warning
 
-    & nuget restore $test
-    & nuget restore $project
+    #& nuget restore $test
+    #& nuget restore $project
+
+    & nuget restore $solution
 	
 	# calculate version, only when on a branch
 	if ($(git log -n 1 --pretty=%d HEAD).Trim() -ne '(HEAD)')
