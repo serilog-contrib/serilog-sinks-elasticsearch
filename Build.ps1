@@ -6,6 +6,7 @@ $project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
 function Invoke-Build()
 {
     Write-Output "Building"
+    & choco install dotnetcore --version 1.1.0
 
 	if(Test-Path .\artifacts) {
 		echo "build: Cleaning .\artifacts"
