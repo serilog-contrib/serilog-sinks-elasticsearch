@@ -1,4 +1,5 @@
 version: '{build}'
+image: Visual Studio 2017
 skip_tags: true
 build_script:
 - ps: ./Build.ps1 
