@@ -52,5 +52,5 @@ function Invoke-Build()
     Write-Output "Building done"
 }
 
-$ErrorActionPreference = "Stop"
+#$ErrorActionPreference = "Stop"
 Invoke-Build 
