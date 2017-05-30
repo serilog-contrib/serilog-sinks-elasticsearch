@@ -1,4 +1,4 @@
-$solution = "$project.sln"
+$solution = "serilog-sinks-elasticsearch.sln"
 $test = "test\\Serilog.Sinks.Elasticsearch.Tests\\Serilog.Sinks.Elasticsearch.Tests.csproj"
 $projectFolder = "src\\Serilog.Sinks.Elasticsearch"
 $project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
