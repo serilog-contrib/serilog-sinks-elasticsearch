@@ -8,15 +8,9 @@ function Invoke-Build()
     Write-Output "Building"
 
 	if(Test-Path .\artifacts) {
-		echo "build: Cleaning .\artifacts"
-		Remove-Item .\artifacts -Force -Recurse
+		echo "build: Cleaning \artifacts"
+		Remove-Item \artifacts -Force -Recurse
 	}
-
-    #& dotnet restore $test --verbosity Warning
-    #& dotnet restore $project --verbosity Warning
-
-    #& nuget restore $test
-    #& nuget restore $project
 
     & nuget restore $solution
 	
@@ -42,7 +36,7 @@ function Invoke-Build()
         exit 1 
     }
   
-    & dotnet pack $project -c Release -o .\artifacts 
+    & dotnet pack $project -c Release -o \artifacts 
   
     if($LASTEXITCODE -ne 0) 
     {
