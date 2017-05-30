@@ -283,7 +283,16 @@ namespace Serilog.Sinks.Elasticsearch
         // It would be ideal to chomp whitespace here, but not required.
         static bool TryReadLine(Stream current, ref long nextStart, out string nextLine)
         {
-            var includesBom = nextStart == 0;
+            bool includesBom = false;
+            if (nextStart == 0 && current.Length >= 3)
+            {
+                var preamble = Encoding.UTF8.GetPreamble();
+                byte[] readBytes = new byte[3];
+                current.Position = 0;
+                current.Read(readBytes, 0, 3);
+
+                includesBom = !preamble.Where((p, i) => p != readBytes[i]).Any();
+            }
 
             if (current.Length <= nextStart)
             {
@@ -302,7 +311,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             nextStart += Encoding.UTF8.GetByteCount(nextLine) + Encoding.UTF8.GetByteCount(Environment.NewLine);
             if (includesBom)
-                nextStart += 3;
+               nextStart += 3;
 
             return true;
         }
