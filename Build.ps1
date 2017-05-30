@@ -1,3 +1,5 @@
+echo "In directory: $PSScriptRoot"
+
 $solution = "serilog-sinks-elasticsearch.sln"
 $test = "test\\Serilog.Sinks.Elasticsearch.Tests\\Serilog.Sinks.Elasticsearch.Tests.csproj"
 $projectFolder = "src\\Serilog.Sinks.Elasticsearch"
@@ -8,8 +10,8 @@ function Invoke-Build()
     Write-Output "Building"
 
 	if(Test-Path .\artifacts) {
-		echo "build: Cleaning \artifacts"
-		Remove-Item \artifacts -Force -Recurse
+		echo "build: Cleaning .\artifacts"
+		Remove-Item .\artifacts -Force -Recurse
 	}
 
     & nuget restore $solution
@@ -36,7 +38,7 @@ function Invoke-Build()
         exit 1 
     }
   
-    & dotnet pack $project -c Release -o \artifacts 
+    & dotnet pack $project -c Release -o .\artifacts 
   
     if($LASTEXITCODE -ne 0) 
     {
@@ -46,5 +48,5 @@ function Invoke-Build()
     Write-Output "Building done"
 }
 
-#$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 Invoke-Build 
