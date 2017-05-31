@@ -20,6 +20,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <Version>5.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,7 +42,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
-    <DotNetCliToolReference Include="dotnet-gitversion" Version="*" />
   </ItemGroup>
 
 </Project>
