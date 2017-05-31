@@ -13,8 +13,6 @@ function Invoke-Build()
 		echo "build: Cleaning .\artifacts"
 		Remove-Item .\artifacts -Force -Recurse
 	}
-
-    & nuget restore $solution
     
     & dotnet test $test -c Release
     if($LASTEXITCODE -ne 0) 

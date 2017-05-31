@@ -17,5 +17,5 @@ install:
 assembly_info:
   patch: false
 before_build:
-  - nuget restore
+  - dotnet restore serilog-sinks-elasticsearch.sln
   - ps: gitversion /l console /output buildserver /updateAssemblyInfo
