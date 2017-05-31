@@ -23,7 +23,7 @@ function Invoke-Build()
         exit 1 
     }
   
-    & dotnet pack $project -c Release -o .\artifacts 
+    & dotnet pack $project -c Release -o ..\..\artifacts 
   
     if($LASTEXITCODE -ne 0) 
     {
