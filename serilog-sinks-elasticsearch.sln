@@ -10,8 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6
 		appveyor.yml = appveyor.yml
 		Build.ps1 = Build.ps1
 		CHANGES.md = CHANGES.md
-		global.json = global.json
 		LICENSE = LICENSE
+		nuget.config = nuget.config
 		README.md = README.md
 		src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec = src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.ElasticSearch.Symbols.nuspec
 	EndProjectSection
