@@ -13,7 +13,7 @@ function Invoke-Build()
 		echo "build: Cleaning .\artifacts"
 		Remove-Item .\artifacts -Force -Recurse
 	}
-    
+
     & dotnet test $test -c Release
     if($LASTEXITCODE -ne 0) 
     {
@@ -21,7 +21,8 @@ function Invoke-Build()
         exit 1 
     }
   
-    & dotnet pack $project -c Release -o ..\..\artifacts 
+    Write-Output "Creating packages"
+    & dotnet pack $project -c Release -o ..\..\artifacts  --include-symbols --include-source /p:PackageVersion=$env:GitVersion_NuGetVersionV2
   
     if($LASTEXITCODE -ne 0) 
     {
