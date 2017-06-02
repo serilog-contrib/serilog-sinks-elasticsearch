@@ -20,15 +20,16 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using Elasticsearch.Net;
 using Serilog.Debugging;
+using Nest;
+
 #if NO_TIMER
 using Serilog.Sinks.Elasticsearch.CrossPlatform;
 #endif
 
 namespace Serilog.Sinks.Elasticsearch
 {
-    class ElasticsearchLogShipper : IDisposable
+    internal class ElasticsearchLogShipper : IDisposable
     {
         private readonly ElasticsearchSinkState _state;
 
@@ -50,6 +51,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
+
             _state = state;
             _connectionSchedule = new ExponentialBackoffConnectionSchedule(_state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5));
 
@@ -179,7 +181,7 @@ namespace Serilog.Sinks.Elasticsearch
                             string nextLine;
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
-                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count } };
                                 var actionJson = _state.Serialize(action);
                                 payload.Add(actionJson);
                                 payload.Add(nextLine);
@@ -189,12 +191,37 @@ namespace Serilog.Sinks.Elasticsearch
 
                         if (count > 0)
                         {
-                            var response = _state.Client.Bulk<DynamicResponse>(payload);
+
+                            var response = _state.Client.Bulk<BulkResponse>(payload);
 
                             if (response.Success)
                             {
                                 WriteBookmark(bookmark, nextLineBeginsAtOffset, currentFilePath);
                                 _connectionSchedule.MarkSuccess();
+
+                                int i = 0;
+                                if (response.Body?.Items != null)
+                                    foreach (BulkResponseItemBase bulkResponseItemBase in response.Body.Items)
+                                    {
+                                        i++;
+                                        if (bulkResponseItemBase.Status < 300)
+                                        {
+                                            continue;
+                                        }
+
+                                        int index;
+                                        if (int.TryParse(bulkResponseItemBase.Id, out index))
+                                        {
+                                            SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
+                                            bulkResponseItemBase.Status, bulkResponseItemBase.ToString(),
+                                            payload.ElementAt(index *2 + 1));
+                                        }
+                                        else
+                                            SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}.",
+                                            bulkResponseItemBase.Status, bulkResponseItemBase.ToString());
+
+                                    }
+
                             }
                             else
                             {
@@ -281,7 +308,7 @@ namespace Serilog.Sinks.Elasticsearch
         }
 
         // It would be ideal to chomp whitespace here, but not required.
-        static bool TryReadLine(Stream current, ref long nextStart, out string nextLine)
+        internal static bool TryReadLine(Stream current, ref long nextStart, out string nextLine)
         {
             bool includesBom = false;
             if (nextStart == 0 && current.Length >= 3)
@@ -311,7 +338,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             nextStart += Encoding.UTF8.GetByteCount(nextLine) + Encoding.UTF8.GetByteCount(Environment.NewLine);
             if (includesBom)
-               nextStart += 3;
+                nextStart += 3;
 
             return true;
         }
