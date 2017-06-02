@@ -1,7 +1,9 @@
-$solution = "$project.sln"
-$test = "test\\Serilog.Sinks.Elasticsearch.Tests\\project.json"
+echo "In directory: $PSScriptRoot"
+
+$solution = "serilog-sinks-elasticsearch.sln"
+$test = "test\\Serilog.Sinks.Elasticsearch.Tests\\Serilog.Sinks.Elasticsearch.Tests.csproj"
 $projectFolder = "src\\Serilog.Sinks.Elasticsearch"
-$project = $projectFolder + "\\project.json"
+$project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
 
 function Invoke-Build()
 {
@@ -12,24 +14,6 @@ function Invoke-Build()
 		Remove-Item .\artifacts -Force -Recurse
 	}
 
-    & dotnet restore $test --verbosity Warning
-    & dotnet restore $project --verbosity Warning
-	
-	# calculate version, only when on a branch
-	if ($(git log -n 1 --pretty=%d HEAD).Trim() -ne '(HEAD)')
-	{
-		Write-Output "Determining version number using gitversion"
-        
-		& cd $projectFolder 
-		& dotnet gitversion  --verbosity Warning
-		& cd "..\\.."
-    }
-    else
-    {
-		Write-Output "In a detached HEAD mode, unable to determine the version number using gitversion"		
-    }
-  
-
     & dotnet test $test -c Release
     if($LASTEXITCODE -ne 0) 
     {
@@ -37,7 +21,8 @@ function Invoke-Build()
         exit 1 
     }
   
-    & dotnet pack $project -c Release -o .\artifacts 
+    Write-Output "Creating packages"
+    & dotnet pack $project -c Release -o ..\..\artifacts  --include-symbols --include-source /p:PackageVersion=$env:GitVersion_NuGetVersionV2
   
     if($LASTEXITCODE -ne 0) 
     {
