@@ -1,4 +1,5 @@
 version: '{build}'
+image: Visual Studio 2017
 skip_tags: true
 build_script:
 - ps: ./Build.ps1 
@@ -11,3 +12,10 @@ deploy:
     secure: nvZ/z+pMS91b3kG4DgfES5AcmwwGoBYQxr9kp4XiJHj25SAlgdIxFx++1N0lFH2x
   on:
     branch: /^(master|dev)$/
+install:
+  - choco install gitversion.portable -y
+assembly_info:
+  patch: false
+before_build:
+  - dotnet restore serilog-sinks-elasticsearch.sln
+  - ps: gitversion /l console /output buildserver /updateAssemblyInfo

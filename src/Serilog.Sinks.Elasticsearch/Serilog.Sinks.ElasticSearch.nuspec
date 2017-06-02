@@ -4,18 +4,18 @@
     <id>Serilog.Sinks.Elasticsearch</id>
     <version>$version$</version>
     <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Konstantin Erman</authors>
-    <description>The perfect way for .NET apps to write structured log events to Elasticsearch 2.x.</description>
+    <description>The perfect way for .NET apps to write structured log events to Elasticsearch.</description>
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
     <tags>serilog logging elasticsearch</tags>
     <dependencies>
-      <dependency id="Serilog" version="2.0" />
-      <dependency id="Elasticsearch.Net" version="2.4.1" />
-      <dependency id="Serilog.Sinks.File" version="2.1.0" />
-      <dependency id="Serilog.Sinks.PeriodicBatching" version="2.0.0" />
-      <dependency id="Serilog.Sinks.RollingFile" version="2.1.0" />
+      <dependency id="Serilog" version="2.4.0" />
+      <dependency id="Elasticsearch.Net" version="5.4.0" />
+      <dependency id="Serilog.Sinks.File" version="3.2.0" />
+      <dependency id="Serilog.Sinks.PeriodicBatching" version="2.1.0" />
+      <dependency id="Serilog.Sinks.RollingFile" version="3.3.0" />
     </dependencies>
   </metadata>
   <files>
