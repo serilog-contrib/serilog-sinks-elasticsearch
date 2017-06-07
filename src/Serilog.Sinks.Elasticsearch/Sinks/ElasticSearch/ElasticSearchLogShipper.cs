@@ -181,7 +181,7 @@ namespace Serilog.Sinks.Elasticsearch
                             string nextLine;
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
-                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count } };
+                                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid().ToString() } };
                                 var actionJson = _state.Serialize(action);
                                 payload.Add(actionJson);
                                 payload.Add(nextLine);
@@ -210,7 +210,7 @@ namespace Serilog.Sinks.Elasticsearch
                                         }
 
                                         int index;
-                                        if (int.TryParse(bulkResponseItemBase.Id, out index))
+                                        if (int.TryParse(bulkResponseItemBase.Id.Split('_')[0], out index))
                                         {
                                             SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
                                             bulkResponseItemBase.Status, bulkResponseItemBase.ToString(),
