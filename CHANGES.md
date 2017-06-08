@@ -1,3 +1,9 @@
+5.3
+ * JSON project file converted to CSProj, references updated. PR #109
+
+5.2 
+ * Next to the number of shards, you can also set the number of replicas. This will only apply to newly created indices.
+
 5.1
  * You can specify the number of shards when creating the template mapping. This will only apply to newly created indices.
 
