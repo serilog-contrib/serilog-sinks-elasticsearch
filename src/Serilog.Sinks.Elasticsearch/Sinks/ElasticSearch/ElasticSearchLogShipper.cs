@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Serilog.Debugging;
-using Nest;
+using Elasticsearch.Net;
 
 #if NO_TIMER
 using Serilog.Sinks.Elasticsearch.CrossPlatform;
@@ -192,36 +192,14 @@ namespace Serilog.Sinks.Elasticsearch
                         if (count > 0)
                         {
 
-                            var response = _state.Client.Bulk<BulkResponse>(payload);
+                            var response = _state.Client.Bulk<DynamicResponse>(payload);
 
                             if (response.Success)
                             {
                                 WriteBookmark(bookmark, nextLineBeginsAtOffset, currentFilePath);
                                 _connectionSchedule.MarkSuccess();
 
-                                int i = 0;
-                                if (response.Body?.Items != null)
-                                    foreach (BulkResponseItemBase bulkResponseItemBase in response.Body.Items)
-                                    {
-                                        i++;
-                                        if (bulkResponseItemBase.Status < 300)
-                                        {
-                                            continue;
-                                        }
-
-                                        int index;
-                                        if (int.TryParse(bulkResponseItemBase.Id.Split('_')[0], out index))
-                                        {
-                                            SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
-                                            bulkResponseItemBase.Status, bulkResponseItemBase.ToString(),
-                                            payload.ElementAt(index *2 + 1));
-                                        }
-                                        else
-                                            SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}.",
-                                            bulkResponseItemBase.Status, bulkResponseItemBase.ToString());
-
-                                    }
-
+                                HandleBulkResponse(response,payload);
                             }
                             else
                             {
@@ -272,6 +250,35 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
             }
+        }
+
+        static void HandleBulkResponse(ElasticsearchResponse<DynamicResponse> response, List<string> payload)
+        {
+            int i = 0;
+            var items = response.Body["items"];
+            if (items != null)
+                foreach (dynamic item in items)
+                {
+                    long? status = item.index?.status;
+                    i++;
+                    if (!status.HasValue || status < 300)
+                    {
+                        continue;
+                    }
+
+                    var id = item.index?._id;
+                    var error = item.index?.error;
+                    int index;
+                    if (int.TryParse(id.Split('_')[0], out index))
+                    {
+                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
+                        status, error.ToString(),
+                        payload.ElementAt(index * 2 + 1));
+                    }
+                    else
+                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}.",
+                        status, error.ToString());
+                }
         }
 
         static bool IsUnlockedAtLength(string file, long maxLen)

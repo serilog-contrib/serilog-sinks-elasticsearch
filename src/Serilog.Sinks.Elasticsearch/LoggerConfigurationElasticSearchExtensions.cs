@@ -21,7 +21,6 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System.Collections.Specialized;
-using Nest;
 
 namespace Serilog
 {
@@ -116,10 +115,6 @@ namespace Serilog
             {
                 options.TypeName = typeName;
             }
-
-
-            var connectionSettings = new ConnectionSettings(options.ConnectionPool);
-            options.Serializer = new JsonNetSerializer(connectionSettings);
 
             options.BatchPostingLimit = batchPostingLimit;
             options.Period = TimeSpan.FromSeconds(period);
