@@ -78,6 +78,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public string TypeName { get; set; }
 
+        /// <summary>
+        /// Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.
+        /// </summary>
+        public string PipelineName { get; set; }
+
+
         ///<summary>
         /// The maximum number of events to post in a single batch. Defaults to: 50.
         /// </summary>

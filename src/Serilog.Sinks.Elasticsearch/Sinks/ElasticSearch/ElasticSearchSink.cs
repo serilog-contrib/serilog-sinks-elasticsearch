@@ -70,7 +70,15 @@ namespace Serilog.Sinks.Elasticsearch
             foreach (var e in events)
             {
                 var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
-                var action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                var action = default(object);
+                if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
+                {
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                }
+                else
+                {
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = _state.Options.PipelineName } };
+                }
                 var actionJson = _state.Serialize(action);
                 payload.Add(actionJson);
                 var sw = new StringWriter();
