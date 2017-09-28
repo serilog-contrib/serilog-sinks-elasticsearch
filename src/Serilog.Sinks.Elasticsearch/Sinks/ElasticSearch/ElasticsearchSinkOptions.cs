@@ -160,6 +160,11 @@ namespace Serilog.Sinks.Elasticsearch
         public ITextFormatter CustomDurableFormatter { get; set; }
 
         /// <summary>
+        /// When true message field will be written to the document.
+        /// </summary>
+        public bool RenderMessage { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         protected ElasticsearchSinkOptions()

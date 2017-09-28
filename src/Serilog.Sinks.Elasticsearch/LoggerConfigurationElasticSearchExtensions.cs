@@ -74,6 +74,7 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
+        /// <param name="renderMessage"><see cref="ElasticsearchSinkOptions.RenderMessage"/></param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -89,7 +90,8 @@ namespace Serilog
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
-            string connectionGlobalHeaders = null)
+            string connectionGlobalHeaders = null,
+            bool renderMessage = false)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -120,6 +122,7 @@ namespace Serilog
             options.Period = TimeSpan.FromSeconds(period);
             options.InlineFields = inlineFields;
             options.MinimumLogEventLevel = restrictedToMinimumLevel;
+            options.RenderMessage = renderMessage;
 
             if (!string.IsNullOrWhiteSpace(bufferBaseFilename))
             {
