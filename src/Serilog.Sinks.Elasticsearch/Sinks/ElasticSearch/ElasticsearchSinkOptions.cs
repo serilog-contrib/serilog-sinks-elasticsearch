@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elasticsearch.Net;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
 
@@ -31,6 +32,11 @@ namespace Serilog.Sinks.Elasticsearch
         /// This template is optimized to deal with serilog events
         /// </summary>
         public bool AutoRegisterTemplate { get; set; }
+
+        /// <summary>
+        /// Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.
+        /// </summary>
+        public RegisterTemplateRecovery RegisterTemplateFailure { get; set; }
 
         ///<summary>
         /// When using the <see cref="AutoRegisterTemplate"/> feature this allows you to override the default template name.
@@ -73,6 +79,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public string IndexFormat { get; set; }
 
+        /// <summary>
+        /// Optionally set this value to the name of the index that should be used when the template cannot be written to ES.
+        /// defaults to "deadletter-{0:yyyy.MM.dd}"
+        /// </summary>
+        public string DeadLetterIndexName { get; set; }
+
         ///<summary>
         /// The default elasticsearch type name to use for the log events. Defaults to: logevent.
         /// </summary>
@@ -82,8 +94,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.
         /// </summary>
         public string PipelineName { get; set; }
-
-
+        
         ///<summary>
         /// The maximum number of events to post in a single batch. Defaults to: 50.
         /// </summary>
@@ -160,16 +171,29 @@ namespace Serilog.Sinks.Elasticsearch
         public ITextFormatter CustomDurableFormatter { get; set; }
 
         /// <summary>
+        /// Specifies how failing emits should be handled. 
+        /// </summary>
+        public EmitEventFailureHandling EmitEventFailure { get; set; }
+
+        /// <summary>
+        /// Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// </summary>
+        public ILogEventSink FailureSink { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         protected ElasticsearchSinkOptions()
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
+            this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
             this.TypeName = "logevent";
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
             this.ConnectionTimeout = TimeSpan.FromSeconds(60);
+            this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
+            this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
         }
 
         /// <summary>
@@ -203,5 +227,48 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="node">The node to write to</param>
         public ElasticsearchSinkOptions(Uri node) : this(new[] { node }) { }
+    }
+
+    /// <summary>
+    /// Sepecifies options for handling failures when emitting the events to Elasticsearch. Can be a combination of options.
+    /// </summary>
+    [Flags]
+    public enum EmitEventFailureHandling
+    {
+        /// <summary>
+        /// Send the error to the SelfLog
+        /// </summary>
+        WriteToSelfLog,
+
+        /// <summary>
+        /// Write the events to another sink. Make sure to configure this one.
+        /// </summary>
+        WriteToFailureSink
+    }
+
+    /// <summary>
+    /// Specifies what to do when the template could not be created. This can mean that your data is not correctly indexed, so you might want to handle this failure.
+    /// </summary>
+    public enum RegisterTemplateRecovery
+    {
+        /// <summary>
+        /// Ignore the issue and keep indexing. This is the default option.
+        /// </summary>
+        IndexAnyway,
+
+        /// <summary>
+        /// Keep buffering the data until it is written. be aware you might hit a limit here. 
+        /// </summary>
+        BufferUntilSucces,
+
+        /// <summary>
+        /// When the template cannot be registered, move the events to the deadletter queue instead.
+        /// </summary>
+        IndexToDeadletterIndex,
+
+        /// <summary>
+        /// When the template cannot be registered, throw an exception and fail the sink.
+        /// </summary>
+        FailSink
     }
 }

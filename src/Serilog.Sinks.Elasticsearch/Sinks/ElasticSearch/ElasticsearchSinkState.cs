@@ -49,10 +49,10 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
-        public ElasticsearchSinkOptions Options { get { return this._options; } }
-        public IElasticLowLevelClient Client { get { return this._client; } }
-        public ITextFormatter Formatter { get { return this._formatter; } }
-        public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
+        public ElasticsearchSinkOptions Options => this._options;
+        public IElasticLowLevelClient Client => this._client;
+        public ITextFormatter Formatter => this._formatter;
+        public ITextFormatter DurableFormatter => this._durableFormatter;
 
 
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
@@ -212,6 +212,11 @@ namespace Serilog.Sinks.Elasticsearch
                             }
                         }
                     });
+
+                    if (!result.Success)
+                    {
+                        SelfLog.WriteLine("Unable to create the template. {0}", result.ServerError);
+                    }
                 }
             }
             catch (Exception ex)

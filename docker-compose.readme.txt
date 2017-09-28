@@ -1,0 +1,2 @@
+Elastic (http://localhost:9200)= elastic:changeme
+Elastic Head: http://localhost:9100/?auth_user=elastic&auth_password=changeme

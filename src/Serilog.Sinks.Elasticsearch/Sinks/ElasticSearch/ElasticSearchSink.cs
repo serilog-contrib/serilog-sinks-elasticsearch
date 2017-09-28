@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Elasticsearch.Net;
+using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -52,7 +53,48 @@ namespace Serilog.Sinks.Elasticsearch
         /// </remarks>
         protected override void EmitBatch(IEnumerable<LogEvent> events)
         {
-            this.EmitBatchChecked<DynamicResponse>(events);
+            var result = this.EmitBatchChecked<DynamicResponse>(events);
+
+            // Handle the results from ES, check if there are any errors.
+            if (result.Success && result.Body["errors"] == true)
+            {
+
+                var indexer = 0;
+                var items = result.Body["items"];
+                foreach (var item in items)
+                {
+                    if (item.index != null && item.index.error != null)
+                    {
+                        var e = events.ElementAt(indexer);
+                        if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
+                        {
+                            // ES reports an error, output the error to the selflog
+                            SelfLog.WriteLine(
+                                "Failed to store event with template '{0}' into Elasticsearch. Elasticsearch reports for index {1} the following: {2}",
+                                e.MessageTemplate,
+                                item.index._index,
+                                item.index.error);
+                        }
+                        if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
+                            _state.Options.FailureSink != null)
+                        {
+                            // Send to a failure sink
+                            try
+                            {
+                                _state.Options.FailureSink.Emit(e);
+                            }
+                            catch (Exception ex)
+                            {
+                                // We do not let this fail too
+                                SelfLog.WriteLine("Caught exception {0} while emitting to sink {1}.", ex,
+                                    _state.Options.FailureSink);
+                            }
+                        }
+                    }
+                    indexer++;
+                }
+
+            }
         }
 
         /// <summary>
