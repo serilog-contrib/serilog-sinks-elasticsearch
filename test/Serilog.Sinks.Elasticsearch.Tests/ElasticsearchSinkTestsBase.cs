@@ -40,7 +40,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 BatchPostingLimit = 2,
                 //Period = TinyWait,
                 Connection = _connection,
-                Serializer = _serializer
+                Serializer = _serializer,
+                PipelineName = "testPipe",
             };
         }
 
