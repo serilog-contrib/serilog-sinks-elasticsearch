@@ -1,3 +1,8 @@
+== Changelog
+
+5.4
+ * Added support for pipelines in Elasticsearch. Pipelines allows you to change the ingress data by running it through Processors (https://www.elastic.co/blog/new-way-to-ingest-part-1).
+
 5.3
  * JSON project file converted to CSProj, references updated. PR #109
 
