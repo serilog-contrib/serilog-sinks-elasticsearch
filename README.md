@@ -39,6 +39,7 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.indexFormat" value="custom-index-{0:yyyy.MM}"/>
     <add key="serilog:write-to:Elasticsearch.templateName" value="myCustomTemplate"/>
     <add key="serilog:write-to:Elasticsearch.typeName" value="myCustomLogEventType"/>
+    <add key="serilog:write-to:Elasticsearch.pipelineName" value="myCustomPipelineName"/>
     <add key="serilog:write-to:Elasticsearch.batchPostingLimit" value="50"/>
     <add key="serilog:write-to:Elasticsearch.period" value="2"/>
     <add key="serilog:write-to:Elasticsearch.inlineFields" value="true"/>
@@ -113,6 +114,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "indexFormat": "custom-index-{0:yyyy.MM}",
           "templateName": "myCustomTemplate",
           "typeName": "myCustomLogEventType",
+          "pipelineName": "myCustomPipelineName",
           "batchPostingLimit": 50,
           "period": 2000,
           "inlineFields": true,
