@@ -1,54 +1,52 @@
 version: '2'
+
 services:
-  elasticsearch1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.2
-    container_name: es-elastic1
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - http.cors.enabled=true
-      - http.cors.allow-origin=*
-      - http.cors.allow-headers=Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With
-      - http.cors.allow-credentials=true
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    mem_limit: 1g
-    volumes:
-      - esdata1:/usr/share/elasticsearch/data
-      #- esconfig1:/usr/share/elasticsearch/config
-    ports:
-      - 9200:9200
-    networks:
-      - esnet
-      
-  elasticsearch2:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.2
-    container_name: es-elastic2
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch1"
-      - http.cors.enabled=true
-      - http.cors.allow-origin=*
-      - http.cors.allow-headers=Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With
-      - http.cors.allow-credentials=true
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    mem_limit: 1g
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${TAG}
     volumes:
       - esdata2:/usr/share/elasticsearch/data
-      #- esconfig2:/usr/share/elasticsearch/config
+    ports:
+      - "9200:9200"
+      - "9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=zen
+      - discovery.zen.ping.unicast.hosts=elasticsearch
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - http.cors.allow-headers=Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With
+      - http.cors.allow-credentials=true
+    networks:
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${TAG}
+    environment:
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+      - server.name=kibana
+      - server.host="0"
+      - xpack.security.enabled=true
+      - xpack.monitoring.enabled=true
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.reporting.enabled=false
+      - xpack.grokdebugger.enabled=false
+    ports:
+      - "5601:5601"
     networks:
       - esnet
+    depends_on:
+      - elasticsearch
 
-  elasticsearch-head:
-    container_name: es-elastic-head
+  head:
     image: mobz/elasticsearch-head:5
     ulimits:
       memlock:
@@ -58,7 +56,18 @@ services:
     ports:
       - "9100:9100"
     networks:
-      - esnet
+      - elk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${TAG}
+    environment:
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
 
 volumes:
   esdata1:
@@ -71,4 +80,5 @@ volumes:
   #  driver: local
 
 networks:
-  esnet:
+  elk:
+    driver: bridge

@@ -75,6 +75,7 @@ namespace Serilog.Sinks.Elasticsearch
                                 item.index._index,
                                 item.index.error);
                         }
+
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
                             _state.Options.FailureSink != null)
                         {
@@ -90,6 +91,7 @@ namespace Serilog.Sinks.Elasticsearch
                                     _state.Options.FailureSink);
                             }
                         }
+                    
                     }
                     indexer++;
                 }
@@ -102,32 +104,65 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T: class
+        protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T : class
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
                 return null;
 
-            var payload = new List<string>();
-            foreach (var e in events)
+            try
             {
-                var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
-                var action = default(object);
-                if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
+                var payload = new List<string>();
+                foreach (var e in events)
                 {
-                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                    var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
+                    var action = default(object);
+                    if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
+                    {
+                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
+                    }
+                    else
+                    {
+                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = _state.Options.PipelineName } };
+                    }
+                    var actionJson = _state.Serialize(action);
+                    payload.Add(actionJson);
+                    var sw = new StringWriter();
+                    _state.Formatter.Format(e, sw);
+                    payload.Add(sw.ToString());
                 }
-                else
-                {
-                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = _state.Options.PipelineName } };
-                }
-                var actionJson = _state.Serialize(action);
-                payload.Add(actionJson);
-                var sw = new StringWriter();
-                _state.Formatter.Format(e, sw);
-                payload.Add(sw.ToString());
+                return _state.Client.Bulk<T>(payload);
             }
-            return _state.Client.Bulk<T>(payload);
+            catch (Exception ex)
+            {
+                if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
+                {
+                    // ES reports an error, output the error to the selflog
+                    SelfLog.WriteLine("Caught exception {0} while preforming bulk operation to Elasticsearch.", ex);
+                }
+                if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
+                    _state.Options.FailureSink != null)
+                {
+                    // Send to a failure sink
+                    try
+                    {
+                        foreach (var e in events)
+                        {
+                            _state.Options.FailureSink.Emit(e);
+                        }
+                    }
+                    catch (Exception exSink)
+                    {
+                        // We do not let this fail too
+                        SelfLog.WriteLine("Caught exception {0} while emitting to sink {1}.", exSink,
+                            _state.Options.FailureSink);
+                    }
+                }
+                if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.ThrowException))
+                    throw;
+
+                return new ElasticsearchResponse<T>(ex);
+            }
         }
     }
 }

@@ -243,7 +243,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Write the events to another sink. Make sure to configure this one.
         /// </summary>
-        WriteToFailureSink
+        WriteToFailureSink,
+
+        /// <summary>
+        /// Throw the exception to the caller.
+        /// </summary>
+        ThrowException
     }
 
     /// <summary>
