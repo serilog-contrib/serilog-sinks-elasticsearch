@@ -181,6 +181,12 @@ namespace Serilog.Sinks.Elasticsearch
         public ILogEventSink FailureSink { get; set; }
 
         /// <summary>
+        /// A callback which can be used to handle logevents which are not submitted to Elasticsearch
+        /// like when it is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// </summary>
+        public Action<LogEvent> FailureCallback {get;set;}
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         protected ElasticsearchSinkOptions()
@@ -238,17 +244,22 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Send the error to the SelfLog
         /// </summary>
-        WriteToSelfLog,
+        WriteToSelfLog = 1,
 
         /// <summary>
         /// Write the events to another sink. Make sure to configure this one.
         /// </summary>
-        WriteToFailureSink,
+        WriteToFailureSink = 2,
 
         /// <summary>
         /// Throw the exception to the caller.
         /// </summary>
-        ThrowException
+        ThrowException = 4,
+
+        /// <summary>
+        /// The failure callback will be called when the event cannot be submitted to Elasticsearch.
+        /// </summary>
+        RaiseCallback = 8
     }
 
     /// <summary>
@@ -259,21 +270,21 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Ignore the issue and keep indexing. This is the default option.
         /// </summary>
-        IndexAnyway,
+        IndexAnyway = 1,
 
         /// <summary>
         /// Keep buffering the data until it is written. be aware you might hit a limit here. 
         /// </summary>
-        BufferUntilSucces,
+        BufferUntilSucces = 2,
 
         /// <summary>
         /// When the template cannot be registered, move the events to the deadletter queue instead.
         /// </summary>
-        IndexToDeadletterIndex,
+        IndexToDeadletterIndex = 4,
 
         /// <summary>
         /// When the template cannot be registered, throw an exception and fail the sink.
         /// </summary>
-        FailSink
+        FailSink = 8
     }
 }

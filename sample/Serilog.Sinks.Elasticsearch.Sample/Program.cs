@@ -17,8 +17,11 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://elastic:changeme@localhost:9200")) // for the docker-compose implementation
                 {
                     AutoRegisterTemplate = true,
-                    BufferBaseFilename = "./buffer",
-                    EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog | EmitEventFailureHandling.WriteToFailureSink,
+                   // BufferBaseFilename = "./buffer",
+                    FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
+                    EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog | 
+                                       EmitEventFailureHandling.WriteToFailureSink |
+                                       EmitEventFailureHandling.RaiseCallback,
                     FailureSink = new FileSink("./failures.txt", new JsonFormatter(), null)
                 })
                 .CreateLogger();
@@ -43,7 +46,7 @@ namespace Serilog.Sinks.Elasticsearch.Sample
             Log.Debug("Reusing {A} by {B}", "string", true);
 
             Log.CloseAndFlush();
-            Console.ReadKey();
+            Console.Read();
         }
     }
 }

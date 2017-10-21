@@ -58,7 +58,6 @@ namespace Serilog.Sinks.Elasticsearch
             // Handle the results from ES, check if there are any errors.
             if (result.Success && result.Body["errors"] == true)
             {
-
                 var indexer = 0;
                 var items = result.Body["items"];
                 foreach (var item in items)
@@ -87,8 +86,24 @@ namespace Serilog.Sinks.Elasticsearch
                             catch (Exception ex)
                             {
                                 // We do not let this fail too
-                                SelfLog.WriteLine("Caught exception {0} while emitting to sink {1}.", ex,
+                                SelfLog.WriteLine("Caught exception while emitting to sink {1}: {0}", ex,
                                     _state.Options.FailureSink);
+                            }
+                        }
+
+                        if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.RaiseCallback) &&
+                            _state.Options.FailureCallback != null)
+                        {
+                            // Send to a failure callback
+                            try
+                            {
+                                _state.Options.FailureCallback(e);
+                            }
+                            catch (Exception ex)
+                            {
+                                // We do not let this fail too
+                                SelfLog.WriteLine("Caught exception while emitting to callback {1}: {0}", ex,
+                                    _state.Options.FailureCallback);
                             }
                         }
                     
@@ -138,7 +153,7 @@ namespace Serilog.Sinks.Elasticsearch
                 if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
                 {
                     // ES reports an error, output the error to the selflog
-                    SelfLog.WriteLine("Caught exception {0} while preforming bulk operation to Elasticsearch.", ex);
+                    SelfLog.WriteLine("Caught exception while preforming bulk operation to Elasticsearch: {0}", ex);
                 }
                 if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
                     _state.Options.FailureSink != null)
@@ -154,10 +169,28 @@ namespace Serilog.Sinks.Elasticsearch
                     catch (Exception exSink)
                     {
                         // We do not let this fail too
-                        SelfLog.WriteLine("Caught exception {0} while emitting to sink {1}.", exSink,
+                        SelfLog.WriteLine("Caught exception while emitting to sink {1}: {0}", exSink,
                             _state.Options.FailureSink);
                     }
                 }
+                 if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.RaiseCallback) &&
+                            _state.Options.FailureCallback != null)
+                        {
+                            // Send to a failure callback
+                            try
+                            {
+                                 foreach (var e in events)
+                                {
+                                    _state.Options.FailureCallback(e);
+                                }   
+                            }
+                            catch (Exception exCallback)
+                            {
+                                // We do not let this fail too
+                                SelfLog.WriteLine("Caught exception while emitting to callback {1}: {0}", exCallback,
+                                    _state.Options.FailureCallback);
+                            }
+                        }
                 if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.ThrowException))
                     throw;
 
