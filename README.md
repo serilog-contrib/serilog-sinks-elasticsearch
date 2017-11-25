@@ -47,7 +47,7 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.bufferBaseFilename" value="C:\Temp\SerilogElasticBuffer"/>
     <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
     <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>	
-	<add key="serilog:write-to:Elasticsearch.connectionGlobalHeaders" value="Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE" />
+    <add key="serilog:write-to:Elasticsearch.connectionGlobalHeaders" value="Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE" />
   </appSettings>
 ```
 
@@ -122,7 +122,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,
-		  "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE"
+          "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE"
         }       
     }]
   }
