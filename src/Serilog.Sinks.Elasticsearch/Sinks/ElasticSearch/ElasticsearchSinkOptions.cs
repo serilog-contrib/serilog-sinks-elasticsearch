@@ -257,7 +257,7 @@ namespace Serilog.Sinks.Elasticsearch
         ThrowException = 4,
 
         /// <summary>
-        /// The failure callback will be called when the event cannot be submitted to Elasticsearch.
+        /// The failure callback function will be called when the event cannot be submitted to Elasticsearch.
         /// </summary>
         RaiseCallback = 8
     }
@@ -272,13 +272,13 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         IndexAnyway = 1,
 
-        /// <summary>
-        /// Keep buffering the data until it is written. be aware you might hit a limit here. 
-        /// </summary>
-        BufferUntilSucces = 2,
+        ///// <summary>
+        ///// Keep buffering the data until it is written. be aware you might hit a limit here. 
+        ///// </summary>
+        //BufferUntilSuccess = 2,
 
         /// <summary>
-        /// When the template cannot be registered, move the events to the deadletter queue instead.
+        /// When the template cannot be registered, move the events to the deadletter index instead.
         /// </summary>
         IndexToDeadletterIndex = 4,
 
