@@ -49,11 +49,12 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
-        public ElasticsearchSinkOptions Options { get { return this._options; } }
-        public IElasticLowLevelClient Client { get { return this._client; } }
-        public ITextFormatter Formatter { get { return this._formatter; } }
-        public ITextFormatter DurableFormatter { get { return this._durableFormatter; } }
+        public ElasticsearchSinkOptions Options => this._options;
+        public IElasticLowLevelClient Client => this._client;
+        public ITextFormatter Formatter => this._formatter;
+        public ITextFormatter DurableFormatter => this._durableFormatter;
 
+        public bool TemplateRegistrationSuccess { get; private set; }
 
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
         {
@@ -99,6 +100,7 @@ namespace Serilog.Sinks.Elasticsearch
            );
 
             _registerTemplateOnStartup = options.AutoRegisterTemplate;
+            TemplateRegistrationSuccess = !_registerTemplateOnStartup;
         }
 
 
@@ -109,7 +111,10 @@ namespace Serilog.Sinks.Elasticsearch
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
         {
-            return this._indexDecider(e, offset);
+            if (!TemplateRegistrationSuccess && _options.RegisterTemplateFailure == RegisterTemplateRecovery.IndexToDeadletterIndex)
+                return string.Format(_options.DeadLetterIndexName, offset);
+            else
+                return this._indexDecider(e, offset);
         }
 
         /// <summary>
@@ -124,100 +129,145 @@ namespace Serilog.Sinks.Elasticsearch
                 if (!this._options.OverwriteTemplate)
                 {
                     var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
-                    if (templateExistsResponse.HttpStatusCode == 200) return;
+                    if (templateExistsResponse.HttpStatusCode == 200)
+                    {
+                        TemplateRegistrationSuccess = true;
+                        return;
+                    }
                 }
 
-                if (_options.GetTemplateContent != null)
+                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, GetTemplateData());
+
+                if (!result.Success)
                 {
-                    this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, _options.GetTemplateContent());
+                    SelfLog.WriteLine("Unable to create the template. {0}", result.ServerError);
+
+                    if (_options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
+                        throw new Exception($"Unable to create the template named {_templateName}.", result.OriginalException);
+
+                    TemplateRegistrationSuccess = false;
                 }
                 else
+                    TemplateRegistrationSuccess = true;
+
+            }
+            catch (Exception ex)
+            {
+                TemplateRegistrationSuccess = false;
+
+                SelfLog.WriteLine("Failed to create the template. {0}", ex);
+
+                if (_options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
+                    throw;
+            }
+        }
+
+        private object GetTemplateData()
+        {
+            if (_options.GetTemplateContent != null)
+            {
+                return _options.GetTemplateContent();
+            }
+
+            var settings = new Dictionary<string, string>
+            {
+                {"index.refresh_interval", "5s"}
+            };
+
+            if (_options.NumberOfShards.HasValue)
+                settings.Add("number_of_shards", _options.NumberOfShards.Value.ToString());
+
+            if (_options.NumberOfReplicas.HasValue)
+                settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
+
+            return new
+            {
+                template = this._templateMatchString,
+                settings = settings,
+                mappings = new
                 {
-                    var settings = new Dictionary<string, string>
+                    _default_ = new
                     {
-                        {"index.refresh_interval", "5s"}
-                    };
-
-                    if (_options.NumberOfShards.HasValue)
-                        settings.Add("number_of_shards", _options.NumberOfShards.Value.ToString());
-					
-					if (_options.NumberOfReplicas.HasValue)
-                        settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
-
-                    var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, new
-                    {
-                        template = this._templateMatchString,
-                        settings = settings,
-                        mappings = new
+                        _all = new { enabled = true, omit_norms = true },
+                        dynamic_templates = new List<Object>
                         {
-                            _default_ = new
+                            //when you use serilog as an adaptor for third party frameworks
+                            //where you have no control over the log message they typically
+                            //contain {0} ad infinitum, we force numeric property names to
+                            //contain strings by default.
                             {
-                                _all = new { enabled = true, omit_norms = true },
-                                dynamic_templates = new List<Object>
-                            {
-                                //when you use serilog as an adaptor for third party frameworks
-                                //where you have no control over the log message they typically
-                                //contain {0} ad infinitum, we force numeric property names to
-                                //contain strings by default.
-                                { new { numerics_in_fields = new
+                                new
                                 {
-                                    path_match = @"fields\.[\d+]$",
-                                    match_pattern = "regex",
-                                    mapping = new
+                                    numerics_in_fields = new
                                     {
-                                        type = "string", index = "analyzed", omit_norms = true
+                                        path_match = @"fields\.[\d+]$",
+                                        match_pattern = "regex",
+                                        mapping = new
+                                        {
+                                            type = "string",
+                                            index = "analyzed",
+                                            omit_norms = true
+                                        }
                                     }
-                                }}},
+                                }
+                            },
+                            {
+                                new
                                 {
-                                    new { string_fields = new
+                                    string_fields = new
                                     {
                                         match = "*",
                                         match_mapping_type = "string",
                                         mapping = new
                                         {
-                                            type = "string", index = "analyzed", omit_norms = true,
+                                            type = "string",
+                                            index = "analyzed",
+                                            omit_norms = true,
                                             fields = new
                                             {
                                                 raw = new
                                                 {
-                                                    type= "string", index = "not_analyzed", ignore_above = 256
+                                                    type = "string",
+                                                    index = "not_analyzed",
+                                                    ignore_above = 256
                                                 }
                                             }
                                         }
-                                    }}
-                                }
-                            },
-                                properties = new Dictionary<string, object>
-                            {
-                                { "message", new { type = "string", index =  "analyzed" } },
-                                { "exceptions", new
-                                {
-                                    type = "nested", properties =  new Dictionary<string, object>
-                                    {
-                                        { "Depth", new { type = "integer" } },
-                                        { "RemoteStackIndex", new { type = "integer" } },
-                                        { "HResult", new { type = "integer" } },
-                                        { "StackTraceString", new { type = "string", index = "analyzed" } },
-                                        { "RemoteStackTraceString", new { type = "string", index = "analyzed" } },
-                                        { "ExceptionMessage", new
-                                        {
-                                            type = "object", properties = new Dictionary<string, object>
-                                            {
-                                                { "MemberType", new { type = "integer" } },
-                                            }
-                                        }}
                                     }
-                                } }
+                                }
                             }
+                        },
+                        properties = new Dictionary<string, object>
+                        {
+                            {"message", new {type = "string", index = "analyzed"}},
+                            {
+                                "exceptions", new
+                                {
+                                    type = "nested",
+                                    properties = new Dictionary<string, object>
+                                    {
+                                        {"Depth", new {type = "integer"}},
+                                        {"RemoteStackIndex", new {type = "integer"}},
+                                        {"HResult", new {type = "integer"}},
+                                        {"StackTraceString", new {type = "string", index = "analyzed"}},
+                                        {"RemoteStackTraceString", new {type = "string", index = "analyzed"}},
+                                        {
+                                            "ExceptionMessage", new
+                                            {
+                                                type = "object",
+                                                properties = new Dictionary<string, object>
+                                                {
+                                                    {"MemberType", new {type = "integer"}},
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                    });
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                SelfLog.WriteLine("Failed to create the template. {0}", ex);
-            }
+            };
         }
     }
 }
