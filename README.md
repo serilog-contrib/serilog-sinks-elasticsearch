@@ -131,6 +131,36 @@ In your `appsettings.json` file, under the `Serilog` node, :
 
 See the XML `<appSettings>` example above for a discussion of available `Args` options.
 
+### Handling errors
+
+From version 5.5 you have the option to specify how to handle issues with Elasticsearch. Since the sink delivers in a batch, it might be possible that one or more events could actually nog be stored in the Elasticseach store.
+Can be a mapping issue for example. It is hard to find out what happened here. There is a new option called *EmitEventFailure* which is an enum (flagged) with the following options:
+
+ - WriteToSelfLog, the default option in which the errors are written to the SelfLog.
+ - WriteToFailureSink, the failed events are send to another sink. Make sure to configure this one by setting the FailureSink option.
+ - ThrowException, in which an exception is raised.
+ - RaiseCallback, the failure callback function will be called when the event cannot be submitted to Elasticsearch. Make sure to set the FailureCallback option to handle the event.
+
+An example:
+
+```csharp
+.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200")) 
+                {
+                    FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
+                    EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
+                                       EmitEventFailureHandling.WriteToFailureSink |
+                                       EmitEventFailureHandling.RaiseCallback,
+                    FailureSink = new FileSink("./failures.txt", new JsonFormatter(), null)
+                })
+```
+
+With the AutoRegisterTemplate option the sink will write a default template to Elasticsearch. When this template is not there, you might not want to index as it can influence the data quality.
+Since version 5.5 you can use the RegisterTemplateFailure option. Set it to one of the following options:
+
+ - IndexAnyway; the default option, the events will be send to the server
+ - IndexToDeadletterIndex; using the deadletterindex format, it will write the events to the deadletter queue. When you fix your template mapping, you can copy your data into the right index.
+ - FailSink; this will simply fail the sink by raising an exception.
+
 ### Breaking changes for version 4
 
 Starting from version 4, the sink has been upgraded to work with Serilog 2.0 and has .NET Core support.
