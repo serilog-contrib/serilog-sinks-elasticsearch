@@ -27,6 +27,8 @@ namespace Serilog.Sinks.Elasticsearch
     /// </summary>
     public class ElasticsearchSinkOptions
     {
+        private int _queueSizeLimit;
+
         /// <summary>
         /// When set to true the sink will register an index template for the logs in elasticsearch.
         /// This template is optimized to deal with serilog events
@@ -61,8 +63,8 @@ namespace Serilog.Sinks.Elasticsearch
         /// If not provided, this will default to the default number_of_shards configured in Elasticsearch.
         /// </summary>
         public int? NumberOfShards { get; set; }
-		
-		/// <summary>
+
+        /// <summary>
         /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to override the default number of replicas.
         /// If not provided, this will default to the default number_of_replicas configured in Elasticsearch.
         /// </summary>
@@ -94,7 +96,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.
         /// </summary>
         public string PipelineName { get; set; }
-        
+
         ///<summary>
         /// The maximum number of events to post in a single batch. Defaults to: 50.
         /// </summary>
@@ -184,7 +186,23 @@ namespace Serilog.Sinks.Elasticsearch
         /// A callback which can be used to handle logevents which are not submitted to Elasticsearch
         /// like when it is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
         /// </summary>
-        public Action<LogEvent> FailureCallback {get;set;}
+        public Action<LogEvent> FailureCallback { get; set; }
+
+        /// <summary>
+        /// The maximum number of events that will be held in-memory while waiting to ship them to
+        /// Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on
+        /// durable log shipping.
+        /// </summary>
+        public int QueueSizeLimit
+        {
+            get { return _queueSizeLimit; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(QueueSizeLimit), "Queue size limit must be non-zero.");
+                _queueSizeLimit = value;
+            }
+        }
 
         /// <summary>
         /// Configures the elasticsearch sink defaults
@@ -197,9 +215,10 @@ namespace Serilog.Sinks.Elasticsearch
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.TemplateName = "serilog-events-template";
-            this.ConnectionTimeout = TimeSpan.FromSeconds(60);
+            this.ConnectionTimeout = TimeSpan.FromSeconds(5);
             this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
             this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
+            this.QueueSizeLimit = 100000;
         }
 
         /// <summary>

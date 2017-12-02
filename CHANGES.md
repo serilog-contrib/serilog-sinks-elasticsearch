@@ -1,5 +1,14 @@
 == Changelog
 
+5.5
+ * Errors from Elasticsearch can now be handled. Either by looking into the selflog, sending the failty events to another sink, handle the logevent yourself by using a callback or let the sink throw an exception.
+ * BOM fix for buffered option.
+ * The creation of the template might fail. You can now specify what kind of action should be taken if this happens.
+ * Added a sample application.
+ * Added a docker-compose file that allows you to start a local elasticsearch and kibana instance.
+ * ConnectionTimeout is now set to be 5 seconds instead of 1 minute.
+ * You can now set the queueSizeLimit, which limits the amount of events stored in the PeriodicBatching buffer. Does not impact the durable buffer.
+
 5.4
  * Added support for pipelines in Elasticsearch. Pipelines allows you to change the ingress data by running it through Processors (https://www.elastic.co/blog/new-way-to-ingest-part-1).
 

@@ -36,7 +36,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="options">Options configuring how the sink behaves, may NOT be null</param>
         public ElasticsearchSink(ElasticsearchSinkOptions options)
-            : base(options.BatchPostingLimit, options.Period)
+            : base(options.BatchPostingLimit, options.Period, options.QueueSizeLimit)
         {
             _state = ElasticsearchSinkState.Create(options);
             _state.RegisterTemplateIfNeeded();
