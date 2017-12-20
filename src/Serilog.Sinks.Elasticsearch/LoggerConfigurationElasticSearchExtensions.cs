@@ -55,7 +55,11 @@ namespace Serilog
                 ? (ILogEventSink)new ElasticsearchSink(options)
                 : new DurableElasticsearchSink(options);
 
-            return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
+            return loggerSinkConfiguration.Sink(
+                sink,
+                restrictedToMinimumLevel : options.MinimumLogEventLevel ?? LevelAlias.Minimum,
+                levelSwitch : options.LoggingLevelSwitch
+            );
         }
 
         /// <summary>
@@ -69,7 +73,8 @@ namespace Serilog
         /// <param name="batchPostingLimit"><see cref="ElasticsearchSinkOptions.BatchPostingLimit"/></param>
         /// <param name="period"><see cref="ElasticsearchSinkOptions.Period"/></param>
         /// <param name="inlineFields"><see cref="ElasticsearchSinkOptions.InlineFields"/></param>
-        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink.</param>
+        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink. Ignored when <paramref name="loggingLevelSwitch"/> is specified.</param>
+        /// <param name="loggingLevelSwitch" > A switch allowing the pass-through minimum level to be changed at runtime.</param>
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
@@ -89,7 +94,8 @@ namespace Serilog
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
-            string connectionGlobalHeaders = null)
+            string connectionGlobalHeaders = null,
+            LoggingLevelSwitch loggingLevelSwitch = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -119,7 +125,8 @@ namespace Serilog
             options.BatchPostingLimit = batchPostingLimit;
             options.Period = TimeSpan.FromSeconds(period);
             options.InlineFields = inlineFields;
-            options.MinimumLogEventLevel = restrictedToMinimumLevel;
+            options.MinimumLogEventLevel = restrictedToMinimumLevel;            
+            options.LoggingLevelSwitch = loggingLevelSwitch;
 
             if (!string.IsNullOrWhiteSpace(bufferBaseFilename))
             {

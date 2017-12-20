@@ -128,9 +128,14 @@ namespace Serilog.Sinks.Elasticsearch
         public bool InlineFields { get; set; }
 
         /// <summary>
-        /// The minimum log event level required in order to write an event to the sink.
+        /// The minimum log event level required in order to write an event to the sink. Ignored when LoggingLevelSwitch is specified.
         /// </summary>
         public LogEventLevel? MinimumLogEventLevel { get; set; }
+
+        /// <summary>
+        /// A switch allowing the pass-through minimum level to be changed at runtime.
+        /// </summary>
+        public LoggingLevelSwitch LoggingLevelSwitch { get; set; }
 
         ///<summary>
         /// When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation
