@@ -135,7 +135,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// A switch allowing the pass-through minimum level to be changed at runtime.
         /// </summary>
-        public LoggingLevelSwitch LoggingLevelSwitch { get; set; }
+        public LoggingLevelSwitch LevelSwitch { get; set; }
 
         ///<summary>
         /// When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation
