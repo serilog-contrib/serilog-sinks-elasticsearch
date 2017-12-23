@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Files", "Files", "{148431F6-5BA9-4987-80CF-DF9F23F54947}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch.Tests", "test\Serilog.Sinks.Elasticsearch.Tests\Serilog.Sinks.Elasticsearch.Tests.csproj", "{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Sample", "sample\Serilog.Sinks.Elasticsearch.Sample\Serilog.Sinks.Elasticsearch.Sample.csproj", "{253B37AB-D82E-4A5F-BA16-F1BE398818C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,8 +35,15 @@ Global
 		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA358673-C4B6-49D0-8EC5-D6CB50A11CC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2A076FF0-B90E-451A-B858-3144CE509516}
 	EndGlobalSection
 EndGlobal

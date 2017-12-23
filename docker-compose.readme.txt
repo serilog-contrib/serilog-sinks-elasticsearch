@@ -1,0 +1,16 @@
+Elastic (http://localhost:9200)= elastic:changeme
+Elastic Head: http://localhost:9100/?auth_user=elastic&auth_password=changeme
+Kibana: http://localhost:5601
+
+To start the components:
+docker-compose up
+
+add the -d option to run in the background
+
+To scale the nodes:
+
+docker-compose up --scale elasticsearch=3
+
+To shutdown:
+
+docker-compose down
