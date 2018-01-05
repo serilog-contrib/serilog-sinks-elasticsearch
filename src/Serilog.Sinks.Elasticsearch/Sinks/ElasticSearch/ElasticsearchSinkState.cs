@@ -239,7 +239,7 @@ namespace Serilog.Sinks.Elasticsearch
                         },
                         properties = new Dictionary<string, object>
                         {
-                            {"message", new {type = "string", index = "analyzed"}},
+                            {"message", new {type = "text", index = "analyzed"}},
                             {
                                 "exceptions", new
                                 {
@@ -249,8 +249,8 @@ namespace Serilog.Sinks.Elasticsearch
                                         {"Depth", new {type = "integer"}},
                                         {"RemoteStackIndex", new {type = "integer"}},
                                         {"HResult", new {type = "integer"}},
-                                        {"StackTraceString", new {type = "string", index = "analyzed"}},
-                                        {"RemoteStackTraceString", new {type = "string", index = "analyzed"}},
+                                        {"StackTraceString", new {type = "text", index = "analyzed"}},
+                                        {"RemoteStackTraceString", new {type = "text", index = "analyzed"}},
                                         {
                                             "ExceptionMessage", new
                                             {
