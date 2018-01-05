@@ -204,9 +204,9 @@ namespace Serilog.Sinks.Elasticsearch
                                         match_pattern = "regex",
                                         mapping = new
                                         {
-                                            type = "string",
-                                            index = "analyzed",
-                                            omit_norms = true
+                                            type = "text",
+                                            index = true,
+                                            norms = false
                                         }
                                     }
                                 }
@@ -220,15 +220,15 @@ namespace Serilog.Sinks.Elasticsearch
                                         match_mapping_type = "string",
                                         mapping = new
                                         {
-                                            type = "string",
-                                            index = "analyzed",
-                                            omit_norms = true,
+                                            type = "text",
+                                            index = true,
+                                            norms = false,
                                             fields = new
                                             {
                                                 raw = new
                                                 {
-                                                    type = "string",
-                                                    index = "not_analyzed",
+                                                    type = "keyword",
+                                                    index = true,
                                                     ignore_above = 256
                                                 }
                                             }
