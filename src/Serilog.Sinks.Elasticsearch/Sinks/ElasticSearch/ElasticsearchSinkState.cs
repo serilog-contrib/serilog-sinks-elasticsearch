@@ -188,7 +188,7 @@ namespace Serilog.Sinks.Elasticsearch
                 {
                     _default_ = new
                     {
-                        _all = new { enabled = true, omit_norms = true },
+                        _all = new { enabled = true, norms = false },
                         dynamic_templates = new List<Object>
                         {
                             //when you use serilog as an adaptor for third party frameworks
