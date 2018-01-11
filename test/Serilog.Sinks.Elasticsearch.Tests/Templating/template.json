@@ -7,7 +7,7 @@
         "_default_": {
             "_all": {
                 "enabled": true,
-                "omit_norms" : true
+                "norms" : false
             },
             "dynamic_templates": [
                 {
