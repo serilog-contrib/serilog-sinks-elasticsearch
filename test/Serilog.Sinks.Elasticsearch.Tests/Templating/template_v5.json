@@ -7,7 +7,7 @@
         "_default_": {
             "_all": {
                 "enabled": true,
-                "omit_norms" : true
+                "norms" : true
             },
             "dynamic_templates": [
                 {
@@ -15,9 +15,9 @@
                       "path_match":"fields\\.[\\d+]$",
                       "match_pattern":"regex",
                       "mapping": {
-                          "type":"string",
-                          "index":"analyzed",
-                          "omit_norms":true
+                          "type":"text",
+                          "index":true,
+                          "norms":false
                       }
                   }
                 },
@@ -26,13 +26,13 @@
                         "match": "*",
                         "match_mapping_type": "string",
                         "mapping": {
-                            "type": "string",
-                            "index": "analyzed",
-                            "omit_norms": true,
+                            "type": "text",
+                            "index": true,
+                            "norms": false,
                             "fields": {
                                 "raw": {
-                                    "type": "string",
-                                    "index": "not_analyzed",
+                                    "type": "keyword",
+                                    "index": true,
                                     "ignore_above": 256
                                 }
                             }
@@ -42,7 +42,7 @@
             ],
             "properties": {
                 "message": {
-                    "type": "string",
+                    "type": "text",
                     "index": "analyzed"
                 },
                 "exceptions": {
@@ -58,11 +58,11 @@
                             "type": "integer"
                         },
                         "StackTraceString": {
-                            "type": "string",
+                            "type": "text",
                             "index": "analyzed"
                         },
                         "RemoteStackTraceString": {
-                            "type": "string",
+                            "type": "text",
                             "index": "analyzed"
                         },
                         "ExceptionMessage": {

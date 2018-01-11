@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Reflection;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -14,6 +13,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         public SendsTemplateTests()
         {
             _options.AutoRegisterTemplate = true;
+
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
@@ -31,18 +31,35 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             _templatePut = this._seenHttpPuts[0];
         }
 
-
         [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
             var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
-            this.JsonEquals(this._templatePut.Item2, method, "template");
+            JsonEquals(_templatePut.Item2, method, "template");
+        }
+
+        [Fact]
+        public void ShouldRegisterTheCorrectv5TemplateOnRegistration()
+        {
+            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv5;
+
+            var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
+            JsonEquals(_templatePut.Item2, method, "template");
+        }
+
+        [Fact]
+        public void ShouldRegisterTheCorrectv6TemplateOnRegistration()
+        {
+            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6;
+
+            var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
+            JsonEquals(_templatePut.Item2, method, "template");
         }
 
         [Fact]
         public void TemplatePutToCorrectUrl()
         {
-            var uri = this._templatePut.Item1;
+            var uri = _templatePut.Item1;
             uri.AbsolutePath.Should().Be("/_template/serilog-events-template");
         }
 
@@ -54,13 +71,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             var assembly = Assembly.GetExecutingAssembly();
 #endif
             var expected = TestDataHelper.ReadEmbeddedResource(assembly, "template.json");
-            
+
             var nJson = JObject.Parse(json);
             var nOtherJson = JObject.Parse(expected);
             var equals = JToken.DeepEquals(nJson, nOtherJson);
             if (equals) return;
             expected.Should().BeEquivalentTo(json);
-
         }
     }
 }
