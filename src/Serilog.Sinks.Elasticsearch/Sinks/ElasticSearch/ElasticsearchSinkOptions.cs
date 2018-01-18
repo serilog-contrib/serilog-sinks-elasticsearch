@@ -99,6 +99,11 @@ namespace Serilog.Sinks.Elasticsearch
         public string TypeName { get; set; }
 
         /// <summary>
+        /// Function to decide which Pipeline to use for the LogEvent
+        /// </summary>
+        public Func<LogEvent, string> PipelineNameDecider { get; set; }
+
+        /// <summary>
         /// Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.
         /// </summary>
         public string PipelineName { get; set; }
