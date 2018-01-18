@@ -133,7 +133,7 @@ See the XML `<appSettings>` example above for a discussion of available `Args` o
 
 ### Handling errors
 
-From version 5.5 you have the option to specify how to handle issues with Elasticsearch. Since the sink delivers in a batch, it might be possible that one or more events could actually nog be stored in the Elasticseach store.
+From version 5.5 you have the option to specify how to handle issues with Elasticsearch. Since the sink delivers in a batch, it might be possible that one or more events could actually not be stored in the Elasticseach store.
 Can be a mapping issue for example. It is hard to find out what happened here. There is a new option called *EmitEventFailure* which is an enum (flagged) with the following options:
 
  - WriteToSelfLog, the default option in which the errors are written to the SelfLog.
