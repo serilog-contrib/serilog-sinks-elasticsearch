@@ -1,11 +1,11 @@
 // Copyright 2014 Serilog Contributors
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,6 +34,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// This template is optimized to deal with serilog events
         /// </summary>
         public bool AutoRegisterTemplate { get; set; }
+
+        /// <summary>
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows to set the Elasticsearch version. Depending on the
+        /// version, a template will be selected. Defaults to pre 5.0.
+        /// </summary>
+        public AutoRegisterTemplateVersion AutoRegisterTemplateVersion { get; set; }
 
         /// <summary>
         /// Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.
@@ -173,7 +179,7 @@ namespace Serilog.Sinks.Elasticsearch
         public ITextFormatter CustomDurableFormatter { get; set; }
 
         /// <summary>
-        /// Specifies how failing emits should be handled. 
+        /// Specifies how failing emits should be handled.
         /// </summary>
         public EmitEventFailureHandling EmitEventFailure { get; set; }
 
@@ -292,7 +298,7 @@ namespace Serilog.Sinks.Elasticsearch
         IndexAnyway = 1,
 
         ///// <summary>
-        ///// Keep buffering the data until it is written. be aware you might hit a limit here. 
+        ///// Keep buffering the data until it is written. be aware you might hit a limit here.
         ///// </summary>
         //BufferUntilSuccess = 2,
 
