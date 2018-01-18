@@ -176,7 +176,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (_options.NumberOfReplicas.HasValue)
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
-            return ElasticSearchTemplateProvider.GetTemplate(
+            return ElasticsearchTemplateProvider.GetTemplate(
                 settings,
                 _templateMatchString,
                 _options.AutoRegisterTemplateVersion);

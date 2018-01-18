@@ -182,6 +182,7 @@ namespace Serilog.Sinks.Elasticsearch
                             while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
                             {
                                 var action = default(object);
+
                                 if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
                                 {
                                     action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid() } };
@@ -264,29 +265,28 @@ namespace Serilog.Sinks.Elasticsearch
         {
             int i = 0;
             var items = response.Body["items"];
-            if (items != null)
-                foreach (dynamic item in items)
+            if (items == null) return;
+            foreach (dynamic item in items)
+            {
+                long? status = item.index?.status;
+                i++;
+                if (!status.HasValue || status < 300)
                 {
-                    long? status = item.index?.status;
-                    i++;
-                    if (!status.HasValue || status < 300)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    var id = item.index?._id;
-                    var error = item.index?.error;
-                    int index;
-                    if (int.TryParse(id.Split('_')[0], out index))
-                    {
-                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
+                var id = item.index?._id;
+                var error = item.index?.error;
+                if (int.TryParse(id.Split('_')[0], out int index))
+                {
+                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",
                         status, error.ToString(),
                         payload.ElementAt(index * 2 + 1));
-                    }
-                    else
-                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}.",
-                        status, error.ToString());
                 }
+                else
+                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}.",
+                        status, error.ToString());
+            }
         }
 
         static bool IsUnlockedAtLength(string file, long maxLen)

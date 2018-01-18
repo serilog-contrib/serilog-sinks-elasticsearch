@@ -25,7 +25,7 @@ namespace Serilog.Sinks.Elasticsearch
     /// <summary>
     ///
     /// </summary>
-    public class ElasticSearchTemplateProvider
+    public class ElasticsearchTemplateProvider
     {
         ///  <summary>
         ///
