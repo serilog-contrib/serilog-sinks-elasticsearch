@@ -21,6 +21,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templating\template_v2.json" />
+    <None Remove="Templating\template_v5.json" />
+    <None Remove="Templating\template_v6.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templating\template_v6.json" />
+    <EmbeddedResource Include="Templating\template_v5.json" />
+    <EmbeddedResource Include="Templating\template_v2.json" />
     <EmbeddedResource Include="Templating\template.json" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 

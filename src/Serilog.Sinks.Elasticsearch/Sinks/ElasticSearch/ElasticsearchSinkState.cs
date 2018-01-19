@@ -1,11 +1,11 @@
 ﻿// Copyright 2014 Serilog Contributors
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,14 +28,13 @@ namespace Serilog.Sinks.Elasticsearch
         public static ElasticsearchSinkState Create(ElasticsearchSinkOptions options)
         {
             if (options == null)
-            {
-                throw new ArgumentNullException("options");
-            }
+                throw new ArgumentNullException(nameof(options));
 
             return new ElasticsearchSinkState(options);
         }
 
         private readonly ElasticsearchSinkOptions _options;
+
         readonly Func<LogEvent, DateTimeOffset, string> _indexDecider;
 
         private readonly ITextFormatter _formatter;
@@ -43,16 +42,15 @@ namespace Serilog.Sinks.Elasticsearch
 
         private readonly ElasticLowLevelClient _client;
 
-        readonly string _typeName;
         private readonly bool _registerTemplateOnStartup;
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
 
-        public ElasticsearchSinkOptions Options => this._options;
-        public IElasticLowLevelClient Client => this._client;
-        public ITextFormatter Formatter => this._formatter;
-        public ITextFormatter DurableFormatter => this._durableFormatter;
+        public ElasticsearchSinkOptions Options => _options;
+        public IElasticLowLevelClient Client => _client;
+        public ITextFormatter Formatter => _formatter;
+        public ITextFormatter DurableFormatter => _durableFormatter;
 
         public bool TemplateRegistrationSuccess { get; private set; }
 
@@ -62,26 +60,25 @@ namespace Serilog.Sinks.Elasticsearch
             if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
 
-            this._templateName = options.TemplateName;
-            this._templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
+            _templateName = options.TemplateName;
+            _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
 
             _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
-            _typeName = options.TypeName;
             _options = options;
 
             Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
             if (options.Serializer != null)
-            {
                 serializerFactory = s => options.Serializer;
-            }
-            ConnectionConfiguration configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
+
+            var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
                 .RequestTimeout(options.ConnectionTimeout);
 
             if (options.ModifyConnectionSettings != null)
                 configuration = options.ModifyConnectionSettings(configuration);
 
             configuration.ThrowExceptions();
+
             _client = new ElasticLowLevelClient(configuration);
 
             _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
@@ -91,6 +88,7 @@ namespace Serilog.Sinks.Elasticsearch
                 serializer: options.Serializer,
                 inlineFields: options.InlineFields
             );
+
             _durableFormatter = options.CustomDurableFormatter ?? new ElasticsearchJsonFormatter(
                formatProvider: options.FormatProvider,
                renderMessage: true,
@@ -113,8 +111,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (!TemplateRegistrationSuccess && _options.RegisterTemplateFailure == RegisterTemplateRecovery.IndexToDeadletterIndex)
                 return string.Format(_options.DeadLetterIndexName, offset);
-            else
-                return this._indexDecider(e, offset);
+            return _indexDecider(e, offset);
         }
 
         /// <summary>
@@ -122,21 +119,22 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public void RegisterTemplateIfNeeded()
         {
-            if (!this._registerTemplateOnStartup) return;
+            if (!_registerTemplateOnStartup) return;
 
             try
             {
-                if (!this._options.OverwriteTemplate)
+                if (!_options.OverwriteTemplate)
                 {
-                    var templateExistsResponse = this._client.IndicesExistsTemplateForAll<DynamicResponse>(this._templateName);
+                    var templateExistsResponse = _client.IndicesExistsTemplateForAll<DynamicResponse>(_templateName);
                     if (templateExistsResponse.HttpStatusCode == 200)
                     {
                         TemplateRegistrationSuccess = true;
+
                         return;
                     }
                 }
 
-                var result = this._client.IndicesPutTemplateForAll<DynamicResponse>(this._templateName, GetTemplateData());
+                var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTemplateData());
 
                 if (!result.Success)
                 {
@@ -165,9 +163,7 @@ namespace Serilog.Sinks.Elasticsearch
         private object GetTemplateData()
         {
             if (_options.GetTemplateContent != null)
-            {
                 return _options.GetTemplateContent();
-            }
 
             var settings = new Dictionary<string, string>
             {
@@ -180,94 +176,11 @@ namespace Serilog.Sinks.Elasticsearch
             if (_options.NumberOfReplicas.HasValue)
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
-            return new
-            {
-                template = this._templateMatchString,
-                settings = settings,
-                mappings = new
-                {
-                    _default_ = new
-                    {
-                        _all = new { enabled = true, omit_norms = true },
-                        dynamic_templates = new List<Object>
-                        {
-                            //when you use serilog as an adaptor for third party frameworks
-                            //where you have no control over the log message they typically
-                            //contain {0} ad infinitum, we force numeric property names to
-                            //contain strings by default.
-                            {
-                                new
-                                {
-                                    numerics_in_fields = new
-                                    {
-                                        path_match = @"fields\.[\d+]$",
-                                        match_pattern = "regex",
-                                        mapping = new
-                                        {
-                                            type = "string",
-                                            index = "analyzed",
-                                            omit_norms = true
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                new
-                                {
-                                    string_fields = new
-                                    {
-                                        match = "*",
-                                        match_mapping_type = "string",
-                                        mapping = new
-                                        {
-                                            type = "string",
-                                            index = "analyzed",
-                                            omit_norms = true,
-                                            fields = new
-                                            {
-                                                raw = new
-                                                {
-                                                    type = "string",
-                                                    index = "not_analyzed",
-                                                    ignore_above = 256
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        properties = new Dictionary<string, object>
-                        {
-                            {"message", new {type = "string", index = "analyzed"}},
-                            {
-                                "exceptions", new
-                                {
-                                    type = "nested",
-                                    properties = new Dictionary<string, object>
-                                    {
-                                        {"Depth", new {type = "integer"}},
-                                        {"RemoteStackIndex", new {type = "integer"}},
-                                        {"HResult", new {type = "integer"}},
-                                        {"StackTraceString", new {type = "string", index = "analyzed"}},
-                                        {"RemoteStackTraceString", new {type = "string", index = "analyzed"}},
-                                        {
-                                            "ExceptionMessage", new
-                                            {
-                                                type = "object",
-                                                properties = new Dictionary<string, object>
-                                                {
-                                                    {"MemberType", new {type = "integer"}},
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            return ElasticsearchTemplateProvider.GetTemplate(
+                settings,
+                _templateMatchString,
+                _options.AutoRegisterTemplateVersion);
+
         }
     }
 }

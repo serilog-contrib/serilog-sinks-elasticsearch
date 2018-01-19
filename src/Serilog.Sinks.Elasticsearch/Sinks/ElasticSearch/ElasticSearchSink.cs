@@ -1,11 +1,11 @@
 ﻿// Copyright 2014 Serilog Contributors
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -141,13 +141,15 @@ namespace Serilog.Sinks.Elasticsearch
                 {
                     var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
                     var action = default(object);
-                    if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
+
+                    var pipelineName = _state.Options.PipelineNameDecider?.Invoke(e) ?? _state.Options.PipelineName;
+                    if (string.IsNullOrWhiteSpace(pipelineName))
                     {
                         action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
                     }
                     else
                     {
-                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = _state.Options.PipelineName } };
+                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = pipelineName } };
                     }
                     var actionJson = _state.Serialize(action);
                     payload.Add(actionJson);

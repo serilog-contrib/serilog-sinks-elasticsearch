@@ -6,13 +6,14 @@ using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    public class SendsTemplateTests : ElasticsearchSinkTestsBase
+    public class Sendsv6TemplateTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
 
-        public SendsTemplateTests()
+        public Sendsv6TemplateTests()
         {
             _options.AutoRegisterTemplate = true;
+            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6;
 
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -34,8 +35,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
-            var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
-            JsonEquals(_templatePut.Item2, method, "template");
+
+            var method = typeof(Sendsv6TemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
+            JsonEquals(_templatePut.Item2, method, "template_v6.json");
         }
 
         [Fact]
@@ -48,11 +50,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         protected void JsonEquals(string json, MethodBase method, string fileName = null)
         {
 #if DOTNETCORE
-            var assembly = typeof(SendsTemplateTests).GetTypeInfo().Assembly;
+            var assembly = typeof(Sendsv6TemplateTests).GetTypeInfo().Assembly;
 #else
             var assembly = Assembly.GetExecutingAssembly();
 #endif
-            var expected = TestDataHelper.ReadEmbeddedResource(assembly, "template.json");
+            var expected = TestDataHelper.ReadEmbeddedResource(assembly, fileName ?? "template.json");
 
             var nJson = JObject.Parse(json);
             var nOtherJson = JObject.Parse(expected);

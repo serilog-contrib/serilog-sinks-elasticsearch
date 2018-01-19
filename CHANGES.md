@@ -1,5 +1,10 @@
 == Changelog
 
+5.7
+ * Supporting ES 6 template defitions while still supporting old versions. (https://github.com/serilog/serilog-sinks-elasticsearch/pull/142) See for details https://www.elastic.co/blog/strings-are-dead-long-live-strings
+ * Pipeline decider added.
+ * Ability to use loglevelswitch (https://github.com/serilog/serilog-sinks-elasticsearch/pull/139)
+
 5.5
  * Errors from Elasticsearch can now be handled. Either by looking into the selflog, sending the failty events to another sink, handle the logevent yourself by using a callback or let the sink throw an exception.
  * BOM fix for buffered option.
