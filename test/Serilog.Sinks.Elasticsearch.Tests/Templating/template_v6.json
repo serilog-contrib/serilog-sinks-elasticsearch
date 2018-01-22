@@ -39,7 +39,7 @@
             "properties": {
                 "message": {
                     "type": "text",
-                    "index": "analyzed"
+                    "index": "true"
                 },
                 "exceptions": {
                     "type": "nested",
@@ -55,11 +55,11 @@
                         },
                         "StackTraceString": {
                             "type": "text",
-                            "index": "analyzed"
+                            "index": "true"
                         },
                         "RemoteStackTraceString": {
                             "type": "text",
-                            "index": "analyzed"
+                            "index": "true"
                         },
                         "ExceptionMessage": {
                             "type": "object",
