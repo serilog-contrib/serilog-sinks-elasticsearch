@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>5.1.0</VersionPrefix>
     <Authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors</Authors>
-    <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Serilog.Sinks.Elasticsearch</AssemblyName>
@@ -41,6 +41,10 @@
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION;NO_TIMER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);DOTNETCORE;NO_TIMER</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
