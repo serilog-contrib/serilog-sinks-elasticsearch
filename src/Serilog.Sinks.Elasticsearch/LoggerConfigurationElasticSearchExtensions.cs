@@ -79,6 +79,11 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
+        /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/></param>   
+        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/></param>   
+        /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/></param>   
+        /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/></param>   
+        /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/></param>   
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -95,7 +100,12 @@ namespace Serilog
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
-            LoggingLevelSwitch levelSwitch = null)
+            LoggingLevelSwitch levelSwitch = null,
+            bool autoRegisterTemplate = false,
+            AutoRegisterTemplateVersion autoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv2,
+            bool overwriteTemplate = false,
+            int? numberOfShards = null,
+            int? numberOfReplicas = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -155,6 +165,12 @@ namespace Serilog
 
                 options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
             }
+
+            options.AutoRegisterTemplate = autoRegisterTemplate;
+            options.AutoRegisterTemplateVersion = autoRegisterTemplateVersion;
+            options.OverwriteTemplate = overwriteTemplate;
+            options.NumberOfShards = numberOfShards;
+            options.NumberOfReplicas = numberOfReplicas;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
