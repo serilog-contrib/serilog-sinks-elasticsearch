@@ -5,7 +5,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {
     public class ElasticsearchDefaultSerializerTests : ElasticsearchSinkUniformityTestsBase
     {
-        public ElasticsearchDefaultSerializerTests() : base(new ElasticsearchDefaultSerializer()) { }
+        public ElasticsearchDefaultSerializerTests() : base(new LowLevelRequestResponseSerializer()) { }
 
         [Fact]
         public void Should_SerializeToExpandedExceptionObjectWhenExceptionIsSet()
