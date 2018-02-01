@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
+using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
+using System.Linq;
 
 namespace Serilog
 {
@@ -79,6 +79,7 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
+        /// <param name="customFormatter"><see cref="ElasticsearchSinkOptions.CustomFormatter"/></param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -95,7 +96,8 @@ namespace Serilog
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
-            LoggingLevelSwitch levelSwitch = null)
+            LoggingLevelSwitch levelSwitch = null,
+            string customFormatter = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
@@ -154,6 +156,13 @@ namespace Serilog
                     });
 
                 options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
+            }
+
+            switch (customFormatter)
+            {
+                case "ExceptionAsObjectJsonFormatter":
+                    options.CustomFormatter = new ExceptionAsObjectJsonFormatter(renderMessage: true);
+                    break;
             }
 
             return Elasticsearch(loggerSinkConfiguration, options);
