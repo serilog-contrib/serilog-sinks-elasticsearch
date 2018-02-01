@@ -201,7 +201,7 @@ namespace Serilog.Sinks.Elasticsearch
                         if (count > 0)
                         {
 
-                            var response = _state.Client.Bulk<DynamicResponse>(payload);
+                            var response = _state.Client.Bulk<DynamicResponse>(PostData.MultiJson(payload));
 
                             if (response.Success)
                             {
@@ -261,7 +261,7 @@ namespace Serilog.Sinks.Elasticsearch
             }
         }
 
-        static void HandleBulkResponse(ElasticsearchResponse<DynamicResponse> response, List<string> payload)
+        static void HandleBulkResponse(DynamicResponse response, List<string> payload)
         {
             int i = 0;
             var items = response.Body["items"];

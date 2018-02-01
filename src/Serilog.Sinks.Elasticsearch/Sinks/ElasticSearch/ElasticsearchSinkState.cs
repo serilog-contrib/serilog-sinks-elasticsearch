@@ -67,11 +67,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             _options = options;
 
-            Func<ConnectionConfiguration, IElasticsearchSerializer> serializerFactory = null;
-            if (options.Serializer != null)
-                serializerFactory = s => options.Serializer;
-
-            var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, serializerFactory)
+            var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, options.Serializer)
                 .RequestTimeout(options.ConnectionTimeout);
 
             if (options.ModifyConnectionSettings != null)
@@ -134,11 +130,12 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTemplateData());
+                var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTempatePostData());
 
                 if (!result.Success)
                 {
-                    SelfLog.WriteLine("Unable to create the template. {0}", result.ServerError);
+                    ((IElasticsearchResponse)result).TryGetServerErrorReason(out var serverError);
+                    SelfLog.WriteLine("Unable to create the template. {0}", serverError);
 
                     if (_options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
                         throw new Exception($"Unable to create the template named {_templateName}.", result.OriginalException);
@@ -157,6 +154,22 @@ namespace Serilog.Sinks.Elasticsearch
 
                 if (_options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
                     throw;
+            }
+        }
+
+        private PostData GetTempatePostData()
+        {
+            //PostData no longer exposes an implict cast from object.  Previously it supported that and would inspect the object Type to
+            //determine if it it was a litteral string to write directly or if it was an object that it needed to serialse.  Now the onus is 
+            //on us to tell it what type we are passing otherwise if the user specified the template as a json string it would be serialised again.
+            var template = GetTemplateData();
+            if (template is string)
+            {
+                return PostData.String((string)template);
+            }
+            else
+            {
+                return PostData.Serializable(template);
             }
         }
 
