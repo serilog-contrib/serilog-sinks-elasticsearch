@@ -14,6 +14,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 - Durable mode; store the logevents first on disk before delivering them to ES making sure you never miss events if you have trouble connecting to your ES cluster.
 - Automatically create the right mappings for the best usage of the log events in ES or automatically upload your own custom mapping.
 - Starting from version 3, compatible with Elasticsearch 2.
+- Version 6.x supports the new Elasticsearch.net version 6.x library.
 
 ## Quick start
 
@@ -160,6 +161,11 @@ Since version 5.5 you can use the RegisterTemplateFailure option. Set it to one 
  - IndexAnyway; the default option, the events will be send to the server
  - IndexToDeadletterIndex; using the deadletterindex format, it will write the events to the deadletter queue. When you fix your template mapping, you can copy your data into the right index.
  - FailSink; this will simply fail the sink by raising an exception.
+
+ 
+### Breaking changes for version 6
+
+Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6.
 
 ### Breaking changes for version 4
 

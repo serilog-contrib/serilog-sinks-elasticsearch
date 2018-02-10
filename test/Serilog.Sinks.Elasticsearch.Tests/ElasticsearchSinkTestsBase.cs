@@ -10,6 +10,8 @@ using Nest;
 using Xunit;
 using Serilog.Debugging;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
+using Nest.JsonNetSerializer;
+using System.Collections;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -21,7 +23,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected List<string> _seenHttpPosts = new List<string>();
         protected List<int> _seenHttpHeads = new List<int>();
         protected List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
-        private JsonNetSerializer _serializer;
+        private IElasticsearchSerializer _serializer;
 
         protected int _templateExistsReturnCode = 404;
 
@@ -33,8 +35,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
             _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, () => _templateExistsReturnCode);
-            _serializer = new JsonNetSerializer(new ConnectionSettings(connectionPool, _connection));
-        
+            _serializer = JsonNetSerializer.Default(LowLevelRequestResponseSerializer.Instance, new ConnectionSettings(connectionPool, _connection));
+
             _options = new ElasticsearchSinkOptions(connectionPool)
             {
                 BatchPostingLimit = 2,
@@ -93,7 +95,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         }
 
         protected async Task ThrowAsync()
-        { 
+        {
             await Task.Delay(1);
             throw new Exception("boom!");
         }
@@ -103,7 +105,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(2);
             var json = string.Join("", _seenHttpPosts);
             var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-            
+
             bulkJsonPieces.Count().Should().BeGreaterOrEqualTo(lastN);
             var skip = Math.Max(0, bulkJsonPieces.Count() - lastN);
 
@@ -131,9 +133,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 this._templateExistReturnCode = templateExistReturnCode;
             }
 
-            public override ElasticsearchResponse<TReturn> Request<TReturn>(RequestData requestData)
+            public override TReturn Request<TReturn>(RequestData requestData)
             {
-
                 MemoryStream ms = new MemoryStream();
                 if (requestData.PostData != null)
                     requestData.PostData.Write(ms, new ConnectionConfiguration());
@@ -150,7 +151,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         _seenHttpHeads.Add(this._templateExistReturnCode());
                         break;
                 }
-                return new ElasticsearchResponse<TReturn>(this._templateExistReturnCode(), new[] { 200, 404 });
+
+                var responseStream = new MemoryStream();
+                return ResponseBuilder.ToResponse<TReturn>(requestData, null, this._templateExistReturnCode(), Enumerable.Empty<string>(), responseStream);
             }
         }
     }

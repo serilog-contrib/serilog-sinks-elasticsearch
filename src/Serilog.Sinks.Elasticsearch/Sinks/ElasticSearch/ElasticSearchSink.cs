@@ -53,7 +53,16 @@ namespace Serilog.Sinks.Elasticsearch
         /// </remarks>
         protected override void EmitBatch(IEnumerable<LogEvent> events)
         {
-            var result = this.EmitBatchChecked<DynamicResponse>(events);
+            DynamicResponse result;
+            try
+            {
+                result = this.EmitBatchChecked<DynamicResponse>(events);
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex, events);
+                return;
+            }
 
             // Handle the results from ES, check if there are any errors.
             if (result.Success && result.Body?["errors"] == true)
@@ -123,7 +132,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual ElasticsearchResponse<T> EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T : class
+        protected virtual T EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T : class, IElasticsearchResponse, new()
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
@@ -134,37 +143,28 @@ namespace Serilog.Sinks.Elasticsearch
                 return null;
             }
 
-            try
+            var payload = new List<string>();
+            foreach (var e in events)
             {
-                var payload = new List<string>();
-                foreach (var e in events)
+                var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
+                var action = default(object);
+
+                var pipelineName = _state.Options.PipelineNameDecider?.Invoke(e) ?? _state.Options.PipelineName;
+                if (string.IsNullOrWhiteSpace(pipelineName))
                 {
-                    var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
-                    var action = default(object);
-
-                    var pipelineName = _state.Options.PipelineNameDecider?.Invoke(e) ?? _state.Options.PipelineName;
-                    if (string.IsNullOrWhiteSpace(pipelineName))
-                    {
-                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
-                    }
-                    else
-                    {
-                        action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = pipelineName } };
-                    }
-                    var actionJson = _state.Serialize(action);
-                    payload.Add(actionJson);
-                    var sw = new StringWriter();
-                    _state.Formatter.Format(e, sw);
-                    payload.Add(sw.ToString());
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
                 }
-                return _state.Client.Bulk<T>(payload);
+                else
+                {
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = pipelineName } };
+                }
+                var actionJson = _state.Serialize(action);
+                payload.Add(actionJson);
+                var sw = new StringWriter();
+                _state.Formatter.Format(e, sw);
+                payload.Add(sw.ToString());
             }
-            catch (Exception ex)
-            {
-                HandleException(ex, events);
-
-                return new ElasticsearchResponse<T>(ex);
-            }
+            return _state.Client.Bulk<T>(PostData.MultiJson(payload));
         }
 
         /// <summary>

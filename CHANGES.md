@@ -1,5 +1,9 @@
 == Changelog
 
+6.1
+ * Updated to elasticsearch 6 libraries (#153)
+ * Fix field index option for 6.1+ template to use boolean value. (#148)
+
 5.7
  * Supporting ES 6 template defitions while still supporting old versions. (https://github.com/serilog/serilog-sinks-elasticsearch/pull/142) See for details https://www.elastic.co/blog/strings-are-dead-long-live-strings
  * Pipeline decider added.
