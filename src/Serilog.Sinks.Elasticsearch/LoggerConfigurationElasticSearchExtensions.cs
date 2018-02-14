@@ -21,6 +21,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace Serilog
 {
@@ -78,10 +79,55 @@ namespace Serilog
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
+        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>
+        [Obsolete("New code should not be compiled against this obsolete overload"), EditorBrowsable(EditorBrowsableState.Never)]
+        public static LoggerConfiguration Elasticsearch(
+           this LoggerSinkConfiguration loggerSinkConfiguration,
+           string nodeUris,
+           string indexFormat,
+           string templateName,
+           string typeName,
+           int batchPostingLimit,
+           int period,
+           bool inlineFields,
+           LogEventLevel restrictedToMinimumLevel,
+           string bufferBaseFilename,
+           long? bufferFileSizeLimitBytes,
+           long bufferLogShippingInterval,
+           string connectionGlobalHeaders,
+           LoggingLevelSwitch levelSwitch)
+        {
+            return Elasticsearch(loggerSinkConfiguration, nodeUris, indexFormat, templateName, typeName, batchPostingLimit, period, inlineFields, restrictedToMinimumLevel, bufferBaseFilename,
+                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false, 
+                AutoRegisterTemplateVersion.ESv2, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
+        }
+
+        /// <summary>
+        /// Overload to allow basic configuration through AppSettings.
+        /// </summary>
+        /// <param name="loggerSinkConfiguration">Options for the sink.</param>
+        /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
+        /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
+        /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
+        /// <param name="typeName"><see cref="ElasticsearchSinkOptions.TypeName"/></param>
+        /// <param name="batchPostingLimit"><see cref="ElasticsearchSinkOptions.BatchPostingLimit"/></param>
+        /// <param name="period"><see cref="ElasticsearchSinkOptions.Period"/></param>
+        /// <param name="inlineFields"><see cref="ElasticsearchSinkOptions.InlineFields"/></param>
+        /// <param name="restrictedToMinimumLevel">The minimum log event level required in order to write an event to the sink. Ignored when <paramref name="levelSwitch"/> is specified.</param>
+        /// <param name="levelSwitch">A switch allowing the pass-through minimum level to be changed at runtime.</param>
+        /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
+        /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
+        /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
+        /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/></param>   
+        /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/></param>  
+        /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/></param>   
+        /// <param name="pipelineName"><see cref="ElasticsearchSinkOptions.PipelineName"/></param>   
         /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/></param>   
-        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/></param>   
+        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/></param>  
         /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/></param>   
+        /// <param name="registerTemplateFailure"><see cref="ElasticsearchSinkOptions.RegisterTemplateFailure"/></param>  
+        /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/></param>  
         /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/></param>   
         /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/></param>   
         /// <returns>LoggerConfiguration object</returns>
@@ -101,9 +147,15 @@ namespace Serilog
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
             LoggingLevelSwitch levelSwitch = null,
+            int connectionTimeout = 5,
+            EmitEventFailureHandling emitEventFailure = EmitEventFailureHandling.WriteToSelfLog,
+            int queueSizeLimit = 100000,
+            string pipelineName = null,
             bool autoRegisterTemplate = false,
             AutoRegisterTemplateVersion autoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv2,
             bool overwriteTemplate = false,
+            RegisterTemplateRecovery registerTemplateFailure = RegisterTemplateRecovery.IndexAnyway,
+            string deadLetterIndexName = null,
             int? numberOfShards = null,
             int? numberOfReplicas = null)
         {
@@ -166,11 +218,22 @@ namespace Serilog
                 options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
             }
 
+            options.ConnectionTimeout = TimeSpan.FromSeconds(connectionTimeout);
+            options.EmitEventFailure = emitEventFailure;
+            options.QueueSizeLimit = queueSizeLimit;
+            options.PipelineName = pipelineName;
+
             options.AutoRegisterTemplate = autoRegisterTemplate;
             options.AutoRegisterTemplateVersion = autoRegisterTemplateVersion;
+            options.RegisterTemplateFailure = registerTemplateFailure;
             options.OverwriteTemplate = overwriteTemplate;
             options.NumberOfShards = numberOfShards;
             options.NumberOfReplicas = numberOfReplicas;
+
+            if (!string.IsNullOrWhiteSpace(deadLetterIndexName))
+            {
+                options.DeadLetterIndexName = deadLetterIndexName;
+            }
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
