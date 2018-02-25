@@ -1,5 +1,8 @@
 == Changelog
 
+6.2
+ * Extra overload added to support more settings via AppSettings reader. (#150)
+
 6.1
  * Updated to elasticsearch 6 libraries (#153)
  * Fix field index option for 6.1+ template to use boolean value. (#148)
