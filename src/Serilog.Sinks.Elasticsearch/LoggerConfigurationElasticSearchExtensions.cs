@@ -119,17 +119,17 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
-        /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/></param>   
-        /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/></param>  
-        /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/></param>   
-        /// <param name="pipelineName"><see cref="ElasticsearchSinkOptions.PipelineName"/></param>   
-        /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/></param>   
-        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/></param>  
-        /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/></param>   
-        /// <param name="registerTemplateFailure"><see cref="ElasticsearchSinkOptions.RegisterTemplateFailure"/></param>  
-        /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/></param>  
-        /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/></param>   
-        /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/></param>   
+        /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>   
+        /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/>Specifies how failing emits should be handled.</param>  
+        /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/>The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>   
+        /// <param name="pipelineName"><see cref="ElasticsearchSinkOptions.PipelineName"/>Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.</param>   
+        /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/>When set to true the sink will register an index template for the logs in elasticsearch.</param>   
+        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/>When using the AutoRegisterTemplate feature, this allows to set the Elasticsearch version. Depending on the version, a template will be selected. Defaults to pre 5.0.</param>  
+        /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/>When using the AutoRegisterTemplate feature, this allows you to overwrite the template in Elasticsearch if it already exists. Defaults to false</param>   
+        /// <param name="registerTemplateFailure"><see cref="ElasticsearchSinkOptions.RegisterTemplateFailure"/>Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.</param>  
+        /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/>Optionally set this value to the name of the index that should be used when the template cannot be written to ES.</param>  
+        /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/>The default number of shards.</param>   
+        /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/>The default number of replicas.</param>   
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -160,7 +160,7 @@ namespace Serilog
             int? numberOfReplicas = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
-                throw new ArgumentNullException("nodeUris", "No Elasticsearch node(s) specified.");
+                throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
 
             IEnumerable<Uri> nodes = nodeUris
                 .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
