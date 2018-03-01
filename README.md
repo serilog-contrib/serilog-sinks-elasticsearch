@@ -28,6 +28,7 @@ Register the sink in code or using the appSettings reader (from v2.0.42+) as sho
 var loggerConfig = new LoggerConfiguration()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200") ){
              AutoRegisterTemplate = true,
+             AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6
      });
 ```
 
@@ -165,7 +166,9 @@ Since version 5.5 you can use the RegisterTemplateFailure option. Set it to one 
  
 ### Breaking changes for version 6
 
-Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6.
+Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6. 
+
+If you use the `AutoRegisterTemplate` option, you need to set the `AutoRegisterTemplateVersion` option to `ESv6` in order to generate default templates that are compatible with the breaking changes in ES 6.
 
 ### Breaking changes for version 4
 
