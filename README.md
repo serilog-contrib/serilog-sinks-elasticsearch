@@ -141,7 +141,24 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,
-          "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE"
+          "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE",
+          "connectionTimeout": 5,
+          "emitEventFailure": "WriteToSelfLog",
+          "queueSizeLimit": "100000",
+          "autoRegisterTemplate": true,
+          "autoRegisterTemplateVersion": "ESv2",
+          "overwriteTemplate": false,
+          "registerTemplateFailure": "IndexAnyway",
+          "deadLetterIndexName": "deadletter-{0:yyyy.MM}",
+          "numberOfShards": 20,
+          "numberOfReplicas": 10,
+          "formatProvider": "My.Namespace.MyFormatProvider, My.Assembly.Name",
+          "connection": "My.Namespace.MyConnection, My.Assembly.Name",
+          "serializer": "My.Namespace.MySerializer, My.Assembly.Name",
+          "connectionPool": "My.Namespace.MyConnectionPool, My.Assembly.Name",
+          "customFormatter": "My.Namespace.MyCustomFormatter, My.Assembly.Name",
+          "customDurableFormatter": "My.Namespace.MyCustomDurableFormatter, My.Assembly.Name",
+          "failureSink": "My.Namespace.MyFailureSink, My.Assembly.Name"
         }       
     }]
   }
