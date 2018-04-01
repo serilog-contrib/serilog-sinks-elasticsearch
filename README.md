@@ -53,7 +53,7 @@ This example shows the options that are currently available when using the appSe
   </appSettings>
 ```
 
-With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional.
+With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional. Also required is the '<add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>' setting to include this sink. All other properties are optional. If you do not explicitly specify an indexFormat-setting, a generic index such as 'logstash-[current_date]' will be used automatically.
 
 And start writing your events using Serilog.
 
