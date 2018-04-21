@@ -1,6 +1,6 @@
 == Changelog
 
-6.3
+6.4
  * Render message by default (#160). 
  * Expose interface-typed options via appsettings (#162)
 
