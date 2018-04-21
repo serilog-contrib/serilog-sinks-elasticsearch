@@ -35,6 +35,7 @@ namespace Serilog.Sinks.Elasticsearch
         readonly bool _omitEnclosingObject;
         readonly string _closingDelimiter;
         readonly bool _renderMessage;
+        readonly bool _renderMessageTemplate;
         readonly IFormatProvider _formatProvider;
         readonly IDictionary<Type, Action<object, bool, TextWriter>> _literalWriters;
 
@@ -50,15 +51,19 @@ namespace Serilog.Sinks.Elasticsearch
         /// <param name="renderMessage">If true, the message will be rendered and written to the output as a
         /// property named RenderedMessage.</param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
+        /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
+        /// property named RenderedMessageTemplate.</param>
         protected DefaultJsonFormatter(
             bool omitEnclosingObject = false,
             string closingDelimiter = null,
-            bool renderMessage = false,
-            IFormatProvider formatProvider = null)
+            bool renderMessage = true,
+            IFormatProvider formatProvider = null,
+            bool renderMessageTemplate = true)
         {
             _omitEnclosingObject = omitEnclosingObject;
             _closingDelimiter = closingDelimiter ?? Environment.NewLine;
             _renderMessage = renderMessage;
+            _renderMessageTemplate = renderMessageTemplate;
             _formatProvider = formatProvider;
 
             _literalWriters = new Dictionary<Type, Action<object, bool, TextWriter>>
@@ -102,7 +107,12 @@ namespace Serilog.Sinks.Elasticsearch
             var delim = "";
             WriteTimestamp(logEvent.Timestamp, ref delim, output);
             WriteLevel(logEvent.Level, ref delim, output);
-            WriteMessageTemplate(logEvent.MessageTemplate.Text, ref delim, output);
+
+            if(_renderMessageTemplate)
+            {
+                WriteMessageTemplate(logEvent.MessageTemplate.Text, ref delim, output);
+            }
+
             if (_renderMessage)
             {
                 var message = logEvent.RenderMessage(_formatProvider);

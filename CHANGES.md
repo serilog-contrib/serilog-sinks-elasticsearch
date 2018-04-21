@@ -1,5 +1,9 @@
 == Changelog
 
+6.3
+ * Render message by default (#160). 
+ * Expose interface-typed options via appsettings (#162)
+
 6.2
  * Extra overload added to support more settings via AppSettings reader. (#150)
 

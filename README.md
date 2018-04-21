@@ -28,6 +28,7 @@ Register the sink in code or using the appSettings reader (from v2.0.42+) as sho
 var loggerConfig = new LoggerConfiguration()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200") ){
              AutoRegisterTemplate = true,
+             AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6
      });
 ```
 
@@ -49,10 +50,27 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
     <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>	
     <add key="serilog:write-to:Elasticsearch.connectionGlobalHeaders" value="Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE" />
+    <add key="serilog:write-to:Elasticsearch.connectionTimeout" value="5" />
+    <add key="serilog:write-to:Elasticsearch.emitEventFailure" value="WriteToSelfLog" />
+    <add key="serilog:write-to:Elasticsearch.queueSizeLimit" value="100000" />
+    <add key="serilog:write-to:Elasticsearch.autoRegisterTemplate" value="true" />
+    <add key="serilog:write-to:Elasticsearch.autoRegisterTemplateVersion" value="ESv2" />
+    <add key="serilog:write-to:Elasticsearch.overwriteTemplate" value="false" />
+    <add key="serilog:write-to:Elasticsearch.registerTemplateFailure" value="IndexAnyway" />
+    <add key="serilog:write-to:Elasticsearch.deadLetterIndexName" value="deadletter-{0:yyyy.MM}" />
+    <add key="serilog:write-to:Elasticsearch.numberOfShards" value="20" />
+    <add key="serilog:write-to:Elasticsearch.numberOfReplicas" value="10" />
+    <add key="serilog:write-to:Elasticsearch.formatProvider" value="My.Namespace.MyFormatProvider, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.connection" value="My.Namespace.MyConnection, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.serializer" value="My.Namespace.MySerializer, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.connectionPool" value="My.Namespace.MyConnectionPool, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.customFormatter" value="My.Namespace.MyCustomFormatter, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.customDurableFormatter" value="My.Namespace.MyCustomDurableFormatter, My.Assembly.Name" />
+    <add key="serilog:write-to:Elasticsearch.failureSink" value="My.Namespace.MyFailureSink, My.Assembly.Name" />
   </appSettings>
 ```
 
-With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional.
+With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional. Also required is the '<add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>' setting to include this sink. All other properties are optional. If you do not explicitly specify an indexFormat-setting, a generic index such as 'logstash-[current_date]' will be used automatically.
 
 And start writing your events using Serilog.
 
@@ -123,7 +141,24 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,
-          "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE"
+          "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE",
+          "connectionTimeout": 5,
+          "emitEventFailure": "WriteToSelfLog",
+          "queueSizeLimit": "100000",
+          "autoRegisterTemplate": true,
+          "autoRegisterTemplateVersion": "ESv2",
+          "overwriteTemplate": false,
+          "registerTemplateFailure": "IndexAnyway",
+          "deadLetterIndexName": "deadletter-{0:yyyy.MM}",
+          "numberOfShards": 20,
+          "numberOfReplicas": 10,
+          "formatProvider": "My.Namespace.MyFormatProvider, My.Assembly.Name",
+          "connection": "My.Namespace.MyConnection, My.Assembly.Name",
+          "serializer": "My.Namespace.MySerializer, My.Assembly.Name",
+          "connectionPool": "My.Namespace.MyConnectionPool, My.Assembly.Name",
+          "customFormatter": "My.Namespace.MyCustomFormatter, My.Assembly.Name",
+          "customDurableFormatter": "My.Namespace.MyCustomDurableFormatter, My.Assembly.Name",
+          "failureSink": "My.Namespace.MyFailureSink, My.Assembly.Name"
         }       
     }]
   }
@@ -165,7 +200,9 @@ Since version 5.5 you can use the RegisterTemplateFailure option. Set it to one 
  
 ### Breaking changes for version 6
 
-Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6.
+Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6. 
+
+If you use the `AutoRegisterTemplate` option, you need to set the `AutoRegisterTemplateVersion` option to `ESv6` in order to generate default templates that are compatible with the breaking changes in ES 6.
 
 ### Breaking changes for version 4
 

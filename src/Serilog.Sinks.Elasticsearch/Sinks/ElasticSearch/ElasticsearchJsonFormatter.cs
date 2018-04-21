@@ -34,6 +34,27 @@ namespace Serilog.Sinks.Elasticsearch
         readonly bool _inlineFields;
 
         /// <summary>
+        /// Render message property name
+        /// </summary>
+        public const string RenderedMessagePropertyName = "message";
+        /// <summary>
+        /// Message template property name
+        /// </summary>
+        public const string MessageTemplatePropertyName = "messageTemplate";
+        /// <summary>
+        /// Exception property name
+        /// </summary>
+        public const string ExceptionPropertyName = "Exception";
+        /// <summary>
+        /// Level property name
+        /// </summary>
+        public const string LevelPropertyName = "level";
+        /// <summary>
+        /// Timestamp property name
+        /// </summary>
+        public const string TimestampPropertyName = "@timestamp";
+
+        /// <summary>
         /// Construct a <see cref="ElasticsearchJsonFormatter"/>.
         /// </summary>
         /// <param name="omitEnclosingObject">If true, the properties of the event will be written to
@@ -47,13 +68,17 @@ namespace Serilog.Sinks.Elasticsearch
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        public ElasticsearchJsonFormatter(bool omitEnclosingObject = false,
+        /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
+        /// property named RenderedMessageTemplate.</param>
+        public ElasticsearchJsonFormatter(
+            bool omitEnclosingObject = false,
             string closingDelimiter = null,
-            bool renderMessage = false,
+            bool renderMessage = true,
             IFormatProvider formatProvider = null,
             IElasticsearchSerializer serializer = null,
-            bool inlineFields = false)
-            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider)
+            bool inlineFields = false,
+            bool renderMessageTemplate = true)
+            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, renderMessageTemplate)
         {
             _serializer = serializer;
             _inlineFields = inlineFields;
@@ -240,13 +265,12 @@ namespace Serilog.Sinks.Elasticsearch
             delim = ",";
         }
 
-
         /// <summary>
         /// (Optionally) writes out the rendered message
         /// </summary>
         protected override void WriteRenderedMessage(string message, ref string delim, TextWriter output)
         {
-            WriteJsonProperty("message", message, ref delim, output);
+            WriteJsonProperty(RenderedMessagePropertyName, message, ref delim, output);
         }
 
         /// <summary>
@@ -254,7 +278,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         protected override void WriteMessageTemplate(string template, ref string delim, TextWriter output)
         {
-            WriteJsonProperty("messageTemplate", template, ref delim, output);
+            WriteJsonProperty(MessageTemplatePropertyName, template, ref delim, output);
         }
 
         /// <summary>
@@ -263,7 +287,7 @@ namespace Serilog.Sinks.Elasticsearch
         protected override void WriteLevel(LogEventLevel level, ref string delim, TextWriter output)
         {
             var stringLevel = Enum.GetName(typeof(LogEventLevel), level);
-            WriteJsonProperty("level", stringLevel, ref delim, output);
+            WriteJsonProperty(LevelPropertyName, stringLevel, ref delim, output);
         }
 
         /// <summary>
@@ -271,7 +295,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         protected override void WriteTimestamp(DateTimeOffset timestamp, ref string delim, TextWriter output)
         {
-            WriteJsonProperty("@timestamp", timestamp, ref delim, output);
+            WriteJsonProperty(TimestampPropertyName, timestamp, ref delim, output);
         }
 
         /// <summary>
