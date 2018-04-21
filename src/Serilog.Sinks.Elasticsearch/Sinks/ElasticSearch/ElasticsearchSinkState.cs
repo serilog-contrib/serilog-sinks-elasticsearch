@@ -77,26 +77,33 @@ namespace Serilog.Sinks.Elasticsearch
 
             _client = new ElasticLowLevelClient(configuration);
 
-            _formatter = options.CustomFormatter ?? new ElasticsearchJsonFormatter(
-                formatProvider: options.FormatProvider,
-                renderMessage: true,
-                closingDelimiter: string.Empty,
-                serializer: options.Serializer,
-                inlineFields: options.InlineFields
-            );
+            _formatter = options.CustomFormatter ?? CreateDefaultFormatter(options);
 
-            _durableFormatter = options.CustomDurableFormatter ?? new ElasticsearchJsonFormatter(
-               formatProvider: options.FormatProvider,
-               renderMessage: true,
-               closingDelimiter: Environment.NewLine,
-               serializer: options.Serializer,
-               inlineFields: options.InlineFields
-           );
+            _durableFormatter = options.CustomDurableFormatter ?? CreateDefaultDurableFormatter(options);
 
             _registerTemplateOnStartup = options.AutoRegisterTemplate;
             TemplateRegistrationSuccess = !_registerTemplateOnStartup;
         }
 
+        public static ITextFormatter CreateDefaultFormatter(ElasticsearchSinkOptions options)
+        {
+            return new ElasticsearchJsonFormatter(
+                formatProvider: options.FormatProvider,
+                closingDelimiter: string.Empty,
+                serializer: options.Serializer,
+                inlineFields: options.InlineFields
+            );
+        }
+
+        public static ITextFormatter CreateDefaultDurableFormatter(ElasticsearchSinkOptions options)
+        {
+            return new ElasticsearchJsonFormatter(
+               formatProvider: options.FormatProvider,
+               closingDelimiter: Environment.NewLine,
+               serializer: options.Serializer,
+               inlineFields: options.InlineFields
+           );
+        }
 
         public string Serialize(object o)
         {

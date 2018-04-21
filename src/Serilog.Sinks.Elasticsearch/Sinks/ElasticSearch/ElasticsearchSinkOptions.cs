@@ -223,7 +223,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
-        protected ElasticsearchSinkOptions()
+        public ElasticsearchSinkOptions()
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
             this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
