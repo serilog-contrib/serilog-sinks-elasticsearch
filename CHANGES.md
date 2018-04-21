@@ -1,5 +1,8 @@
 == Changelog
 
+6.3
+ * Render message by default (#160). 
+
 6.2
  * Extra overload added to support more settings via AppSettings reader. (#150)
 
