@@ -34,6 +34,7 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ElasticsearchSinkState _state;
 
         readonly int _batchPostingLimit;
+        readonly int _singleEventSizePostingLimit;
 #if NO_TIMER
         readonly PortableTimer _timer;
 #else
@@ -49,6 +50,13 @@ namespace Serilog.Sinks.Elasticsearch
 
         bool _didRegisterTemplateIfNeeded;
 
+        internal ElasticsearchLogShipper(ElasticsearchSinkOptions option)
+        {
+            _batchPostingLimit = option.BatchPostingLimit;
+            _singleEventSizePostingLimit = option.SingleEventSizePostingLimit;
+            _state = ElasticsearchSinkState.Create(option);
+        }
+
         internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
 
@@ -56,6 +64,7 @@ namespace Serilog.Sinks.Elasticsearch
             _connectionSchedule = new ExponentialBackoffConnectionSchedule(_state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5));
 
             _batchPostingLimit = _state.Options.BatchPostingLimit;
+            _singleEventSizePostingLimit = _state.Options.SingleEventSizePostingLimit;
             _bookmarkFilename = Path.GetFullPath(_state.Options.BufferBaseFilename + ".bookmark");
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(_state.Options.BufferBaseFilename) + "*.json";
@@ -133,7 +142,7 @@ namespace Serilog.Sinks.Elasticsearch
                     _didRegisterTemplateIfNeeded = true;
                 }
 
-                var count = 0;
+                var hasData = false;
 
                 do
                 {
@@ -142,23 +151,18 @@ namespace Serilog.Sinks.Elasticsearch
 
                     using (var bookmark = System.IO.File.Open(_bookmarkFilename, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
                     {
-                        long nextLineBeginsAtOffset;
-                        string currentFilePath;
-
-                        TryReadBookmark(bookmark, out nextLineBeginsAtOffset, out currentFilePath);
-
+                        TryReadBookmark(bookmark, out long currentLineBeginsAtOffset, out string currentFilePath);
                         var fileSet = GetFileSet();
 
                         if (currentFilePath == null || !System.IO.File.Exists(currentFilePath))
                         {
-                            nextLineBeginsAtOffset = 0;
+                            currentLineBeginsAtOffset = 0;
                             currentFilePath = fileSet.FirstOrDefault();
                         }
 
                         if (currentFilePath == null) continue;
 
-                        count = 0;
-
+                        hasData = false;
                         // file name pattern: whatever-bla-bla-20150218.json, whatever-bla-bla-20150218_1.json, etc.
                         var lastToken = currentFilePath.Split('-').Last();
 
@@ -173,33 +177,23 @@ namespace Serilog.Sinks.Elasticsearch
                         var indexName = _state.GetIndexForEvent(null, date);
 
                         var payload = new List<string>();
+                        var nextLineBeginsAtOffset = currentLineBeginsAtOffset;
 
                         using (var current = System.IO.File.Open(currentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            current.Position = nextLineBeginsAtOffset;
-
-                            string nextLine;
-                            while (count < _batchPostingLimit && TryReadLine(current, ref nextLineBeginsAtOffset, out nextLine))
-                            {
-                                var action = default(object);
-
-                                if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
-                                {
-                                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid() } };
-                                }
-                                else
-                                {
-                                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid(), pipeline = _state.Options.PipelineName } };
-                                }
-                                var actionJson = _state.Serialize(action);
-                                payload.Add(actionJson);
-                                payload.Add(nextLine);
-                                ++count;
-                            }
+                            nextLineBeginsAtOffset = CreatePayLoad(current, payload, indexName, currentLineBeginsAtOffset, currentFilePath);
                         }
 
-                        if (count > 0)
+                        if (nextLineBeginsAtOffset > currentLineBeginsAtOffset)
                         {
+                            hasData = true;
+
+                            if (!payload.Any())
+                            {
+                                // Nothing to send, all events have been skipped, just write next offset to the bookmark
+                                WriteBookmark(bookmark, nextLineBeginsAtOffset, currentFilePath);
+                                continue;
+                            }
 
                             var response = _state.Client.Bulk<DynamicResponse>(PostData.MultiJson(payload));
 
@@ -242,7 +236,7 @@ namespace Serilog.Sinks.Elasticsearch
                         }
                     }
                 }
-                while (count == _batchPostingLimit);
+                while (hasData);
             }
             catch (Exception ex)
             {
@@ -259,6 +253,58 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
             }
+        }
+
+        private long CreatePayLoad(
+            Stream current,
+            List<string> payload,
+            string indexName,
+            long currentLineBeginsAtOffset,
+            string currentFilePath)
+        {
+            current.Position = currentLineBeginsAtOffset;
+
+            var count = 0;
+            string nextLine;
+            var currentPosition = current.Position;
+            var nextPosition = currentPosition;
+            while (count < _batchPostingLimit && TryReadLine(current, ref nextPosition, out nextLine))
+            {
+                if (_singleEventSizePostingLimit > 0)
+                {
+                    if (nextLine.Length > _singleEventSizePostingLimit)
+                    {
+                        SelfLog.WriteLine(
+                            "File: {0}. Skip sending to ElasticSearch event at position offset {1}. Reason: {2}.",
+                            currentFilePath,
+                            currentPosition,
+                            $"Event has line length {nextLine.Length} over limit of {_singleEventSizePostingLimit}");
+
+                        currentPosition = nextPosition;
+                        continue;
+                    }
+
+                    currentPosition = nextPosition;
+                }
+
+                var action = default(object);
+
+                if (string.IsNullOrWhiteSpace(_state.Options.PipelineName))
+                {
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid() } };
+                }
+                else
+                {
+                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, _id = count + "_" + Guid.NewGuid(), pipeline = _state.Options.PipelineName } };
+                }
+
+                var actionJson = _state.Serialize(action);
+                payload.Add(actionJson);
+                payload.Add(nextLine);
+                ++count;
+            }
+
+            return nextPosition;
         }
 
         static void HandleBulkResponse(DynamicResponse response, List<string> payload)
