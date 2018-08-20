@@ -114,6 +114,11 @@ namespace Serilog.Sinks.Elasticsearch
         public int BatchPostingLimit { get; set; }
 
         ///<summary>
+        /// The maximum length of a an event record to be sent. Defaults to: 0 (No Limit)
+        /// </summary>
+        public int SingleEventSizePostingLimit { get; set; }
+
+        ///<summary>
         /// The time to wait between checking for event batches. Defaults to 2 seconds.
         /// </summary>
         public TimeSpan Period { get; set; }
@@ -230,6 +235,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.TypeName = "logevent";
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
+            this.SingleEventSizePostingLimit = 0;
             this.TemplateName = "serilog-events-template";
             this.ConnectionTimeout = TimeSpan.FromSeconds(5);
             this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
