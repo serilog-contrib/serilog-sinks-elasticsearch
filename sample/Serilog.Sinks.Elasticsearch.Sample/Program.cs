@@ -2,7 +2,7 @@
 using Serilog;
 using Serilog.Debugging;
 using Serilog.Formatting.Json;
-using Serilog.Sinks.File;
+using Serilog.Sinks.RollingFile;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Serilog.Sinks.Elasticsearch.Sample
@@ -23,7 +23,7 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                     EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
                                        EmitEventFailureHandling.WriteToFailureSink |
                                        EmitEventFailureHandling.RaiseCallback,
-                    FailureSink = new FileSink("./failures.txt", new JsonFormatter(), null)
+                    FailureSink = new RollingFileSink("./fail-{Date}.txt", new JsonFormatter(), null, null)
                 })
                 .CreateLogger();
 
