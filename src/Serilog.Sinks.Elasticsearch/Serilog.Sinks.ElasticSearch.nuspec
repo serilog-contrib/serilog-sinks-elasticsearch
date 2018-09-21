@@ -9,6 +9,7 @@
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
+    <repository type="git" url="https://github.com/serilog/serilog-sinks-elasticsearch" />
     <tags>serilog logging elasticsearch</tags>
     <dependencies>
       <dependency id="Serilog" version="2.6.0" />
