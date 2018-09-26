@@ -83,6 +83,12 @@ And start writing your events using Serilog.
 - Report issues to the [issue tracker](https://github.com/serilog/serilog-sinks-elasticsearch/issues). PR welcome, but please do this against the dev branch.
 - For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
 
+### A note about fields inside Elasticsearch
+
+Be aware that there is an explicit and implicit mapping of types inside an Elasticsearch index. A value called `X` as a string will be indexed as being a string. Sending the same `X` as an integer in a next log message will not work. ES will raise a mapping exception, however it is not that evident that your log item was not stored due to the bulk actions performed. 
+
+So be careful about defining and using your fields (and type of fields). It is easy to miss that you first send a {User} as a simple username (string) and next as a User object. The first mapping dynamically created in the index wins. See also issue #184 for details and a possible solution. There are also limits in ES on the number of dynamic fields you can actually throw inside an index.
+
 ### A note about Kibana
 
 In order to avoid a potentially deeply nested JSON structure for exceptions with inner exceptions,
