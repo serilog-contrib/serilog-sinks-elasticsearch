@@ -13,6 +13,7 @@ only_commits:
     - nuget.config
     - Build.ps1
     - assets/
+    - test/Serilog.Sinks.Elasticsearch.Tests/
 deploy:
 - provider: NuGet
   api_key:
