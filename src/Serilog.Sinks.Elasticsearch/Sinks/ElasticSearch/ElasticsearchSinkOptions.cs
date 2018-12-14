@@ -224,6 +224,11 @@ namespace Serilog.Sinks.Elasticsearch
                 _queueSizeLimit = value;
             }
         }
+        /// <summary>
+        /// The maximum number of log files that will be retained,
+        /// including the current log file. For unlimited retention, pass null. The default is null.
+        /// </summary>
+        public int? BufferFileCountLimit { get; set; }
 
         /// <summary>
         /// Configures the elasticsearch sink defaults
@@ -241,6 +246,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
             this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
             this.QueueSizeLimit = 100000;
+            this.BufferFileCountLimit = null;
         }
 
         /// <summary>

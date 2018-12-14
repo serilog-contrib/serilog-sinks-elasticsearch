@@ -41,7 +41,7 @@ namespace Serilog.Sinks.Elasticsearch
                 options.BufferBaseFilename + FileNameSuffix,
                 _state.DurableFormatter,
                 options.BufferFileSizeLimitBytes,
-                null);
+                options.BufferFileCountLimit);
 
             _shipper = new ElasticsearchLogShipper(_state);
         }
