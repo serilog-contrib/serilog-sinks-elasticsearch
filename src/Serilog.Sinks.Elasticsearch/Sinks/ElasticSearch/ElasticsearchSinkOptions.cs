@@ -174,7 +174,7 @@ namespace Serilog.Sinks.Elasticsearch
         public string BufferBaseFilename { get; set; }
 
         /// <summary>
-        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default no limit will be applied.
+        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default 100L * 1024 * 1024 will be applied.
         /// </summary>
         public long? BufferFileSizeLimitBytes { get; set; }
 
@@ -247,6 +247,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
             this.QueueSizeLimit = 100000;
             this.BufferFileCountLimit = null;
+            this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
         }
 
         /// <summary>

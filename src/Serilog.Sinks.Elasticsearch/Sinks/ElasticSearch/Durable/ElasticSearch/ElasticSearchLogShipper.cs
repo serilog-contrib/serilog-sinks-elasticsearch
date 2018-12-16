@@ -22,12 +22,13 @@ using System.Text;
 using System.Threading;
 using Serilog.Debugging;
 using Elasticsearch.Net;
+using Serilog.Events;
 
 #if NO_TIMER
 using Serilog.Sinks.Elasticsearch.CrossPlatform;
 #endif
 
-namespace Serilog.Sinks.Elasticsearch
+namespace Serilog.Sinks.Elasticsearch.Durable
 {
     internal class ElasticsearchLogShipper : IDisposable
     {
@@ -50,6 +51,9 @@ namespace Serilog.Sinks.Elasticsearch
 
         bool _didRegisterTemplateIfNeeded;
 
+        // Concurrent
+        readonly ControlledLevelSwitch _controlledSwitch;
+
         internal ElasticsearchLogShipper(ElasticsearchSinkOptions option)
         {
             _batchPostingLimit = option.BatchPostingLimit;
@@ -59,10 +63,9 @@ namespace Serilog.Sinks.Elasticsearch
 
         internal ElasticsearchLogShipper(ElasticsearchSinkState state)
         {
-
             _state = state;
             _connectionSchedule = new ExponentialBackoffConnectionSchedule(_state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5));
-
+            _controlledSwitch = new ControlledLevelSwitch(_state.Options.LevelSwitch);
             _batchPostingLimit = _state.Options.BatchPostingLimit;
             _singleEventSizePostingLimit = _state.Options.SingleEventSizePostingLimit;
             _bookmarkFilename = Path.GetFullPath(_state.Options.BufferBaseFilename + ".bookmark");
@@ -75,6 +78,11 @@ namespace Serilog.Sinks.Elasticsearch
             _timer = new Timer(s => OnTick(), null, -1, -1);
 #endif
             SetTimer();
+        }
+
+        public bool IsIncluded(LogEvent logEvent)
+        {
+            return _controlledSwitch.IsIncluded(logEvent);
         }
 
         void CloseAndFlush()

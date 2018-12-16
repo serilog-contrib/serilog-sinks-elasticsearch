@@ -14,7 +14,7 @@
 
 using System;
 
-namespace Serilog.Sinks.Elasticsearch
+namespace Serilog.Sinks.Elasticsearch.Durable
 {
     /// <summary>
     /// Based on the BatchedConnectionStatus class from <see cref="Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink"/>.

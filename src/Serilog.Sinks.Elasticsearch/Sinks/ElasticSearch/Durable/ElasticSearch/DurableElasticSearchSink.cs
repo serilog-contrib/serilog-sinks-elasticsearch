@@ -13,18 +13,19 @@
 // limitations under the License.
 
 using System;
+using System.Text;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.RollingFile;
 
-namespace Serilog.Sinks.Elasticsearch
+
+namespace Serilog.Sinks.Elasticsearch.Durable
 {
     class DurableElasticsearchSink : ILogEventSink, IDisposable
     {
         // we rely on the date in the filename later!
         const string FileNameSuffix = "-{Date}.json";
 
-        readonly RollingFileSink _sink;
+        readonly Logger _sink;
         readonly ElasticsearchLogShipper _shipper;
         readonly ElasticsearchSinkState _state;
 
@@ -37,18 +38,31 @@ namespace Serilog.Sinks.Elasticsearch
                 throw new ArgumentException("Cannot create the durable ElasticSearch sink without a buffer base file name!");
             }
 
-            _sink = new RollingFileSink(
-                options.BufferBaseFilename + FileNameSuffix,
-                _state.DurableFormatter,
-                options.BufferFileSizeLimitBytes,
-                options.BufferFileCountLimit);
+            
+            _sink = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .WriteTo.File(_state.DurableFormatter,
+                    options.BufferBaseFilename + FileNameSuffix,
+                    rollingInterval: RollingInterval.Day,
+                    fileSizeLimitBytes: options.BufferFileSizeLimitBytes,
+                    rollOnFileSizeLimit: true,
+                    retainedFileCountLimit: options.BufferFileCountLimit,
+                    encoding: Encoding.UTF8)
+                .CreateLogger();
+
+          
 
             _shipper = new ElasticsearchLogShipper(_state);
         }
 
         public void Emit(LogEvent logEvent)
         {
-            _sink.Emit(logEvent);
+            // This is a lagging indicator, but the network bandwidth usage benefits
+            // are worth the ambiguity.
+            if (_shipper.IsIncluded(logEvent))
+            {
+                _sink.Write(logEvent);
+            }
         }
 
         public void Dispose()
