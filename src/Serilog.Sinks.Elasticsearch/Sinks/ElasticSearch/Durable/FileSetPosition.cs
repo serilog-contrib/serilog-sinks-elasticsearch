@@ -16,7 +16,10 @@
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
-    struct FileSetPosition
+    /// <summary>
+    /// https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/Durable/FileSetPosition.cs
+    /// </summary>
+    public struct FileSetPosition
     {
         public string File { get; }
 

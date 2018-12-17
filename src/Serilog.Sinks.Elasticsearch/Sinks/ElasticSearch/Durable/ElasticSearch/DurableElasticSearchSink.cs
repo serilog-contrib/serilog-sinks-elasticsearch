@@ -13,7 +13,9 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.Text;
+using Elasticsearch.Net;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -23,10 +25,10 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     class DurableElasticsearchSink : ILogEventSink, IDisposable
     {
         // we rely on the date in the filename later!
-        const string FileNameSuffix = "-{Date}.json";
+        const string FileNameSuffix = "-.json";
 
         readonly Logger _sink;
-        readonly ElasticsearchLogShipper _shipper;
+        readonly LogShipper<List<string>> _shipper;
         readonly ElasticsearchSinkState _state;
 
         public DurableElasticsearchSink(ElasticsearchSinkOptions options)
@@ -50,9 +52,30 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     encoding: Encoding.UTF8)
                 .CreateLogger();
 
-          
+            
+            var elasticSearchLogClient = new ElasticSearchLogClient(
+                 elasticLowLevelClient: _state.Client, 
+                badPayloadAction: _state.Options.BufferBadPayloadAction);
 
-            _shipper = new ElasticsearchLogShipper(_state);
+            var payloadReader = new ElasticSearchPayloadReader(
+                 pipelineName: _state.Options.PipelineName,  
+                 typeName:_state.Options.TypeName, 
+                 serialize:_state.Serialize,  
+                 getIndexForEvent: _state.GetBufferedIndexForEvent
+                );
+
+            _shipper = new ElasticSearchLogShipper(
+                bufferBaseFilename: _state.Options.BufferBaseFilename,
+                batchPostingLimit: _state.Options.BatchPostingLimit,
+                period: _state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5),
+                eventBodyLimitBytes: _state.Options.SingleEventSizePostingLimit,
+                levelControlSwitch: _state.Options.LevelSwitch,
+                logClient: elasticSearchLogClient,
+                payloadReader: payloadReader,
+                retainedInvalidPayloadsLimitBytes: _state.Options.BufferRetainedInvalidPayloadsLimitBytes,
+                bufferSizeLimitBytes: _state.Options.BufferFileSizeLimitBytes,
+                registerTemplateIfNeeded: _state.RegisterTemplateIfNeeded);
+                
         }
 
         public void Emit(LogEvent logEvent)

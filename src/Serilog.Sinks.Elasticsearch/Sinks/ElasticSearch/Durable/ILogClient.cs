@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
-
-
+    /// <summary>
+    /// A wrapper client which talk to the log server
+    /// </summary>
+    /// <typeparam name="TPayload"></typeparam>
+    public interface ILogClient<TPayload>
+    {
+        Task<SentPayloadResult> SendPayloadAsync(TPayload payload);
+    }
     public class SentPayloadResult
     {
         
@@ -33,11 +39,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     public class InvalidResult
     {
         public int StatusCode { get; set; }
-        public string ResultContent { get; set; }
-    }
-
-    public interface  ILogClient
-    {
-        Task<SentPayloadResult> SendPayloadAsync(List<string> payload);        
-    }
+        public string Content { get; set; }
+        public string BadPayLoad { get; set; }
+    }  
 }

@@ -18,8 +18,9 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 {
     /// <summary>
     /// Based on the BatchedConnectionStatus class from <see cref="Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink"/>.
+    /// https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/ExponentialBackoffConnectionSchedule.cs
     /// </summary>
-    class ExponentialBackoffConnectionSchedule
+    public class ExponentialBackoffConnectionSchedule
     {
         static readonly TimeSpan MinimumBackoffPeriod = TimeSpan.FromSeconds(5);
         static readonly TimeSpan MaximumBackoffInterval = TimeSpan.FromMinutes(10);

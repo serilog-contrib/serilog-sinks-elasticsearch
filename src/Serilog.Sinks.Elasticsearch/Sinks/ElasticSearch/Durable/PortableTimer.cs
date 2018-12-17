@@ -19,6 +19,9 @@ using System.Threading.Tasks;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
+    /// <summary>
+    /// https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/PortableTimer.cs
+    /// </summary>
     class PortableTimer : IDisposable
     {
         readonly object _stateLock = new object();

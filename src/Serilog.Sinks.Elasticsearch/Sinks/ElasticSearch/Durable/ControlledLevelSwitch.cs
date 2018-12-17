@@ -21,6 +21,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     /// Instances of this type are single-threaded, generally only updated on a background
     /// timer thread. An exception is <see cref="IsIncluded(LogEvent)"/>, which may be called
     /// concurrently but performs no synchronization.
+    /// https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/ControlledLevelSwitch.cs
     /// </summary>
     class ControlledLevelSwitch
     {

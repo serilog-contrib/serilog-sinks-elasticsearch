@@ -20,6 +20,9 @@ using System.Text;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
+    /// <summary>
+    /// https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/Durable/BookmarkFile.cs
+    /// </summary>
     sealed class BookmarkFile : IDisposable
     {
         readonly FileStream _bookmark;

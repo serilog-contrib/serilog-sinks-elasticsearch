@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using Elasticsearch.Net;
 using Serilog.Formatting;
+using Serilog.Sinks.Elasticsearch.Durable;
 
 namespace Serilog
 {
@@ -140,7 +141,7 @@ namespace Serilog
         /// <param name="customFormatter">Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="customDurableFormatter">Customizes the formatter used when converting log events into the durable sink. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
-        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.</param>        
+        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>        
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -176,7 +177,7 @@ namespace Serilog
             ITextFormatter customFormatter = null,
             ITextFormatter customDurableFormatter = null,
             ILogEventSink failureSink = null,
-            int singleEventSizePostingLimit = 0,
+            long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null)
         {
             if (string.IsNullOrEmpty(nodeUris))

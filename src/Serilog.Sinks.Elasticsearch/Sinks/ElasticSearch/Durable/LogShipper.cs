@@ -17,8 +17,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Text;
 using Serilog.Core;
 using Serilog.Debugging;
@@ -31,21 +29,29 @@ using System.Runtime.InteropServices;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
-    class BaseLogShipper : IDisposable
+    /// <summary>
+    /// Reads and sends logdata to log server
+    /// Generic version of  https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/Durable/HttpLogShipper.cs
+    /// </summary>
+    /// <typeparam name="TPayload"></typeparam>
+    public class LogShipper<TPayload> : IDisposable
     {
-        static readonly TimeSpan RequiredLevelCheckInterval = TimeSpan.FromMinutes(2);
-
-        readonly string _apiKey;
+        private static readonly TimeSpan RequiredLevelCheckInterval = TimeSpan.FromMinutes(2);
+        
         readonly int _batchPostingLimit;
         readonly long? _eventBodyLimitBytes;
-        private readonly ILogClient _logClient;
+        private readonly ILogClient<TPayload> _logClient;
+        private readonly IPayloadReader<TPayload> _payloadReader;
         readonly FileSet _fileSet;
         readonly long? _retainedInvalidPayloadsLimitBytes;
         readonly long? _bufferSizeLimitBytes;
 
         // Timer thread only
 
-        readonly ExponentialBackoffConnectionSchedule _connectionSchedule;
+        /// <summary>
+        /// 
+        /// </summary>
+        protected readonly ExponentialBackoffConnectionSchedule _connectionSchedule;
         DateTime _nextRequiredLevelCheckUtc = DateTime.UtcNow.Add(RequiredLevelCheckInterval);
 
         // Synchronized
@@ -58,19 +64,33 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
         volatile bool _unloading;
 
-        public BaseLogShipper(            
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bufferBaseFilename"></param>
+        /// <param name="batchPostingLimit"></param>
+        /// <param name="period"></param>
+        /// <param name="eventBodyLimitBytes"></param>
+        /// <param name="levelControlSwitch"></param>
+        /// <param name="logClient"></param>
+        /// <param name="payloadReader"></param>
+        /// <param name="retainedInvalidPayloadsLimitBytes"></param>
+        /// <param name="bufferSizeLimitBytes"></param>
+        public LogShipper(            
             string bufferBaseFilename,            
             int batchPostingLimit,
             TimeSpan period,
             long? eventBodyLimitBytes,
             LoggingLevelSwitch levelControlSwitch,
-            ILogClient logClient,
+            ILogClient<TPayload> logClient,
+            IPayloadReader<TPayload> payloadReader,
             long? retainedInvalidPayloadsLimitBytes,
             long? bufferSizeLimitBytes)
         {
             _batchPostingLimit = batchPostingLimit;
             _eventBodyLimitBytes = eventBodyLimitBytes;
             _logClient = logClient;
+            _payloadReader = payloadReader;
             _controlledSwitch = new ControlledLevelSwitch(levelControlSwitch);
             _connectionSchedule = new ExponentialBackoffConnectionSchedule(period);
             _retainedInvalidPayloadsLimitBytes = retainedInvalidPayloadsLimitBytes;
@@ -96,6 +116,11 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             OnTick().GetAwaiter().GetResult();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logEvent"></param>
+        /// <returns></returns>
         public bool IsIncluded(LogEvent logEvent)
         {
             return _controlledSwitch.IsIncluded(logEvent);
@@ -113,7 +138,11 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             _timer.Start(_connectionSchedule.NextInterval);
         }
 
-        async Task OnTick()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        protected virtual async Task OnTick()
         {
             try
             {
@@ -132,15 +161,15 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                             position = new FileSetPosition(0, files.FirstOrDefault());
                         }
 
-                        string payload;
+                        TPayload payload;
                         if (position.File == null)
                         {
-                            payload = PayloadReader.NoPayload;
+                            payload = _payloadReader.GetNoPayload();
                             count = 0;
                         }
                         else
                         {
-                            payload = PayloadReader.ReadPayload(_batchPostingLimit, _eventBodyLimitBytes, ref position, ref count);
+                            payload = _payloadReader.ReadPayload(_batchPostingLimit, _eventBodyLimitBytes, ref position, ref count,position.File);
                         }
 
                         if (count > 0 || _controlledSwitch.IsActive && _nextRequiredLevelCheckUtc < DateTime.UtcNow)
@@ -152,14 +181,12 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                             {
                                 _connectionSchedule.MarkSuccess();
                                 if(result.InvalidResult!=null)
-                                     DumpInvalidPayload(result.InvalidResult.StatusCode, result.InvalidResult.ResultContent, payload);
+                                     DumpInvalidPayload(result.InvalidResult.StatusCode, result.InvalidResult.Content, result.InvalidResult.BadPayLoad);
                                 bookmarkFile.WriteBookmark(position);
                             }                           
                             else
                             {
-                                _connectionSchedule.MarkFailure();
-                               
-
+                                _connectionSchedule.MarkFailure();                               
                                 if (_bufferSizeLimitBytes.HasValue)
                                     _fileSet.CleanUpBufferFiles(_bufferSizeLimitBytes.Value, 2);
 
@@ -214,7 +241,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
        
 
-         void  DumpInvalidPayload(int statusCode,string resultContent, string payload)
+        void  DumpInvalidPayload(int statusCode,string resultContent, string payload)
         {
             var invalidPayloadFile = _fileSet.MakeInvalidPayloadFilename(statusCode);            
             SelfLog.WriteLine("HTTP shipping failed with {0}: {1}; dumping payload to {2}", statusCode,

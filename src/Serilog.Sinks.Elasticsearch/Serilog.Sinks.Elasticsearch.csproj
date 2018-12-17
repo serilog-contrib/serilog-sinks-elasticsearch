@@ -29,6 +29,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Sinks\ElasticSearch\Durable\ElasticSearch\ElasticSearchLogShipperOld.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
     <PackageReference Include="Serilog" Version="2.6.0" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.0.0" />
@@ -42,15 +46,23 @@
   </ItemGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+        <NoWarn>1591;1701;1702</NoWarn>
         <DefineConstants>$(DefineConstants);DURABLE;THREADING_TIMER</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+        <NoWarn>1591;1701;1702</NoWarn>
         <DefineConstants>$(DefineConstants);DURABLE;THREADING_TIMER;HRESULTS</DefineConstants>
     </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+      <NoWarn>1591;1701;1702</NoWarn>
     <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION;NO_TIMER</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
+    <NoWarn>1591;1701;1702</NoWarn>
+    <WarningsAsErrors>NU1605</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

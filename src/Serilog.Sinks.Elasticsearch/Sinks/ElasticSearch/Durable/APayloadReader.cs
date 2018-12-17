@@ -21,15 +21,31 @@ using Serilog.Debugging;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
-    static class PayloadReader
+    /// <summary>
+    /// Abstract payload reader
+    /// Generic version of https://github.com/serilog/serilog-sinks-seq/blob/v4.0.0/src/Serilog.Sinks.Seq/Sinks/Seq/Durable/PayloadReader.cs
+    /// </summary>
+    /// <typeparam name="TPayload"></typeparam>
+    public abstract class APayloadReader<TPayload> : IPayloadReader<TPayload>
     {
-        public const string NoPayload = "{\"Events\":[]}";
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public abstract TPayload GetNoPayload();
 
-        public static string ReadPayload(int batchPostingLimit, long? eventBodyLimitBytes, ref FileSetPosition position, ref int count)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="batchPostingLimit"></param>
+        /// <param name="eventBodyLimitBytes"></param>
+        /// <param name="position"></param>
+        /// <param name="count"></param>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public TPayload ReadPayload(int batchPostingLimit, long? eventBodyLimitBytes, ref FileSetPosition position, ref int count,string fileName)
         {
-            var payload = new StringWriter();
-            payload.Write("{\"Events\":[");
-            var delimStart = "";
+            InitPayLoad(fileName);
 
             using (var current = System.IO.File.Open(position.File, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
@@ -50,19 +66,30 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     }
                     else
                     {
-                        payload.Write(delimStart);
-                        payload.Write(nextLine);
-                        delimStart = ",";
+                         AddToPayLoad(nextLine);
                     }
-                }
-
-                payload.Write("]}");
+                }                
             }
-            return payload.ToString();
+            return FinishPayLoad();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        protected abstract void InitPayLoad(string fileName);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        protected abstract TPayload FinishPayLoad();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nextLine"></param>
+        protected abstract void AddToPayLoad(string nextLine);        
 
         // It would be ideal to chomp whitespace here, but not required.
-        static bool TryReadLine(Stream current, ref long nextStart, out string nextLine)
+        private static bool TryReadLine(Stream current, ref long nextStart, out string nextLine)
         {
             var includesBom = nextStart == 0;
 
