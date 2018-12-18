@@ -39,7 +39,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         {
             _registerTemplateIfNeeded = registerTemplateIfNeeded;
             SelfLog.WriteLine($"ElasticSearchLogShipper started with: bufferBaseFilename: {bufferBaseFilename},batchPostingLimit: {batchPostingLimit},period {period},eventBodyLimitBytes: {eventBodyLimitBytes},levelControlSwitch: {levelControlSwitch},logClient: {logClient},payloadReader: {payloadReader},retainedInvalidPayloadsLimitBytes: {retainedInvalidPayloadsLimitBytes},bufferSizeLimitBytes: {bufferSizeLimitBytes},registerTemplateIfNeeded: {registerTemplateIfNeeded} ");
-            
+            SetTimer();
         }
 
         /// <summary>

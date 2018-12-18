@@ -49,13 +49,14 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     fileSizeLimitBytes: options.BufferFileSizeLimitBytes,
                     rollOnFileSizeLimit: true,
                     retainedFileCountLimit: options.BufferFileCountLimit,
+                    levelSwitch: _state.Options.LevelSwitch,
                     encoding: Encoding.UTF8)
                 .CreateLogger();
 
             
             var elasticSearchLogClient = new ElasticSearchLogClient(
                  elasticLowLevelClient: _state.Client, 
-                badPayloadAction: _state.Options.BufferBadPayloadAction);
+                cleanPayload: _state.Options.BufferCleanPayload);
 
             var payloadReader = new ElasticSearchPayloadReader(
                  pipelineName: _state.Options.PipelineName,  

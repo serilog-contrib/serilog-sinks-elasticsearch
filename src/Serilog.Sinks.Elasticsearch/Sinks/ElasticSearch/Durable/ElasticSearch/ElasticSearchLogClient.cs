@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Serilog.Debugging;
@@ -14,27 +16,27 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     public class ElasticSearchLogClient : ILogClient<List<string>>
     {
         private readonly IElasticLowLevelClient _elasticLowLevelClient;
-        private readonly Action<string, long?, string> _badPayloadAction;
+        private readonly Func<string, long?, string, string> _cleanPayload;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="elasticLowLevelClient"></param>
-        /// <param name="badPayloadAction"></param>
+        /// <param name="cleanPayload"></param>
         public ElasticSearchLogClient(IElasticLowLevelClient elasticLowLevelClient,
-            Action<string, long?, string> badPayloadAction)
+            Func<string, long?, string, string> cleanPayload)
         {
             _elasticLowLevelClient = elasticLowLevelClient;
-            _badPayloadAction = badPayloadAction;
+            _cleanPayload = cleanPayload;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <returns></returns>
         public async Task<SentPayloadResult> SendPayloadAsync(List<string> payload)
-        {            
+        {
+            return await SendPayloadAsync(payload, true);
+        }
+
+        public async Task<SentPayloadResult> SendPayloadAsync(List<string> payload,bool first)
+        {
             try
             {
                 if (payload == null || !payload.Any()) return new SentPayloadResult(null, true);
@@ -42,7 +44,13 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
                 if (response.Success)
                 {
-                    var invalidPayload = GetInvalidPayloadAsync(response, payload);
+                    var cleanPayload = new List<string>();
+                    var invalidPayload = GetInvalidPayloadAsync(response, payload,out cleanPayload);
+                    if ((cleanPayload?.Any() ?? false) && first)
+                    {
+                        await SendPayloadAsync(cleanPayload,false);
+                    }
+
                     return new SentPayloadResult(response, true, invalidPayload);
                 }
                 else
@@ -66,13 +74,14 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
         }
 
-        private InvalidResult GetInvalidPayloadAsync(DynamicResponse baseResult, List<string> payload)
+        private InvalidResult GetInvalidPayloadAsync(DynamicResponse baseResult, List<string> payload, out List<string> cleanPayload)
         {
             int i = 0;
-
+            cleanPayload = new List<string>();
             var items = baseResult.Body["items"];
             if (items == null) return null;
             List<string> badPayload = new List<string>();
+
             bool hasErrors = false;
             foreach (dynamic item in items)
             {
@@ -88,9 +97,14 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 var error = item.index?.error;
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
-                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.",  status,  error?.ToString(), payload.ElementAt(index * 2 + 1));
+                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, error?.ToString(), payload.ElementAt(index * 2 + 1));
+                    badPayload.Add(payload.ElementAt(index * 2));
                     badPayload.Add(payload.ElementAt(index * 2 + 1));
-                    _badPayloadAction?.Invoke(payload.ElementAt(index * 2 + 1), status, error?.ToString());
+                    if (_cleanPayload != null)
+                    {
+                        cleanPayload.Add(payload.ElementAt(index * 2));
+                        cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, error?.ToString()));
+                    }
                 }
                 else
                 {

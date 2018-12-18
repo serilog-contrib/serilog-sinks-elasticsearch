@@ -98,7 +98,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             _fileSet = new FileSet(bufferBaseFilename);
             _timer = new PortableTimer(c => OnTick());
 
-            SetTimer();
+            
         }
 
         void CloseAndFlush()
@@ -132,7 +132,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             CloseAndFlush();
         }
 
-        void SetTimer()
+        protected void SetTimer()
         {
             // Note, called under _stateLock
             _timer.Start(_connectionSchedule.NextInterval);

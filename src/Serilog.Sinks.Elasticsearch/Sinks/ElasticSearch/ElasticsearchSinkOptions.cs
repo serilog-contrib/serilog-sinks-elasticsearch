@@ -192,7 +192,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// An action to do when log row was denied by the elasticsearch because of the data (payload).
         /// The arguments is: The log row, status code from server, error message
         /// </summary>
-        public Action<string, long?, string>  BufferBadPayloadAction { get; set; }
+        public Func<string, long?, string,string>  BufferCleanPayload { get; set; }
 
         /// <summary>
         /// A soft limit for the number of bytes to use for storing failed requests.  
@@ -243,7 +243,7 @@ namespace Serilog.Sinks.Elasticsearch
         }
         /// <summary>
         /// The maximum number of log files that will be retained,
-        /// including the current log file. For unlimited retention, pass null. The default is null.
+        /// including the current log file. For unlimited retention, pass null. The default is 31.
         /// </summary>
         public int? BufferFileCountLimit { get; set; }
 
@@ -263,7 +263,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
             this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
             this.QueueSizeLimit = 100000;
-            this.BufferFileCountLimit = null;
+            this.BufferFileCountLimit = 31;
             this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
         }
 
