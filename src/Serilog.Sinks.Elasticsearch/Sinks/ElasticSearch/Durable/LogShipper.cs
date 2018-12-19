@@ -97,8 +97,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             _bufferSizeLimitBytes = bufferSizeLimitBytes;
             _fileSet = new FileSet(bufferBaseFilename);
             _timer = new PortableTimer(c => OnTick());
+            SetTimer();
 
-            
         }
 
         void CloseAndFlush()
