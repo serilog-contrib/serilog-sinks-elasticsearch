@@ -58,7 +58,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             return new
             {
-                template = templateMatchString,
+                index_patterns = new[] { templateMatchString },
                 settings = settings,
                 mappings = new
                 {
