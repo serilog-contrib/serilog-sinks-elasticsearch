@@ -49,6 +49,8 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.bufferBaseFilename" value="C:\Temp\SerilogElasticBuffer"/>
     <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
     <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>	
+    <add key="serilog:write-to:Elasticsearch.bufferRetainedInvalidPayloadsLimitBytes" value="5000"/>	
+    <add key="serilog:write-to:Elasticsearch.bufferFileCountLimit " value="31"/>	     
     <add key="serilog:write-to:Elasticsearch.connectionGlobalHeaders" value="Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE" />
     <add key="serilog:write-to:Elasticsearch.connectionTimeout" value="5" />
     <add key="serilog:write-to:Elasticsearch.emitEventFailure" value="WriteToSelfLog" />
@@ -147,6 +149,8 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,
+          "bufferRetainedInvalidPayloadsLimitBytes": 5000,
+          "bufferFileCountLimit": 31,
           "connectionGlobalHeaders" :"Authorization=Bearer SOME-TOKEN;OtherHeader=OTHER-HEADER-VALUE",
           "connectionTimeout": 5,
           "emitEventFailure": "WriteToSelfLog",
@@ -203,7 +207,37 @@ Since version 5.5 you can use the RegisterTemplateFailure option. Set it to one 
  - IndexToDeadletterIndex; using the deadletterindex format, it will write the events to the deadletter queue. When you fix your template mapping, you can copy your data into the right index.
  - FailSink; this will simply fail the sink by raising an exception.
 
+ Since version 7 you can  specify an action to do when log row was denied by the elasticsearch because of the data (payload) if durable file is specied.
+ i.e.
+```csharp
+BufferCleanPayload = (failingEvent, statuscode, exception) =>
+                    {
+                        dynamic e = JObject.Parse(failingEvent);
+                        return JsonConvert.SerializeObject(new Dictionary<string, object>()
+                        {
+                            { "@timestamp",e["@timestamp"]},
+                            { "level","Error"},
+                            { "message","Error: "+e.message},
+                            { "messageTemplate",e.messageTemplate},
+                            { "failingStatusCode", statuscode},
+                            { "failingException", exception}
+                        });
+                    },
  
+```
+The IndexDecider didnt worked well when durable file was specified so an option to specify BufferIndexDecider is added.
+Datatype of logEvent is string
+i.e.
+```csharp
+ BufferIndexDecider = (logEvent, offset) => "log-serilog-" + (new Random().Next(0, 2)),
+```
+Option BufferFileCountLimit is added. The maximum number of log files that will be retained. including the current log file. For unlimited retention, pass null. The default is 31.
+Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default 100L * 1024 * 1024 will be applied.
+### Breaking changes for version 7
+Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile
+SingleEventSizePostingLimit option is changed from int to long? with default value null, Don't use value 0 nothing will be logged then!!!!!
+ 
+
 ### Breaking changes for version 6
 
 Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6. 
