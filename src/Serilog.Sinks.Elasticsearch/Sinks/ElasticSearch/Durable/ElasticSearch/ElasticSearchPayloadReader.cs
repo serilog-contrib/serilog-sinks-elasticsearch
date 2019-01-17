@@ -11,7 +11,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     /// <summary>
     /// 
     /// </summary>
-    public class ElasticSearchPayloadReader: APayloadReader<List<string>>
+    public class ElasticsearchPayloadReader: APayloadReader<List<string>>
     {
         private readonly string _pipelineName;
         private readonly string _typeName;
@@ -28,7 +28,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="typeName"></param>
         /// <param name="serialize"></param>
         /// <param name="getIndexForEvent"></param>
-        public ElasticSearchPayloadReader(string pipelineName,string typeName, Func<object,string> serialize,Func<string,DateTime,string> getIndexForEvent)
+        public ElasticsearchPayloadReader(string pipelineName,string typeName, Func<object,string> serialize,Func<string,DateTime,string> getIndexForEvent)
         {
             _pipelineName = pipelineName;
             _typeName = typeName;

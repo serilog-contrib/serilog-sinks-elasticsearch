@@ -54,18 +54,18 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 .CreateLogger();
 
             
-            var elasticSearchLogClient = new ElasticSearchLogClient(
+            var elasticSearchLogClient = new ElasticsearchLogClient(
                  elasticLowLevelClient: _state.Client, 
                 cleanPayload: _state.Options.BufferCleanPayload);
 
-            var payloadReader = new ElasticSearchPayloadReader(
+            var payloadReader = new ElasticsearchPayloadReader(
                  pipelineName: _state.Options.PipelineName,  
                  typeName:_state.Options.TypeName, 
                  serialize:_state.Serialize,  
                  getIndexForEvent: _state.GetBufferedIndexForEvent
                 );
 
-            _shipper = new ElasticSearchLogShipper(
+            _shipper = new ElasticsearchLogShipper(
                 bufferBaseFilename: _state.Options.BufferBaseFilename,
                 batchPostingLimit: _state.Options.BatchPostingLimit,
                 period: _state.Options.BufferLogShippingInterval ?? TimeSpan.FromSeconds(5),

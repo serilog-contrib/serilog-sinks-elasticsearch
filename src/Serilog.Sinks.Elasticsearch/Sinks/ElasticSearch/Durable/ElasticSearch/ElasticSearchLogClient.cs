@@ -13,7 +13,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     /// <summary>
     /// 
     /// </summary>
-    public class ElasticSearchLogClient : ILogClient<List<string>>
+    public class ElasticsearchLogClient : ILogClient<List<string>>
     {
         private readonly IElasticLowLevelClient _elasticLowLevelClient;
         private readonly Func<string, long?, string, string> _cleanPayload;
@@ -23,7 +23,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// </summary>
         /// <param name="elasticLowLevelClient"></param>
         /// <param name="cleanPayload"></param>
-        public ElasticSearchLogClient(IElasticLowLevelClient elasticLowLevelClient,
+        public ElasticsearchLogClient(IElasticLowLevelClient elasticLowLevelClient,
             Func<string, long?, string, string> cleanPayload)
         {
             _elasticLowLevelClient = elasticLowLevelClient;

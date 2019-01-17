@@ -12,7 +12,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     /// <summary>
     /// 
     /// </summary>
-    public class ElasticSearchLogShipper : LogShipper<List<string>>
+    public class ElasticsearchLogShipper : LogShipper<List<string>>
     {
         private readonly Action _registerTemplateIfNeeded;
         bool _didRegisterTemplateIfNeeded = false;
@@ -30,7 +30,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="retainedInvalidPayloadsLimitBytes"></param>
         /// <param name="bufferSizeLimitBytes"></param>
         /// <param name="registerTemplateIfNeeded"></param>
-        public ElasticSearchLogShipper(string bufferBaseFilename, int batchPostingLimit, TimeSpan period,
+        public ElasticsearchLogShipper(string bufferBaseFilename, int batchPostingLimit, TimeSpan period,
             long? eventBodyLimitBytes, LoggingLevelSwitch levelControlSwitch, ILogClient<List<string>> logClient,
             IPayloadReader<List<string>> payloadReader, long? retainedInvalidPayloadsLimitBytes,
             long? bufferSizeLimitBytes, Action registerTemplateIfNeeded)
