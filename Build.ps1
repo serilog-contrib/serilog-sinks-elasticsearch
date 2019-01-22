@@ -2,8 +2,10 @@ echo "In directory: $PSScriptRoot"
 
 $solution = "serilog-sinks-elasticsearch.sln"
 $test = "test\\Serilog.Sinks.Elasticsearch.Tests\\Serilog.Sinks.Elasticsearch.Tests.csproj"
-$projectFolder = "src\\Serilog.Sinks.Elasticsearch"
-$project = $projectFolder + "\\Serilog.Sinks.Elasticsearch.csproj"
+[string[]]$projects = @(
+    ("src\\Serilog.Sinks.Elasticsearch\\Serilog.Sinks.Elasticsearch.csproj"),
+    ("src\\Serilog.Formatting.Elasticsearch\\Serilog.Formatting.Elasticsearch.csproj")
+)
 
 function Invoke-Build()
 {
@@ -22,7 +24,10 @@ function Invoke-Build()
     }
   
     Write-Output "Creating packages"
-    & dotnet pack $project -c Release -o ..\..\artifacts  --include-symbols --include-source /p:PackageVersion=$env:GitVersion_NuGetVersionV2
+    foreach ($project in $projects)
+    {
+        & dotnet pack $project -c Release -o ..\..\artifacts  --include-symbols --include-source /p:PackageVersion=$env:GitVersion_NuGetVersionV2    
+    }
   
     if($LASTEXITCODE -ne 0) 
     {
