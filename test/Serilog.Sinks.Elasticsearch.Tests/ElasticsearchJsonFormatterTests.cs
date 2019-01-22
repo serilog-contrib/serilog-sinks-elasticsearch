@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Serilog.Formatting.ElasticSearch;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests

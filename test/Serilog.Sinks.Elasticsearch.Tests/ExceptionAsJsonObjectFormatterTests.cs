@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Xunit;
 using Serilog.Events;
+using Serilog.Formatting.ElasticSearch;
 using Serilog.Parsing;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 

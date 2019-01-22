@@ -20,6 +20,7 @@ using Elasticsearch.Net;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
+using Serilog.Formatting.ElasticSearch;
 
 namespace Serilog.Sinks.Elasticsearch
 {

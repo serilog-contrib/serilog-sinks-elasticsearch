@@ -1,4 +1,4 @@
-﻿// Copyright 2016 Serilog Contributors
+// Copyright 2016 Serilog Contributors
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ using System;
 using System.IO;
 using Elasticsearch.Net;
 
-namespace Serilog.Sinks.Elasticsearch
+namespace Serilog.Formatting.Elasticsearch
 {
     /// <summary>
     /// A JSON formatter which plays nice with Kibana, 

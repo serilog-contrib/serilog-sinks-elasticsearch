@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch.Sample", "sample\Serilog.Sinks.Elasticsearch.Sample\Serilog.Sinks.Elasticsearch.Sample.csproj", "{253B37AB-D82E-4A5F-BA16-F1BE398818C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Formatting.Elasticsearch", "src\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj", "{0E6D34BF-322A-4803-94D1-355F6D5024BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{253B37AB-D82E-4A5F-BA16-F1BE398818C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

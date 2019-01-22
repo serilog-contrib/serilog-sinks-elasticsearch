@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    
   <PropertyGroup>
     <VersionPrefix>6.0.0</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>
@@ -7,12 +7,12 @@
     <TargetFrameworks>net45;netstandard1.3</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Serilog.Sinks.Elasticsearch</AssemblyName>
+    <AssemblyName>Serilog.Formatting.Elasticsearch</AssemblyName>
     <AssemblyOriginatorKeyFile>../../assets/Serilog.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>Serilog.Sinks.Elasticsearch</PackageId>
-    <PackageTags>serilog;elasticsearch;logging;event;collector</PackageTags>
+    <PackageId>Serilog.Formatting.Elasticsearch</PackageId>
+    <PackageTags>serilog;elasticsearch;logging;event;formatting</PackageTags>
     <PackageReleaseNotes>https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md</PackageReleaseNotes>
     <PackageIconUrl>http://serilog.net/images/serilog-sink-nuget.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/serilog/serilog-sinks-elasticsearch</PackageProjectUrl>
@@ -26,31 +26,20 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <RootNamespace>Serilog.Formatting.ElasticSearch</RootNamespace>
   </PropertyGroup>
-
+    
   <ItemGroup>
     <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
     <PackageReference Include="Serilog" Version="2.6.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.1" />
-    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION;NO_TIMER</DefineConstants>
+    <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj" />
-  </ItemGroup>
-
+    
 </Project>
