@@ -24,6 +24,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using Elasticsearch.Net;
 using Serilog.Formatting;
+using Serilog.Sinks.Elasticsearch.Durable;
 
 namespace Serilog
 {
@@ -119,6 +120,7 @@ namespace Serilog
         /// <param name="levelSwitch">A switch allowing the pass-through minimum level to be changed at runtime.</param>
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
+        /// <param name="bufferFileCountLimit"><see cref="ElasticsearchSinkOptions.BufferFileCountLimit"/></param>        
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
         /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
         /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>   
@@ -139,7 +141,7 @@ namespace Serilog
         /// <param name="customFormatter">Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="customDurableFormatter">Customizes the formatter used when converting log events into the durable sink. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
-        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.</param>        
+        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>        
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -153,7 +155,7 @@ namespace Serilog
             bool inlineFields = false,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string bufferBaseFilename = null,
-            long? bufferFileSizeLimitBytes = null,
+            long? bufferFileSizeLimitBytes = null,            
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
             LoggingLevelSwitch levelSwitch = null,
@@ -175,7 +177,8 @@ namespace Serilog
             ITextFormatter customFormatter = null,
             ITextFormatter customDurableFormatter = null,
             ILogEventSink failureSink = null,
-            int singleEventSizePostingLimit = 0)
+            long? singleEventSizePostingLimit = null,
+            int? bufferFileCountLimit = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -220,6 +223,10 @@ namespace Serilog
                 options.BufferFileSizeLimitBytes = bufferFileSizeLimitBytes.Value;
             }
 
+            if (bufferFileCountLimit.HasValue)
+            {
+                options.BufferFileCountLimit = bufferFileCountLimit.Value;
+            }
             options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
 
             if (!string.IsNullOrWhiteSpace(connectionGlobalHeaders))
