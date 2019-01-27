@@ -135,8 +135,7 @@ namespace Serilog.Formatting.Elasticsearch
         /// </summary>
         protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
         {
-            var s = value.Value as string;
-            return s != null ? new ScalarValue(DotEscapeFieldName(s)) : value;
+            return value.Value is string s ? new ScalarValue(DotEscapeFieldName(s)) : value;
         }
 
         /// <summary>

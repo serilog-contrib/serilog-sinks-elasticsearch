@@ -4,7 +4,7 @@
     <id>Serilog.Formatting.Elasticsearch</id>
     <version>$version$</version>
     <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe</authors>
-    <description>The perfect way for .NET apps formatting structured log events to Elasticsearch JSON.</description>
+    <description>The perfect way for .NET apps formatting structured log events to Elasticsearch JSON. This package contains the formatter used for the Elasticsearch Sink.</description>
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
