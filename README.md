@@ -1,10 +1,6 @@
-# Serilog.Sinks.Elasticsearch [![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master)
+# Serilog.Sinks.Elasticsearch [![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
 
-This repository contains two nuget packages:
-
-`Serilog.Sinks.Elasticsearch` [![NuGet Badge](https://buildstats.info/nuget/Serilog.Sinks.Elasticsearch)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
-
-`Serilog.Formatting.Elasticsearch` [![NuGet Badge](https://buildstats.info/nuget/Serilog.Formatting.Elasticsearch)](https://www.nuget.org/packages/Serilog.Formatting.Elasticsearch)
+This repository contains two nuget packages: `Serilog.Sinks.Elasticsearch` and `Serilog.Formatting.Elasticsearch`.
 
 ## Table of contents
 
