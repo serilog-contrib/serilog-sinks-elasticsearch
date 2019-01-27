@@ -254,8 +254,8 @@ Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which th
 
 #### Version 7
 
-Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile
-SingleEventSizePostingLimit option is changed from int to long? with default value null, Don't use value 0 nothing will be logged then!!!!!
+* Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile
+* SingleEventSizePostingLimit option is changed from int to long? with default value null, Don't use value 0 nothing will be logged then!!!!!
 
 #### Version 6
 
