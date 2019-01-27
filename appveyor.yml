@@ -12,6 +12,13 @@ deploy:
     secure: nvZ/z+pMS91b3kG4DgfES5AcmwwGoBYQxr9kp4XiJHj25SAlgdIxFx++1N0lFH2x
   on:
     branch: /^(master|dev)$/
+- provider: GitHub
+  auth_token:
+    secure: XSO0LDYd89yw5rAQ8HvAgdX7NBo1m4bEqHlj0NZxtA6zKunLwCSYoVHU+k3cvQIP
+  on:
+    branch: master
+  artifact: /Serilog.*\.nupkg/
+  tag: v$(appveyor_build_version)
 install:
   - choco install gitversion.portable -y
 assembly_info:
