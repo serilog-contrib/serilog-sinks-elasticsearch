@@ -37,6 +37,7 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly ElasticsearchSinkOptions _options;
 
         readonly Func<LogEvent, DateTimeOffset, string> _indexDecider;
+        readonly Func<string, DateTime, string> _bufferedIndexDecider;
 
         private readonly ITextFormatter _formatter;
         private readonly ITextFormatter _durableFormatter;
@@ -65,6 +66,7 @@ namespace Serilog.Sinks.Elasticsearch
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
 
             _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
+            _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
             _options = options;
 
@@ -116,6 +118,13 @@ namespace Serilog.Sinks.Elasticsearch
             if (!TemplateRegistrationSuccess && _options.RegisterTemplateFailure == RegisterTemplateRecovery.IndexToDeadletterIndex)
                 return string.Format(_options.DeadLetterIndexName, offset);
             return _indexDecider(e, offset);
+        }
+
+        public string GetBufferedIndexForEvent(string logEvent, DateTime offset)
+        {
+            if (!TemplateRegistrationSuccess && _options.RegisterTemplateFailure == RegisterTemplateRecovery.IndexToDeadletterIndex)
+                return string.Format(_options.DeadLetterIndexName, offset);
+            return _bufferedIndexDecider(logEvent, offset);
         }
 
         /// <summary>
