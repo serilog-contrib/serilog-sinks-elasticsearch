@@ -114,6 +114,11 @@ namespace Serilog.Sinks.Elasticsearch
         public int BatchPostingLimit { get; set; }
 
         ///<summary>
+        /// The maximum length of a an event record to be sent. Defaults to: null (No Limit) only used in file buffer mode
+        /// </summary>
+        public long? SingleEventSizePostingLimit { get; set; }
+
+        ///<summary>
         /// The time to wait between checking for event batches. Defaults to 2 seconds.
         /// </summary>
         public TimeSpan Period { get; set; }
@@ -159,17 +164,22 @@ namespace Serilog.Sinks.Elasticsearch
         public IConnectionPool ConnectionPool { get; private set; }
 
         /// <summary>
-        /// Function to decide which index to write the LogEvent to
+        /// Function to decide which index to write the LogEvent to, when using file see: BufferIndexDecider
         /// </summary>
         public Func<LogEvent, DateTimeOffset, string> IndexDecider { get; set; }
 
+        /// <summary>
+        /// Function to decide which index to write the LogEvent to when using file buffer
+        /// Arguments is: logRow, DateTime of logfile
+        /// </summary>
+        public Func<string, DateTime, string> BufferIndexDecider { get; set; }
         /// <summary>
         /// Optional path to directory that can be used as a log shipping buffer for increasing the reliability of the log forwarding.
         /// </summary>
         public string BufferBaseFilename { get; set; }
 
         /// <summary>
-        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default no limit will be applied.
+        /// The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default 100L * 1024 * 1024 will be applied.
         /// </summary>
         public long? BufferFileSizeLimitBytes { get; set; }
 
@@ -178,6 +188,18 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public TimeSpan? BufferLogShippingInterval { get; set; }
 
+        /// <summary>
+        /// An action to do when log row was denied by the elasticsearch because of the data (payload).
+        /// The arguments is: The log row, status code from server, error message
+        /// </summary>
+        public Func<string, long?, string,string>  BufferCleanPayload { get; set; }
+
+        /// <summary>
+        /// A soft limit for the number of bytes to use for storing failed requests.  
+        /// The limit is soft in that it can be exceeded by any single error payload, but in that case only that single error
+        /// payload will be retained.
+        /// </summary>
+        public long? BufferRetainedInvalidPayloadsLimitBytes { get; set; }
         /// <summary>
         /// Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)
         /// </summary>
@@ -219,6 +241,11 @@ namespace Serilog.Sinks.Elasticsearch
                 _queueSizeLimit = value;
             }
         }
+        /// <summary>
+        /// The maximum number of log files that will be retained,
+        /// including the current log file. For unlimited retention, pass null. The default is 31.
+        /// </summary>
+        public int? BufferFileCountLimit { get; set; }
 
         /// <summary>
         /// Configures the elasticsearch sink defaults
@@ -230,11 +257,14 @@ namespace Serilog.Sinks.Elasticsearch
             this.TypeName = "logevent";
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
+            this.SingleEventSizePostingLimit = null;
             this.TemplateName = "serilog-events-template";
             this.ConnectionTimeout = TimeSpan.FromSeconds(5);
             this.EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog;
             this.RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway;
             this.QueueSizeLimit = 100000;
+            this.BufferFileCountLimit = 31;
+            this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
         }
 
         /// <summary>

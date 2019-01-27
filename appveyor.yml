@@ -5,11 +5,21 @@ build_script:
 - ps: ./Build.ps1 
 test: off
 artifacts:
-- path: artifacts/Serilog.Sinks.Elasticsearch*.nupkg
+  - path: artifacts/Serilog.Sinks.Elasticsearch*.nupkg
+  - path: artifacts/Serilog.Formatting.Elasticsearch*.nupkg
+only_commits:
+  files:
+    - serilog-sinks-elasticsearch.sln
+    - src/Serilog.Sinks.Elasticsearch/
+    - src/Serilog.Formatting.Elasticsearch/
+    - nuget.config
+    - Build.ps1
+    - assets/
+    - test/Serilog.Sinks.Elasticsearch.Tests/
 deploy:
 - provider: NuGet
   api_key:
-    secure: nvZ/z+pMS91b3kG4DgfES5AcmwwGoBYQxr9kp4XiJHj25SAlgdIxFx++1N0lFH2x
+    secure: bd9z4P73oltOXudAjPehwp9iDKsPtC+HbgshOrSgoyQKr5xVK+bxJQngrDJkHdY8
   on:
     branch: /^(master|dev)$/
 - provider: GitHub

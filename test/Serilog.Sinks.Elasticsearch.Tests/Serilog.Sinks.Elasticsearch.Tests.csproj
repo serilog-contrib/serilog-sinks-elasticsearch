@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj" />
     <ProjectReference Include="..\..\src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj" />
   </ItemGroup>
 

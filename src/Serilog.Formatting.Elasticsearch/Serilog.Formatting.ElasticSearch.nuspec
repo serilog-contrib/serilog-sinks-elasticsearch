@@ -1,22 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>Serilog.Sinks.Elasticsearch</id>
+    <id>Serilog.Formatting.Elasticsearch</id>
     <version>$version$</version>
     <authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Konstantin Erman</authors>
-    <description>The perfect way for .NET apps to write structured log events to Elasticsearch.</description>
+    <description>The perfect way for .NET apps formatting structured log events to Elasticsearch JSON. This package contains the formatter used for the Elasticsearch Sink.</description>
     <language>en-US</language>
     <projectUrl>http://serilog.net</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <iconUrl>http://serilog.net/images/serilog-sink-nuget.png</iconUrl>
     <repository type="git" url="https://github.com/serilog/serilog-sinks-elasticsearch" />
-    <tags>serilog logging elasticsearch</tags>
+    <tags>serilog logging elasticsearch formatters</tags>
     <dependencies>
       <dependency id="Serilog" version="2.6.0" />
       <dependency id="Elasticsearch.Net" version="6.0.0" />
-      <dependency id="Serilog.Sinks.File" version="4.0.0" />
-      <dependency id="Serilog.Sinks.PeriodicBatching" version="2.1.1" />
-      <dependency id="Serilog.Sinks.RollingFile" version="3.3.0" />
     </dependencies>
   </metadata>
   <files>

@@ -1,5 +1,5 @@
 ﻿{
-    "template": "logstash-*",
+    "index_patterns": [ "logstash-*" ],
     "settings": {
         "index.refresh_interval": "5s"
     },

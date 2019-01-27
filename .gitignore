@@ -189,3 +189,7 @@ FakesAssemblies/
 
 project.lock.json
 .vs
+
+# JetBrains Rider
+.idea/
+*.sln.iml
