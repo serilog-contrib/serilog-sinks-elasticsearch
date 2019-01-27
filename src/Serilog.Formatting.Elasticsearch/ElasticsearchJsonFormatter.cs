@@ -1,4 +1,4 @@
-﻿// Copyright 2014 Serilog Contributors
+// Copyright 2014 Serilog Contributors
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Parsing;
 
-namespace Serilog.Sinks.Elasticsearch
+namespace Serilog.Formatting.Elasticsearch
 {
     /// <summary>
     /// Custom Json formatter that respects the configured property name handling and forces 'Timestamp' to @timestamp
@@ -135,8 +135,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
         {
-            var s = value.Value as string;
-            return s != null ? new ScalarValue(DotEscapeFieldName(s)) : value;
+            return value.Value is string s ? new ScalarValue(DotEscapeFieldName(s)) : value;
         }
 
         /// <summary>
