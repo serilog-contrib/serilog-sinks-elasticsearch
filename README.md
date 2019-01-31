@@ -1,12 +1,14 @@
-# Serilog.Sinks.Elasticsearch
+# Serilog.Sinks.Elasticsearch [![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
 
-[![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master)
+This repository contains two nuget packages: `Serilog.Sinks.Elasticsearch` and `Serilog.Formatting.Elasticsearch`.
 
 ## Table of contents
 
 * [What is this sink](#what-is-this-sink)
 * [Features](#features)
 * [Quick start](#quick-start)
+  * [Elasticsearch sinks](#elasticsearch-sinks)
+  * [Elasticsearch formatters](#elasticsearch-formatters)
 * [More information](#more-information)
   * [A note about fields inside Elasticsearch](#a-note-about-fields-inside-elasticsearch)
   * [A note about Kibana](#a-note-about-kibana)
@@ -29,6 +31,8 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
 
 ## Quick start
+
+### Elasticsearch sinks
 
 ```powershell
 Install-Package serilog.sinks.elasticsearch
@@ -87,6 +91,24 @@ This example shows the options that are currently available when using the appSe
 With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional. Also required is the `<add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>` setting to include this sink. All other properties are optional. If you do not explicitly specify an indexFormat-setting, a generic index such as 'logstash-[current_date]' will be used automatically.
 
 And start writing your events using Serilog.
+
+### Elasticsearch formatters
+
+```powershell
+Install-Package serilog.formatting.elasticsearch
+```
+
+The `Serilog.Formatting.Elasticsearch` nuget package consists of a several formatters:
+
+* `ElasticsearchJsonFormatter` - custom json formatter that respects the configured property name handling and forces `Timestamp` to @timestamp.
+* `ExceptionAsObjectJsonFormatter` - a json formatter which serializes any exception into an exception object.
+
+Override default formatter if it's possible with selected sink
+
+```csharp
+var loggerConfig = new LoggerConfiguration()
+  .WriteTo.Console(new ElasticsearchJsonFormatter());
+```
 
 ## More information
 
