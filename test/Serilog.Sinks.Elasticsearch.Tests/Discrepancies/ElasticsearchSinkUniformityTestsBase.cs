@@ -54,6 +54,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
                 .And.Be(exceptionMessage);
             var realException = firstEvent.Exceptions[0];
 #if !NO_SERIALIZATION
+#if !PARTIALLY_SERIALIZATION
             realException.ExceptionMethod.Should().NotBeNull();
             realException.ExceptionMethod.Name.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.AssemblyName.Should().NotBeNullOrWhiteSpace();
@@ -61,7 +62,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             realException.ExceptionMethod.ClassName.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.Signature.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.MemberType.Should().BeGreaterThan(0);
-
+#endif
             var nastyException = firstEvent.Exceptions[1];
             nastyException.Depth.Should().Be(1);
             nastyException.Message.Should().Be("nasty inner exception");
