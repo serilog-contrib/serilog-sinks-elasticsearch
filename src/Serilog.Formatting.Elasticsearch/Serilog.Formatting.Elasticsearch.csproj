@@ -19,7 +19,7 @@
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/serilog/serilog-sinks-elasticsearch</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.3' ">1.6.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.3' ">1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
@@ -31,7 +31,7 @@
     
   <ItemGroup>
     <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
-    <PackageReference Include="Serilog" Version="2.6.0" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
