@@ -248,6 +248,11 @@ namespace Serilog.Sinks.Elasticsearch
         public int? BufferFileCountLimit { get; set; }
 
         /// <summary>
+        /// When set to true splits the StackTrace by new line and writes it as a an array of strings.
+        /// </summary>
+        public bool FormatStackTraceAsArray { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         public ElasticsearchSinkOptions()

@@ -94,7 +94,8 @@ namespace Serilog.Sinks.Elasticsearch
                 formatProvider: options.FormatProvider,
                 closingDelimiter: string.Empty,
                 serializer: options.Serializer,
-                inlineFields: options.InlineFields
+                inlineFields: options.InlineFields,
+                formatStackTraceAsArray: options.FormatStackTraceAsArray
             );
         }
 
@@ -104,7 +105,8 @@ namespace Serilog.Sinks.Elasticsearch
                formatProvider: options.FormatProvider,
                closingDelimiter: Environment.NewLine,
                serializer: options.Serializer,
-               inlineFields: options.InlineFields
+               inlineFields: options.InlineFields,
+               formatStackTraceAsArray: options.FormatStackTraceAsArray
            );
         }
 
