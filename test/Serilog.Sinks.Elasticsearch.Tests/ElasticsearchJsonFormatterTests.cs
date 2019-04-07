@@ -18,7 +18,49 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         (
             DateTimeOffset.Now,
             LogEventLevel.Debug,
-            exception: null,
+           //exception: CreateThrownException(),
+           exception: null,
+            messageTemplate: new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()),
+            properties: Enumerable.Empty<LogEventProperty>()
+        );
+
+        static Exception CreateThrownException()
+        {
+            Exception retEx = null;
+            try
+            {
+                ThrowException();
+            }
+            catch (Exception ex)
+            {
+                retEx = ex;
+            }
+            return retEx;
+        }
+
+        static void ThrowException()
+        {
+            try
+            {
+                ThrowInnerException();
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Test exception message", ex);
+            }
+        }
+
+        static void ThrowInnerException()
+        {
+            throw new Exception("Test inner exception message");
+        }
+
+        static LogEvent CreateLogEventWithException() =>
+        new LogEvent
+        (
+            DateTimeOffset.Now,
+            LogEventLevel.Debug,
+            exception: CreateThrownException(),
             messageTemplate: new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()),
             properties: Enumerable.Empty<LogEventProperty>()
         );
@@ -57,7 +99,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 StringComparison.CurrentCultureIgnoreCase
             );
 
-        static string FormatProperty(string property) => $"\"{property}\":"; 
+        static string FormatProperty(string property) => $"\"{property}\":";
         #endregion
 
         [Theory]
@@ -132,6 +174,62 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 result =>
                 {
                     Assert.EndsWith("closingDelimiter", result);
+                });
+        }
+
+        [Fact]
+        public void DefaultJsonFormater_Should_Render_Exceptions()
+        {
+            CheckProperties(
+                CreateLogEventWithException,
+                new ElasticsearchJsonFormatter(),
+                result =>
+                {
+                    string exceptionsProperty = FormatProperty("exceptions");
+                    ContainsProperty(exceptionsProperty, result);
+
+            
+                    string exceptionsValue = result.Substring(result.IndexOf(exceptionsProperty) + exceptionsProperty.Length);
+
+                    // Check the exceptions property is a JSON array
+                    Assert.StartsWith("[", exceptionsValue);
+
+                    string stackTraceProperty = FormatProperty("StackTraceString");
+                    ContainsProperty(stackTraceProperty, exceptionsValue);
+                    DoesNotContainsProperty(FormatProperty("StackTrace"), exceptionsValue);
+
+                    string stackTraceValue = exceptionsValue.Substring(exceptionsValue.IndexOf(stackTraceProperty) + stackTraceProperty.Length);
+
+                    // Check the StackTraceString property is a JSON string
+                    Assert.StartsWith("\"", stackTraceValue);
+                });
+        }
+
+        [Fact]
+        public void DefaultJsonFormater_Should_Render_Exceptions_With_StackTrace_As_Array()
+        {
+            CheckProperties(
+                CreateLogEventWithException,
+                new ElasticsearchJsonFormatter(formatStackTraceAsArray: true),
+                result =>
+                {
+                    string exceptionsProperty = FormatProperty("exceptions");
+                    ContainsProperty(exceptionsProperty, result);
+
+
+                    string exceptionsValue = result.Substring(result.IndexOf(exceptionsProperty) + exceptionsProperty.Length);
+
+                    // Check the exceptions property is a JSON array
+                    Assert.StartsWith("[", exceptionsValue);
+
+                    string stackTraceProperty = FormatProperty("StackTrace");
+                    ContainsProperty(stackTraceProperty, exceptionsValue);
+                    DoesNotContainsProperty(FormatProperty("StackTraceString"), exceptionsValue);
+
+                    string stackTraceValue = exceptionsValue.Substring(exceptionsValue.IndexOf(stackTraceProperty) + stackTraceProperty.Length);
+
+                    // Check the StackTrace property is a JSON array
+                    Assert.StartsWith("[", stackTraceValue);
                 });
         }
     }

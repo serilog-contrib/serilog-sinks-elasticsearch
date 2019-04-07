@@ -225,8 +225,8 @@ namespace Serilog.Formatting.Elasticsearch
             this.WriteJsonProperty("Source", source, ref delim, output);
             if (_formatStackTraceAsArray)
             {
-                WriteMultilineString("StackTrace", stackTrace, ref delim, output);
-                WriteMultilineString("RemoteStackTrace", stackTrace, ref delim, output);
+                this.WriteMultilineString("StackTrace", stackTrace, ref delim, output);
+                this.WriteMultilineString("RemoteStackTrace", stackTrace, ref delim, output);
             }
             else
             {

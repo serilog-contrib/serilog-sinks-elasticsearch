@@ -270,6 +270,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.QueueSizeLimit = 100000;
             this.BufferFileCountLimit = 31;
             this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
+            this.FormatStackTraceAsArray = false;
         }
 
         /// <summary>
