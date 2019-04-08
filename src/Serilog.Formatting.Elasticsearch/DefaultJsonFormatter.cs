@@ -329,6 +329,19 @@ namespace Serilog.Formatting.Elasticsearch
         }
 
         /// <summary>
+        /// Writes out a json property with an array as the value
+        /// </summary>
+        protected virtual void WriteJsonArrayProperty(string name, IEnumerable sequence, ref string precedingDelimiter, TextWriter output)
+        {
+            output.Write(precedingDelimiter);
+            output.Write("\"");
+            output.Write(name);
+            output.Write("\":");
+            WriteSequence(sequence, output);
+            precedingDelimiter = ",";
+        }
+
+        /// <summary>
         /// Allows a subclass to write out objects that have no configured literal writer.
         /// </summary>
         /// <param name="value">The value to be written as a json construct</param>

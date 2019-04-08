@@ -43,7 +43,15 @@ namespace Serilog.Formatting.Elasticsearch
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        public ExceptionAsObjectJsonFormatter(bool omitEnclosingObject = false, string closingDelimiter = null, bool renderMessage = false, IFormatProvider formatProvider = null, IElasticsearchSerializer serializer = null, bool inlineFields = false) : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields)
+        /// <param name="formatStackTraceAsArray">If true, splits the StackTrace by new line and writes it as a an array of strings</param>
+        public ExceptionAsObjectJsonFormatter(bool omitEnclosingObject = false, 
+            string closingDelimiter = null, 
+            bool renderMessage = false, 
+            IFormatProvider formatProvider = null, 
+            IElasticsearchSerializer serializer = null, 
+            bool inlineFields = false, 
+            bool formatStackTraceAsArray = false) 
+            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields, formatStackTraceAsArray)
         {
         }
 

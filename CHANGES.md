@@ -1,11 +1,14 @@
-== Changelog
-7.0
+## Changelog
+
+7.1
  * DurableElasticsearchSink is rewritten to use the same base code as the sink for Serilog.Sinks.Seq. Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile. Lots of new fintuning options for file storage is added in ElasticsearchSinkOptions.  Updated  Serilog.Sinks.Elasticsearch.Sample.Main with SetupLoggerWithPersistantStorage with all available options for durable mode.
  * Changed datatype on singleEventSizePostingLimit  from int to long? with default value null. to make it possible ro reuse code from Sinks.Seq .
  * IndexDecider didnt worked well in buffer mode because of LogEvent was null. Added BufferIndexDecider.
  * Added BufferCleanPayload and an example which makes it possible to cleanup your invalid logging document if rejected from elastic because of inconsistent datatype on a field. It'seasy to miss errors in the self log now its possible to se logrows which is bad for elasticsearch in the elastic log.
  * Added BufferRetainedInvalidPayloadsLimitBytes A soft limit for the number of bytes to use for storing failed requests.
  * Added BufferFileCountLimit The maximum number of log files that will be retained.
+ * Formatting has been moved to seperate package.
+
 6.4
  * Render message by default (#160). 
  * Expose interface-typed options via appsettings (#162)
