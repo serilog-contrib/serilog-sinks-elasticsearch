@@ -18,7 +18,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if !NO_SERIALIZATION
 using System.Runtime.Serialization;
+#endif
 using Serilog.Events;
 using Serilog.Parsing;
 
