@@ -19,7 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Elasticsearch.Net;
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -30,7 +29,6 @@ namespace Serilog.Formatting.Elasticsearch
     /// </summary>
     public class ElasticsearchJsonFormatter : DefaultJsonFormatter
     {
-        readonly IElasticsearchSerializer _serializer;
         readonly bool _inlineFields;
         readonly bool _formatStackTraceAsArray;
 
@@ -67,23 +65,19 @@ namespace Serilog.Formatting.Elasticsearch
         /// <param name="renderMessage">If true, the message will be rendered and written to the output as a
         /// property named RenderedMessage.</param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
-        /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
+        /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a property named RenderedMessageTemplate.</param>
         /// <param name="formatStackTraceAsArray">If true, splits the StackTrace by new line and writes it as a an array of strings</param>
-        /// property named RenderedMessageTemplate.</param>
         public ElasticsearchJsonFormatter(
             bool omitEnclosingObject = false,
             string closingDelimiter = null,
             bool renderMessage = true,
             IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null,
             bool inlineFields = false,
             bool renderMessageTemplate = true,
             bool formatStackTraceAsArray = false)
             : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, renderMessageTemplate)
         {
-            _serializer = serializer;
             _inlineFields = inlineFields;
             _formatStackTraceAsArray = formatStackTraceAsArray;
         }
@@ -313,23 +307,5 @@ namespace Serilog.Formatting.Elasticsearch
         {
             WriteJsonProperty(TimestampPropertyName, timestamp, ref delim, output);
         }
-
-        /// <summary>
-        /// Allows a subclass to write out objects that have no configured literal writer.
-        /// </summary>
-        /// <param name="value">The value to be written as a json construct</param>
-        /// <param name="output">The writer to write on</param>
-        protected override void WriteLiteralValue(object value, TextWriter output)
-        {
-            if (_serializer != null)
-            {
-                string jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
-                output.Write(jsonString);
-                return;
-            }
-
-            base.WriteLiteralValue(value, output);
-        }
-
     }
 }
