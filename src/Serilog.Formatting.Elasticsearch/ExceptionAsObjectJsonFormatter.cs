@@ -51,7 +51,7 @@ namespace Serilog.Formatting.Elasticsearch
             IElasticsearchSerializer serializer = null, 
             bool inlineFields = false, 
             bool formatStackTraceAsArray = false) 
-            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields, formatStackTraceAsArray)
+            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields, true, formatStackTraceAsArray)
         {
         }
 
