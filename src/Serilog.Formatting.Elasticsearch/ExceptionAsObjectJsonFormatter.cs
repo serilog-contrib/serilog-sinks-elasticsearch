@@ -15,7 +15,6 @@
 
 using System;
 using System.IO;
-using Elasticsearch.Net;
 
 namespace Serilog.Formatting.Elasticsearch
 {
@@ -48,7 +47,7 @@ namespace Serilog.Formatting.Elasticsearch
             string closingDelimiter = null, 
             bool renderMessage = false, 
             IFormatProvider formatProvider = null, 
-            IElasticsearchSerializer serializer = null, 
+            ISerializer serializer = null, 
             bool inlineFields = false, 
             bool formatStackTraceAsArray = false) 
             : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, serializer, inlineFields, true, formatStackTraceAsArray)

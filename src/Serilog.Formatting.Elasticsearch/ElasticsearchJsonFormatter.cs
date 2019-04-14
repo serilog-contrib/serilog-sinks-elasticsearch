@@ -18,8 +18,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if !NO_SERIALIZATION
 using System.Runtime.Serialization;
-using Elasticsearch.Net;
+#endif
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -30,7 +31,7 @@ namespace Serilog.Formatting.Elasticsearch
     /// </summary>
     public class ElasticsearchJsonFormatter : DefaultJsonFormatter
     {
-        readonly IElasticsearchSerializer _serializer;
+        readonly ISerializer _serializer;
         readonly bool _inlineFields;
         readonly bool _formatStackTraceAsArray;
 
@@ -77,7 +78,7 @@ namespace Serilog.Formatting.Elasticsearch
             string closingDelimiter = null,
             bool renderMessage = true,
             IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null,
+            ISerializer serializer = null,
             bool inlineFields = false,
             bool renderMessageTemplate = true,
             bool formatStackTraceAsArray = false)
@@ -323,7 +324,7 @@ namespace Serilog.Formatting.Elasticsearch
         {
             if (_serializer != null)
             {
-                string jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
+                string jsonString = _serializer.SerializeToString(value);
                 output.Write(jsonString);
                 return;
             }
