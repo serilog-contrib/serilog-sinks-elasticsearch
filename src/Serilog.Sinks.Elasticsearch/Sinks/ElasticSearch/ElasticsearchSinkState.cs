@@ -93,7 +93,7 @@ namespace Serilog.Sinks.Elasticsearch
             return new ElasticsearchJsonFormatter(
                 formatProvider: options.FormatProvider,
                 closingDelimiter: string.Empty,
-                serializer: options.Serializer,
+                serializer: options.Serializer != null ? new SerializerAdapter(options.Serializer) : null,
                 inlineFields: options.InlineFields,
                 formatStackTraceAsArray: options.FormatStackTraceAsArray
             );
@@ -104,7 +104,7 @@ namespace Serilog.Sinks.Elasticsearch
             return new ElasticsearchJsonFormatter(
                formatProvider: options.FormatProvider,
                closingDelimiter: Environment.NewLine,
-               serializer: options.Serializer,
+               serializer: options.Serializer != null ? new SerializerAdapter(options.Serializer) : null,
                inlineFields: options.InlineFields,
                formatStackTraceAsArray: options.FormatStackTraceAsArray
            );
