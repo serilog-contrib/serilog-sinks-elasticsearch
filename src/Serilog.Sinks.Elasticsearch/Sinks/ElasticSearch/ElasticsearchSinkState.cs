@@ -59,8 +59,17 @@ namespace Serilog.Sinks.Elasticsearch
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
         {
             if (string.IsNullOrWhiteSpace(options.IndexFormat)) throw new ArgumentException("options.IndexFormat");
-            if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
+
+            // Strip type argument if ESv7 since multiple types are not supported anymore
+            if (options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv7)
+            {
+                options.TypeName = "_doc";
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
+            }
 
             _templateName = options.TemplateName;
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
@@ -69,6 +78,7 @@ namespace Serilog.Sinks.Elasticsearch
             _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
             _options = options;
+
 
             var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, options.Serializer)
                 .RequestTimeout(options.ConnectionTimeout);
@@ -112,7 +122,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         public string Serialize(object o)
         {
-            return _client.Serializer.SerializeToString(o, SerializationFormatting.None);
+            return _client.Serializer.SerializeToString(o, formatting: SerializationFormatting.None);
         }
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
@@ -149,6 +159,7 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
+                Console.WriteLine(_client.Serializer.SerializeToString(GetTemplateData()));
                 var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTempatePostData());
 
                 if (!result.Success)

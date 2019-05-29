@@ -24,9 +24,11 @@
     <None Remove="Templating\template_v2.json" />
     <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
+    <None Remove="Templating\template_v7.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templating\template_v7.json" />
     <EmbeddedResource Include="Templating\template_v6.json" />
     <EmbeddedResource Include="Templating\template_v5.json" />
     <EmbeddedResource Include="Templating\template_v2.json" />
@@ -39,7 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.0.1" />
     <PackageReference Include="NEST.JsonNetSerializer" Version="6.0.0" />
@@ -61,7 +62,18 @@
     <Reference Include="System.Threading.Tasks" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
   </ItemGroup>
+
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+        <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="Elasticsearch.Net" Version="7.0.0-alpha2" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
     <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION</DefineConstants>
