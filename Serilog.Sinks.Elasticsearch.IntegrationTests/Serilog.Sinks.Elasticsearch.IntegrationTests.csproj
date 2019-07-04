@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <NoWarn>$(NoWarn);xUnit1013</NoWarn>
+    <DebugSymbols>True</DebugSymbols>
+    <LangVersion>latest</LangVersion>
+    <IsTestProject>True</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+      
+    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />
+    <PackageReference Include="Elastic.Managed" Version="0.1.0-ci20190627T121416" />
+    <PackageReference Include="Elastic.Xunit" Version="0.1.0-ci20190627T121416" />
+    <PackageReference Include="FluentAssertions" Version="5.7.0" />
+    <PackageReference Include="NEST" Version="7.0.0" />
+    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
+  </ItemGroup>
+</Project>

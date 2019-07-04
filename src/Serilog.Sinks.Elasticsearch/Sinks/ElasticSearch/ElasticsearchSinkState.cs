@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
+using Elasticsearch.Net.Specification.IndicesApi;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -150,7 +151,10 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 if (!_options.OverwriteTemplate)
                 {
-                    var templateExistsResponse = _client.IndicesExistsTemplateForAll<DynamicResponse>(_templateName);
+                    var templateExistsResponse = _client.Indices.TemplateExistsForAll<VoidResponse>(_templateName, new IndexTemplateExistsRequestParameters()
+                    {
+                        RequestConfiguration = new RequestConfiguration() { AllowedStatusCodes = new [] {200, 404} }
+                    });
                     if (templateExistsResponse.HttpStatusCode == 200)
                     {
                         TemplateRegistrationSuccess = true;
@@ -160,7 +164,7 @@ namespace Serilog.Sinks.Elasticsearch
                 }
 
                 Console.WriteLine(_client.Serializer.SerializeToString(GetTemplateData()));
-                var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTempatePostData());
+                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTempatePostData());
 
                 if (!result.Success)
                 {

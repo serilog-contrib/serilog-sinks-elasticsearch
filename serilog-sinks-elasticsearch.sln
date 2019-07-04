@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Elasticsearch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Formatting.Elasticsearch", "src\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj", "{0E6D34BF-322A-4803-94D1-355F6D5024BE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Elasticsearch.IntegrationTests", "Serilog.Sinks.Elasticsearch.IntegrationTests\Serilog.Sinks.Elasticsearch.IntegrationTests.csproj", "{23BC3821-E028-48B4-8F2C-83BB1B8B5525}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E6D34BF-322A-4803-94D1-355F6D5024BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23BC3821-E028-48B4-8F2C-83BB1B8B5525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23BC3821-E028-48B4-8F2C-83BB1B8B5525}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23BC3821-E028-48B4-8F2C-83BB1B8B5525}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23BC3821-E028-48B4-8F2C-83BB1B8B5525}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

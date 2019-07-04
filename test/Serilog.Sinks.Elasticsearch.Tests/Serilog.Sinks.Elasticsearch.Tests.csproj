@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp1.1;netcoreapp2.0;net451</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <AssemblyName>Serilog.Sinks.Elasticsearch.Tests</AssemblyName>
     <PackageId>Serilog.Sinks.Elasticsearch.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -41,14 +41,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-version" Version="1.1.2" />
+      
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="2.0.1" />
-    <PackageReference Include="NEST.JsonNetSerializer" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="NEST" Version="6.0.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.0.0" />
+    <PackageReference Include="NEST" Version="7.0.0" />
+    <PackageReference Include="NEST.JsonNetSerializer" Version="7.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
   </ItemGroup>
@@ -62,30 +65,16 @@
     <Reference Include="System.Threading.Tasks" />
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-    <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
   </ItemGroup>
 
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-        <PackageReference Include="Elasticsearch.Net" Version="6.0.0" />
-    </ItemGroup>
-
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Elasticsearch.Net" Version="7.0.0-alpha2" />
         <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-    <DefineConstants>$(DefineConstants);DOTNETCORE;NO_SERIALIZATION</DefineConstants>
-  </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
     <DefineConstants>$(DefineConstants);DOTNETCORE;PARTIALLY_SERIALIZATION</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-version" Version="1.1.2" />
-  </ItemGroup>
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
