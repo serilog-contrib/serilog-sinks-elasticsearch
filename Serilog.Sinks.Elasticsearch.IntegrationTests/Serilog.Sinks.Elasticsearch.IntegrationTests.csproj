@@ -12,15 +12,20 @@
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
+    <PackageReference Include="Elasticsearch.Net.v6" Version="6.9.0-ci20190620T132817" />
+    <PackageReference Include="NEST.v6" Version="6.9.0-ci20190620T132817" />
       
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />
-    <PackageReference Include="Elastic.Managed" Version="0.1.0-ci20190627T121416" />
-    <PackageReference Include="Elastic.Xunit" Version="0.1.0-ci20190627T121416" />
+    <PackageReference Include="Elastic.Managed" Version="0.1.0-ci20190708T081758" />
+    <PackageReference Include="Elastic.Xunit" Version="0.1.0-ci20190708T081758" />
     <PackageReference Include="FluentAssertions" Version="5.7.0" />
     <PackageReference Include="NEST" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Clusters" />
   </ItemGroup>
 </Project>

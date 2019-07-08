@@ -8,10 +8,6 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap
 	public abstract class ClientTestClusterBase : XunitClusterBase<ClientTestClusterConfiguration> 
 	{
 		protected ClientTestClusterBase(ClientTestClusterConfiguration configuration) : base(configuration) { }
-
-		public IElasticClient Client => this.GetOrAddClient(s => ConnectionSettings(s));
-
-		protected virtual ConnectionSettings ConnectionSettings(ConnectionSettings s) => s;
 	}
 
 	public class ClientTestClusterConfiguration : XunitClusterConfiguration

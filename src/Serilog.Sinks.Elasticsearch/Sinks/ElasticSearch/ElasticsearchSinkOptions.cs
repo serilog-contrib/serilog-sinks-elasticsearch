@@ -159,7 +159,7 @@ namespace Serilog.Sinks.Elasticsearch
         public IElasticsearchSerializer Serializer { get; set; }
 
         /// <summary>
-        /// The connectionpool describing the cluster to write event to
+        /// The connection pool describing the cluster to write event to
         /// </summary>
         public IConnectionPool ConnectionPool { get; private set; }
 
@@ -259,7 +259,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
             this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
-            this.TypeName = "logevent";
+            this.TypeName = DefaultTypeName;
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.SingleEventSizePostingLimit = null;
@@ -273,6 +273,12 @@ namespace Serilog.Sinks.Elasticsearch
             this.FormatStackTraceAsArray = false;
             this.ConnectionPool = new SingleNodeConnectionPool(_defaultNode);
         }
+
+        /// <summary>
+        /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
+        /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
+        /// </summary>
+        public static string DefaultTypeName { get; } = "logevent";
 
         /// <summary>
         /// Configures the elasticsearch sink

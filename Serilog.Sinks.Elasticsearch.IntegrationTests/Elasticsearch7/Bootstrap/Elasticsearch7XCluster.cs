@@ -1,11 +1,7 @@
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
 
-namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Clusters
+namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch7.Bootstrap
 {
-	/// <summary>
-	/// Use this cluster for APIs that do writes. If they are however intrusive or long running consider IntrusiveOperationCluster
-	/// instead.
-	/// </summary>
 	public class Elasticsearch7XCluster : ClientTestClusterBase
 	{
 		public Elasticsearch7XCluster() : base(CreateConfiguration()) { }
