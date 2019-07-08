@@ -2,21 +2,20 @@ using System.Linq;
 using Elastic.Xunit.XunitPlumbing;
 using FluentAssertions;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
-using Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6.Bootstrap;
+using Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch7.Bootstrap;
 using Xunit;
 
-namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
+namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch7
 {
-    public class Elasticsearch6X : Elasticsearch6XTestBase, IClassFixture<Elasticsearch6X.SetupSerilog>
+    public class Elasticsearch7XUsing6X : Elasticsearch7XTestBase, IClassFixture<Elasticsearch7XUsing6X.SetupSerilog>
     {
         private readonly SetupSerilog _setup;
 
-        public Elasticsearch6X(Elasticsearch6XCluster cluster, SetupSerilog setup) : base(cluster) => _setup = setup;
-
+        public Elasticsearch7XUsing6X(Elasticsearch7XCluster cluster, SetupSerilog setup) : base(cluster) => _setup = setup;
 
         [I] public void AssertTemplate()
         {
-            var templateResponse = Client.GetIndexTemplate(t=>t.Name(SetupSerilog.TemplateName));
+            var templateResponse = Client.Indices.GetTemplate(SetupSerilog.TemplateName);
             templateResponse.TemplateMappings.Should().NotBeEmpty();
             templateResponse.TemplateMappings.Keys.Should().Contain(SetupSerilog.TemplateName);
 
@@ -27,22 +26,19 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
 
         [I] public void AssertLogs()
         {
-            var refreshed = Client.Refresh(SetupSerilog.IndexPrefix + "*");
+            var refreshed = Client.Indices.Refresh(SetupSerilog.IndexPrefix + "*");
 
-            var search = Client.Search<object>(s => s
-                .Index(SetupSerilog.IndexPrefix + "*")
-                .Type(ElasticsearchSinkOptions.DefaultTypeName)
-            );
+            var search = Client.Search<object>(s => s.Index(SetupSerilog.IndexPrefix + "*"));
 
             // Informational should be filtered
             search.Documents.Count().Should().Be(4);
         }
-
+        
         // ReSharper disable once ClassNeverInstantiated.Global
         public class SetupSerilog
         {
-            public const string IndexPrefix = "logs-6x-default-";
-            public const string TemplateName = "serilog-logs-6x";
+            public const string IndexPrefix = "logs-7x-using-6x";
+            public const string TemplateName = "serilog-logs-7x-using-6x";
 
             public SetupSerilog()
             {
@@ -52,20 +48,21 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
                     .WriteTo.Elasticsearch(
                         ElasticsearchSinkOptionsFactory.Create(IndexPrefix, TemplateName, o =>
                         {
+                            o.DetectElasticsearchVersion = true;
                             o.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6;
                             o.AutoRegisterTemplate = true;
                         })
                     );
-                var logger = loggerConfig.CreateLogger();
-
-                logger.Information("Hello Information");
-                logger.Debug("Hello Debug");
-                logger.Warning("Hello Warning");
-                logger.Error("Hello Error");
-                logger.Fatal("Hello Fatal");
-
-                logger.Dispose();
+                using (var logger = loggerConfig.CreateLogger())
+                {
+                    logger.Information("Hello Information");
+                    logger.Debug("Hello Debug");
+                    logger.Warning("Hello Warning");
+                    logger.Error("Hello Error");
+                    logger.Fatal("Hello Fatal");
+                }
             }
         }
+
     }
 }

@@ -1,18 +1,18 @@
 using System.Linq;
 using Elastic.Xunit.XunitPlumbing;
 using FluentAssertions;
+using ICSharpCode.SharpZipLib.Core;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6.Bootstrap;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
 {
-    public class Elasticsearch6X : Elasticsearch6XTestBase, IClassFixture<Elasticsearch6X.SetupSerilog>
+    public class Elasticsearch6XUsing7X : Elasticsearch6XTestBase, IClassFixture<Elasticsearch6XUsing7X.SetupSerilog>
     {
         private readonly SetupSerilog _setup;
 
-        public Elasticsearch6X(Elasticsearch6XCluster cluster, SetupSerilog setup) : base(cluster) => _setup = setup;
-
+        public Elasticsearch6XUsing7X(Elasticsearch6XCluster cluster, SetupSerilog setup) : base(cluster) => _setup = setup;
 
         [I] public void AssertTemplate()
         {
@@ -31,7 +31,7 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
 
             var search = Client.Search<object>(s => s
                 .Index(SetupSerilog.IndexPrefix + "*")
-                .Type(ElasticsearchSinkOptions.DefaultTypeName)
+                .Type("_doc")
             );
 
             // Informational should be filtered
@@ -41,8 +41,8 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
         // ReSharper disable once ClassNeverInstantiated.Global
         public class SetupSerilog
         {
-            public const string IndexPrefix = "logs-6x-default-";
-            public const string TemplateName = "serilog-logs-6x";
+            public const string IndexPrefix = "logs-6x-using-7x-";
+            public const string TemplateName = "serilog-logs-6x-using-7x";
 
             public SetupSerilog()
             {
@@ -52,7 +52,8 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
                     .WriteTo.Elasticsearch(
                         ElasticsearchSinkOptionsFactory.Create(IndexPrefix, TemplateName, o =>
                         {
-                            o.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6;
+                            o.DetectElasticsearchVersion = true;
+                            o.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
                             o.AutoRegisterTemplate = true;
                         })
                     );

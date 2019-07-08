@@ -37,7 +37,7 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch7
         // ReSharper disable once ClassNeverInstantiated.Global
         public class SetupSerilog
         {
-            public const string IndexPrefix = "logs-7x-";
+            public const string IndexPrefix = "logs-7x-default-";
             public const string TemplateName = "serilog-logs-7x";
 
             public SetupSerilog()

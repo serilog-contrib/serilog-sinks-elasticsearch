@@ -281,6 +281,27 @@ namespace Serilog.Sinks.Elasticsearch
         public static string DefaultTypeName { get; } = "logevent";
 
         /// <summary>
+        /// Instructs the sink to auto detect the running Elasticsearch version.
+        ///
+        /// <para>
+        /// This information is used to attempt to register an older or newer template
+        /// </para>
+        /// <para></para>
+        ///
+        /// <para>
+        /// Currently supports:
+        /// </para>
+        /// <para></para>
+        /// 
+        /// <para>
+        /// Currently supports:
+        /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv7"/> against <c> Elasticsearch 6.x </c>
+        /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv6"/> against <c> Elasticsearch 7.x </c>
+        /// </para>
+        /// </summary>
+        public bool DetectElasticsearchVersion { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink
         /// </summary>
         /// <param name="connectionPool">The connectionpool to use to write events to</param>

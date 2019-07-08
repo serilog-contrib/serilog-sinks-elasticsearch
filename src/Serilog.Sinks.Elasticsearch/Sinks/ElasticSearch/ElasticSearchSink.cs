@@ -39,6 +39,7 @@ namespace Serilog.Sinks.Elasticsearch
             : base(options.BatchPostingLimit, options.Period, options.QueueSizeLimit)
         {
             _state = ElasticsearchSinkState.Create(options);
+            _state.DiscoverClusterVersion();
             _state.RegisterTemplateIfNeeded();
         }
 

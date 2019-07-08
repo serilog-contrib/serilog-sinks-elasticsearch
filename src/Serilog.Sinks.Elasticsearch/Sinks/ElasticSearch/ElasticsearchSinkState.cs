@@ -14,9 +14,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
+using Elasticsearch.Net.Specification.CatApi;
 using Elasticsearch.Net.Specification.IndicesApi;
 using Serilog.Debugging;
 using Serilog.Events;
@@ -49,7 +51,12 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
+        private string _discoveredVersion;
 
+        public string DiscoveredVersion => _discoveredVersion;
+        private bool IncludeTypeName =>
+            (DiscoveredVersion?.StartsWith("7.") ?? false)
+            && _options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv6;
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -163,8 +170,11 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                Console.WriteLine(_client.Serializer.SerializeToString(GetTemplateData()));
-                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTempatePostData());
+                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTempatePostData(),
+                    new PutIndexTemplateRequestParameters
+                    {
+                        IncludeTypeName = IncludeTypeName ? true : (bool?) null
+                    });
 
                 if (!result.Success)
                 {
@@ -224,10 +234,29 @@ namespace Serilog.Sinks.Elasticsearch
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
             return ElasticsearchTemplateProvider.GetTemplate(
+                _options,
+                DiscoveredVersion,
                 settings,
                 _templateMatchString,
                 _options.AutoRegisterTemplateVersion);
 
+        }
+
+        public void DiscoverClusterVersion()
+        {
+            if (!_options.DetectElasticsearchVersion) return;
+            
+            var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
+            {   
+                Headers = new [] { "v"}
+            });
+            if (!response.Success) return;
+
+            _discoveredVersion = response.Body.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault();
+
+            if (_discoveredVersion?.StartsWith("7.") ?? false)
+                _options.TypeName = "_doc";
         }
     }
 }
