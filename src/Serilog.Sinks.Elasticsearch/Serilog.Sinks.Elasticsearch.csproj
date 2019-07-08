@@ -58,6 +58,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.1" />
     <PackageReference Include="Elasticsearch.Net" Version="7.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.5.1" />
   </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

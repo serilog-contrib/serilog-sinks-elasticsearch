@@ -12,6 +12,7 @@ using Serilog.Debugging;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 using Nest.JsonNetSerializer;
 using System.Collections;
+using System.Threading;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -135,7 +136,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
             public override TReturn Request<TReturn>(RequestData requestData)
             {
-                MemoryStream ms = new MemoryStream();
+                var ms = new MemoryStream();
                 if (requestData.PostData != null)
                     requestData.PostData.Write(ms, new ConnectionConfiguration());
 
@@ -154,6 +155,29 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
                 var responseStream = new MemoryStream();
                 return ResponseBuilder.ToResponse<TReturn>(requestData, null, this._templateExistReturnCode(), Enumerable.Empty<string>(), responseStream);
+            }
+
+            public override async Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
+            {
+                var ms = new MemoryStream();
+                if (requestData.PostData != null)
+                    await requestData.PostData.WriteAsync(ms, new ConnectionConfiguration(), cancellationToken);
+
+                switch (requestData.Method)
+                {
+                    case HttpMethod.PUT:
+                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                        break;
+                    case HttpMethod.POST:
+                        _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                        break;
+                    case HttpMethod.HEAD:
+                        _seenHttpHeads.Add(this._templateExistReturnCode());
+                        break;
+                }
+
+                var responseStream = new MemoryStream();
+                return await ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, this._templateExistReturnCode(), Enumerable.Empty<string>(), responseStream, null, cancellationToken);
             }
         }
     }
