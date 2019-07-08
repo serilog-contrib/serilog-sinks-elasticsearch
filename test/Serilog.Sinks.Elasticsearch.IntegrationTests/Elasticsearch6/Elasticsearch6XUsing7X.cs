@@ -1,7 +1,6 @@
 using System.Linq;
 using Elastic.Xunit.XunitPlumbing;
 using FluentAssertions;
-using ICSharpCode.SharpZipLib.Core;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6.Bootstrap;
 using Xunit;
