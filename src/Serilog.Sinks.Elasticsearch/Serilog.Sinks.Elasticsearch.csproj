@@ -28,11 +28,6 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <NoWarn>1591;1701;1702</NoWarn>
-    <DefineConstants>$(DefineConstants);DURABLE;THREADING_TIMER</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <NoWarn>1591;1701;1702</NoWarn>
     <DefineConstants>$(DefineConstants);DURABLE;THREADING_TIMER</DefineConstants>
@@ -41,11 +36,6 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <NoWarn>1591;1701;1702</NoWarn>
     <DefineConstants>$(DefineConstants);DURABLE;THREADING_TIMER;HRESULTS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
-    <NoWarn>1591;1701;1702</NoWarn>
-    <WarningsAsErrors>NU1605</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
