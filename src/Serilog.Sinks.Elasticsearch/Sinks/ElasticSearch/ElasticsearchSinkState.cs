@@ -170,7 +170,7 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTempatePostData(),
+                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
                     new PutIndexTemplateRequestParameters
                     {
                         IncludeTypeName = IncludeTypeName ? true : (bool?) null
@@ -201,7 +201,7 @@ namespace Serilog.Sinks.Elasticsearch
             }
         }
 
-        private PostData GetTempatePostData()
+        private PostData GetTemplatePostData()
         {
             //PostData no longer exposes an implict cast from object.  Previously it supported that and would inspect the object Type to
             //determine if it it was a litteral string to write directly or if it was an object that it needed to serialse.  Now the onus is 
