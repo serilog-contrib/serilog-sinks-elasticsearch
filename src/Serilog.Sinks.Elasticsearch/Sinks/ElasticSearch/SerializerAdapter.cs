@@ -53,7 +53,7 @@ using Serilog.Formatting.Elasticsearch;
 
          public string SerializeToString(object value)
         {
-            return _elasticsearchSerializer.SerializeToString(value, SerializationFormatting.None);
+            return _elasticsearchSerializer.SerializeToString(value, formatting: SerializationFormatting.None);
         }
     }
 } 

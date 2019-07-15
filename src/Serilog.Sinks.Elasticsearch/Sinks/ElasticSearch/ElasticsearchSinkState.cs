@@ -14,9 +14,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
+using Elasticsearch.Net.Specification.CatApi;
+using Elasticsearch.Net.Specification.IndicesApi;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -48,7 +51,12 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
+        private string _discoveredVersion;
 
+        public string DiscoveredVersion => _discoveredVersion;
+        private bool IncludeTypeName =>
+            (DiscoveredVersion?.StartsWith("7.") ?? false)
+            && _options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv6;
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -59,8 +67,17 @@ namespace Serilog.Sinks.Elasticsearch
         private ElasticsearchSinkState(ElasticsearchSinkOptions options)
         {
             if (string.IsNullOrWhiteSpace(options.IndexFormat)) throw new ArgumentException("options.IndexFormat");
-            if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
+
+            // Strip type argument if ESv7 since multiple types are not supported anymore
+            if (options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv7)
+            {
+                options.TypeName = "_doc";
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
+            }
 
             _templateName = options.TemplateName;
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
@@ -69,6 +86,7 @@ namespace Serilog.Sinks.Elasticsearch
             _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
 
             _options = options;
+
 
             var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, options.Serializer)
                 .RequestTimeout(options.ConnectionTimeout);
@@ -112,7 +130,7 @@ namespace Serilog.Sinks.Elasticsearch
 
         public string Serialize(object o)
         {
-            return _client.Serializer.SerializeToString(o, SerializationFormatting.None);
+            return _client.Serializer.SerializeToString(o, formatting: SerializationFormatting.None);
         }
 
         public string GetIndexForEvent(LogEvent e, DateTimeOffset offset)
@@ -140,7 +158,10 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 if (!_options.OverwriteTemplate)
                 {
-                    var templateExistsResponse = _client.IndicesExistsTemplateForAll<DynamicResponse>(_templateName);
+                    var templateExistsResponse = _client.Indices.TemplateExistsForAll<VoidResponse>(_templateName, new IndexTemplateExistsRequestParameters()
+                    {
+                        RequestConfiguration = new RequestConfiguration() { AllowedStatusCodes = new [] {200, 404} }
+                    });
                     if (templateExistsResponse.HttpStatusCode == 200)
                     {
                         TemplateRegistrationSuccess = true;
@@ -149,7 +170,11 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                var result = _client.IndicesPutTemplateForAll<DynamicResponse>(_templateName, GetTempatePostData());
+                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
+                    new PutIndexTemplateRequestParameters
+                    {
+                        IncludeTypeName = IncludeTypeName ? true : (bool?) null
+                    });
 
                 if (!result.Success)
                 {
@@ -176,7 +201,7 @@ namespace Serilog.Sinks.Elasticsearch
             }
         }
 
-        private PostData GetTempatePostData()
+        private PostData GetTemplatePostData()
         {
             //PostData no longer exposes an implict cast from object.  Previously it supported that and would inspect the object Type to
             //determine if it it was a litteral string to write directly or if it was an object that it needed to serialse.  Now the onus is 
@@ -209,10 +234,29 @@ namespace Serilog.Sinks.Elasticsearch
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
             return ElasticsearchTemplateProvider.GetTemplate(
+                _options,
+                DiscoveredVersion,
                 settings,
                 _templateMatchString,
                 _options.AutoRegisterTemplateVersion);
 
+        }
+
+        public void DiscoverClusterVersion()
+        {
+            if (!_options.DetectElasticsearchVersion) return;
+            
+            var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
+            {   
+                Headers = new [] { "v"}
+            });
+            if (!response.Success) return;
+
+            _discoveredVersion = response.Body.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault();
+
+            if (_discoveredVersion?.StartsWith("7.") ?? false)
+                _options.TypeName = "_doc";
         }
     }
 }
