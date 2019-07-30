@@ -34,7 +34,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         private static ILogger CreateLoggerThatCrashes()
         {
             var loggerConfig = new LoggerConfiguration()
-                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:31234"))
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9199"))
                 {
                     AutoRegisterTemplate = true,
                     TemplateName = "crash"

@@ -29,6 +29,8 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Automatically create the right mappings for the best usage of the log events in ES or automatically upload your own custom mapping.
 * Starting from version 3, compatible with Elasticsearch 2.
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
+* From version 8.x there is support for Elasticsearch.net version 7.
+
 
 ## Quick start
 

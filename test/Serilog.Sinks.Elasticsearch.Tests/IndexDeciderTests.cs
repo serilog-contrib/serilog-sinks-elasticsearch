@@ -7,7 +7,7 @@ using Serilog.Events;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
-{
+{ 
     public class IndexDeciderTests : ElasticsearchSinkTestsBase
     {
         [Fact]

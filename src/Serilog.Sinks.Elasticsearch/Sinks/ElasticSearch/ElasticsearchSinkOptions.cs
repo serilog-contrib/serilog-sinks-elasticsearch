@@ -159,7 +159,7 @@ namespace Serilog.Sinks.Elasticsearch
         public IElasticsearchSerializer Serializer { get; set; }
 
         /// <summary>
-        /// The connectionpool describing the cluster to write event to
+        /// The connection pool describing the cluster to write event to
         /// </summary>
         public IConnectionPool ConnectionPool { get; private set; }
 
@@ -248,13 +248,18 @@ namespace Serilog.Sinks.Elasticsearch
         public int? BufferFileCountLimit { get; set; }
 
         /// <summary>
+        /// When set to true splits the StackTrace by new line and writes it as a an array of strings.
+        /// </summary>
+        public bool FormatStackTraceAsArray { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         public ElasticsearchSinkOptions()
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
             this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
-            this.TypeName = "logevent";
+            this.TypeName = DefaultTypeName;
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.SingleEventSizePostingLimit = null;
@@ -265,7 +270,36 @@ namespace Serilog.Sinks.Elasticsearch
             this.QueueSizeLimit = 100000;
             this.BufferFileCountLimit = 31;
             this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
+            this.FormatStackTraceAsArray = false;
+            this.ConnectionPool = new SingleNodeConnectionPool(_defaultNode);
         }
+
+        /// <summary>
+        /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
+        /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
+        /// </summary>
+        public static string DefaultTypeName { get; } = "logevent";
+
+        /// <summary>
+        /// Instructs the sink to auto detect the running Elasticsearch version.
+        ///
+        /// <para>
+        /// This information is used to attempt to register an older or newer template
+        /// </para>
+        /// <para></para>
+        ///
+        /// <para>
+        /// Currently supports:
+        /// </para>
+        /// <para></para>
+        /// 
+        /// <para>
+        /// Currently supports:
+        /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv7"/> against <c> Elasticsearch 6.x </c>
+        /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv6"/> against <c> Elasticsearch 7.x </c>
+        /// </para>
+        /// </summary>
+        public bool DetectElasticsearchVersion { get; set; }
 
         /// <summary>
         /// Configures the elasticsearch sink
@@ -284,13 +318,13 @@ namespace Serilog.Sinks.Elasticsearch
         public ElasticsearchSinkOptions(IEnumerable<Uri> nodes)
             : this()
         {
-            nodes = nodes != null && nodes.Any(n => n != null)
-                ? nodes.Where(n => n != null)
-                : new[] { new Uri("http://localhost:9200") };
-            if (nodes.Count() == 1)
-                ConnectionPool = new SingleNodeConnectionPool(nodes.First());
+            var materialized = nodes?.Where(n => n != null).ToArray();
+            if (materialized == null || materialized.Length == 0)
+                materialized = new[] { _defaultNode };
+            if (materialized.Length == 1)
+                ConnectionPool = new SingleNodeConnectionPool(materialized.First());
             else
-                ConnectionPool = new StaticConnectionPool(nodes);
+                ConnectionPool = new StaticConnectionPool(materialized);
         }
 
         /// <summary>
@@ -298,6 +332,8 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="node">The node to write to</param>
         public ElasticsearchSinkOptions(Uri node) : this(new[] { node }) { }
+
+        private readonly Uri _defaultNode = new Uri("http://localhost:9200");
     }
 
     /// <summary>

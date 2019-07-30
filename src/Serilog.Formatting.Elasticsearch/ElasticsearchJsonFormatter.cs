@@ -18,8 +18,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if !NO_SERIALIZATION
 using System.Runtime.Serialization;
-using Elasticsearch.Net;
+#endif
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -30,8 +31,9 @@ namespace Serilog.Formatting.Elasticsearch
     /// </summary>
     public class ElasticsearchJsonFormatter : DefaultJsonFormatter
     {
-        readonly IElasticsearchSerializer _serializer;
+        readonly ISerializer _serializer;
         readonly bool _inlineFields;
+        readonly bool _formatStackTraceAsArray;
 
         /// <summary>
         /// Render message property name
@@ -70,18 +72,21 @@ namespace Serilog.Formatting.Elasticsearch
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
         /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
         /// property named RenderedMessageTemplate.</param>
+        /// <param name="formatStackTraceAsArray">If true, splits the StackTrace by new line and writes it as a an array of strings</param>
         public ElasticsearchJsonFormatter(
             bool omitEnclosingObject = false,
             string closingDelimiter = null,
             bool renderMessage = true,
             IFormatProvider formatProvider = null,
-            IElasticsearchSerializer serializer = null,
+            ISerializer serializer = null,
             bool inlineFields = false,
-            bool renderMessageTemplate = true)
+            bool renderMessageTemplate = true,
+            bool formatStackTraceAsArray = false)
             : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, renderMessageTemplate)
         {
             _serializer = serializer;
             _inlineFields = inlineFields;
+            _formatStackTraceAsArray = formatStackTraceAsArray;
         }
 
         /// <summary>
@@ -219,8 +224,16 @@ namespace Serilog.Formatting.Elasticsearch
             this.WriteJsonProperty("ClassName", className, ref delim, output);
             this.WriteJsonProperty("Message", exception.Message, ref delim, output);
             this.WriteJsonProperty("Source", source, ref delim, output);
-            this.WriteJsonProperty("StackTraceString", stackTrace, ref delim, output);
-            this.WriteJsonProperty("RemoteStackTraceString", remoteStackTrace, ref delim, output);
+            if (_formatStackTraceAsArray)
+            {
+                this.WriteMultilineString("StackTrace", stackTrace, ref delim, output);
+                this.WriteMultilineString("RemoteStackTrace", stackTrace, ref delim, output);
+            }
+            else
+            {
+                this.WriteJsonProperty("StackTraceString", stackTrace, ref delim, output);
+                this.WriteJsonProperty("RemoteStackTraceString", remoteStackTrace, ref delim, output);
+            }
             this.WriteJsonProperty("RemoteStackIndex", remoteStackIndex, ref delim, output);
             this.WriteStructuredExceptionMethod(exceptionMethod, ref delim, output);
             this.WriteJsonProperty("HResult", hresult, ref delim, output);
@@ -230,7 +243,12 @@ namespace Serilog.Formatting.Elasticsearch
             //JsonNET assumes string, simplejson writes array of numerics.
             //Skip for now
             //this.WriteJsonProperty("WatsonBuckets", watsonBuckets, ref delim, output);
+        }
 
+        private void WriteMultilineString(string name, string value, ref string delimeter, TextWriter output)
+        {
+            string[] lines = value.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            WriteJsonArrayProperty(name, lines, ref delimeter, output);
         }
 
         private void WriteStructuredExceptionMethod(string exceptionMethodString, ref string delim, TextWriter output)
@@ -306,7 +324,7 @@ namespace Serilog.Formatting.Elasticsearch
         {
             if (_serializer != null)
             {
-                string jsonString = _serializer.SerializeToString(value, SerializationFormatting.None);
+                string jsonString = _serializer.SerializeToString(value);
                 output.Write(jsonString);
                 return;
             }

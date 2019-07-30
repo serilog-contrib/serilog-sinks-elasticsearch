@@ -1,5 +1,11 @@
 ## Changelog
 
+8.0
+ * Adds Elasticsearch 7.0 support #256
+ * Adds DetectElasticsearchVersion to the sink that will detect the running cluster version. Something we now use to support sending Esv6 templates to Elasticsearch 7.x and Esv7 templates to Elasticsearch 6.x which should simplify upgrades.
+ * Adds an integration test project. Spins up a 6.x and 7.x elasticsearch single node cluster in succession and asserts the default and the mixed mode through DetectElasticsearchVersion works.
+ * Dropped support for net45 and netstandard 1.3
+
 7.1
  * DurableElasticsearchSink is rewritten to use the same base code as the sink for Serilog.Sinks.Seq. Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile. Lots of new fintuning options for file storage is added in ElasticsearchSinkOptions.  Updated  Serilog.Sinks.Elasticsearch.Sample.Main with SetupLoggerWithPersistantStorage with all available options for durable mode.
  * Changed datatype on singleEventSizePostingLimit  from int to long? with default value null. to make it possible ro reuse code from Sinks.Seq .

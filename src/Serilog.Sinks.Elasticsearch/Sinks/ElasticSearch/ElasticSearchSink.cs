@@ -39,6 +39,7 @@ namespace Serilog.Sinks.Elasticsearch
             : base(options.BatchPostingLimit, options.Period, options.QueueSizeLimit)
         {
             _state = ElasticsearchSinkState.Create(options);
+            _state.DiscoverClusterVersion();
             _state.RegisterTemplateIfNeeded();
         }
 
@@ -71,7 +72,7 @@ namespace Serilog.Sinks.Elasticsearch
                 var items = result.Body["items"];
                 foreach (var item in items)
                 {
-                    if (item.index != null && item.index.error != null)
+                    if (item["index"] != null && item["index"]["error"] != null)
                     {
                         var e = events.ElementAt(indexer);
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
@@ -80,8 +81,8 @@ namespace Serilog.Sinks.Elasticsearch
                             SelfLog.WriteLine(
                                 "Failed to store event with template '{0}' into Elasticsearch. Elasticsearch reports for index {1} the following: {2}",
                                 e.MessageTemplate,
-                                item.index._index,
-                                item.index.error);
+                                item["index"]["_index"],
+                                _state.Serialize(item["index"]["error"]));
                         }
 
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
