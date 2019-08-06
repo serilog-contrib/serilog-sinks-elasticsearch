@@ -85,7 +85,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             bool hasErrors = false;
             foreach (dynamic item in items)
             {
-                long? status = item.index?.status;
+                var indexedItem = item["index"];
+                long? status = indexedItem?["status"];
                 i++;
                 if (!status.HasValue || status < 300)
                 {
@@ -93,22 +94,23 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 }
 
                 hasErrors = true;
-                var id = item.index?._id;
-                var error = item.index?.error;
+                var id = indexedItem?["_id"];
+                var error = indexedItem?["error"];
+                var errorMessage = string.Format("{0}: {1}", error?["type"], error?["reason"]);
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
-                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, error?.ToString(), payload.ElementAt(index * 2 + 1));
+                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, errorMessage, payload.ElementAt(index * 2 + 1));
                     badPayload.Add(payload.ElementAt(index * 2));
                     badPayload.Add(payload.ElementAt(index * 2 + 1));
                     if (_cleanPayload != null)
                     {
                         cleanPayload.Add(payload.ElementAt(index * 2));
-                        cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, error?.ToString()));
+                        cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, errorMessage));
                     }
                 }
                 else
                 {
-                    SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {error?.ToString()}.");
+                    SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {errorMessage}.");
                 }
             }
 
@@ -121,5 +123,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 BadPayLoad = String.Join(Environment.NewLine, badPayload)
             };
         }
+
+
     }
 }
