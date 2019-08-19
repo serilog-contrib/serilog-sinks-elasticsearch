@@ -35,7 +35,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             return await SendPayloadAsync(payload, true);
         }
 
-        public async Task<SentPayloadResult> SendPayloadAsync(List<string> payload,bool first)
+        public async Task<SentPayloadResult> SendPayloadAsync(List<string> payload, bool first)
         {
             try
             {
@@ -45,10 +45,10 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 if (response.Success)
                 {
                     var cleanPayload = new List<string>();
-                    var invalidPayload = GetInvalidPayloadAsync(response, payload,out cleanPayload);
-                    if ((cleanPayload?.Any() ?? false) && first)
+                    var invalidPayload = GetInvalidPayloadAsync(response, payload, out cleanPayload);
+                    if ((cleanPayload?.Any() == false) && first)
                     {
-                        await SendPayloadAsync(cleanPayload,false);
+                        await SendPayloadAsync(cleanPayload, false);
                     }
 
                     return new SentPayloadResult(response, true, invalidPayload);
@@ -85,7 +85,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             bool hasErrors = false;
             foreach (dynamic item in items)
             {
-                long? status = item.index?.status;
+                var itemIndex = item?["index"];
+                long? status = itemIndex?["status"];
                 i++;
                 if (!status.HasValue || status < 300)
                 {
@@ -93,8 +94,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 }
 
                 hasErrors = true;
-                var id = item.index?._id;
-                var error = item.index?.error;
+                var id = itemIndex?["_id"];
+                var error = itemIndex?["error"];
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
                     SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, error?.ToString(), payload.ElementAt(index * 2 + 1));
