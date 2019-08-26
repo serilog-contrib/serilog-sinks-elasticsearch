@@ -193,3 +193,4 @@ project.lock.json
 # JetBrains Rider
 .idea/
 *.sln.iml
+/.ionide/symbolCache.db

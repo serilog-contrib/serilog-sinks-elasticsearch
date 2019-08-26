@@ -72,7 +72,7 @@ namespace Serilog.Sinks.Elasticsearch
                 var items = result.Body["items"];
                 foreach (var item in items)
                 {
-                    if (item["index"] != null && item["index"]["error"] != null)
+                    if (item["index"] != null && HasProperty(item["index"], "error") && item["index"]["error"] != null)
                     {
                         var e = events.ElementAt(indexer);
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
@@ -218,6 +218,18 @@ namespace Serilog.Sinks.Elasticsearch
             }
             if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.ThrowException))
                 throw ex;
+        }
+
+        // Helper function: checks if a given dynamic member / dictionary key exists at runtime
+        private static bool HasProperty(dynamic settings, string name)
+        {
+            if (settings is System.Dynamic.ExpandoObject)
+                return ((IDictionary<string, object>)settings).ContainsKey(name);
+            
+            if (settings is System.Dynamic.DynamicObject)
+                return ((System.Dynamic.DynamicObject)settings).GetDynamicMemberNames().Contains(name);
+
+            return settings.GetType().GetProperty(name) != null;
         }
     }
 }
