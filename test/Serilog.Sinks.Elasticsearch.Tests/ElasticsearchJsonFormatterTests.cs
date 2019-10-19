@@ -19,7 +19,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             DateTimeOffset.Now,
             LogEventLevel.Debug,
            //exception: CreateThrownException(),
-           exception: null,
+            exception: null,
             messageTemplate: new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()),
             properties: Enumerable.Empty<LogEventProperty>()
         );
@@ -55,12 +55,26 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             throw new Exception("Test inner exception message");
         }
 
-        static LogEvent CreateLogEventWithException() =>
+        static Exception CreateThrownExceptionWithNotThrownInner()
+        {
+            Exception retEx = null;
+            try
+            {
+                throw new Exception("Test exception message", new Exception("Test inner exception message"));
+            }
+            catch (Exception ex)
+            {
+                retEx = ex;
+            }
+            return retEx;
+        }
+
+        static LogEvent CreateLogEventWithException(Exception ex) =>
         new LogEvent
         (
             DateTimeOffset.Now,
             LogEventLevel.Debug,
-            exception: CreateThrownException(),
+            exception: ex,
             messageTemplate: new MessageTemplate(Enumerable.Empty<MessageTemplateToken>()),
             properties: Enumerable.Empty<LogEventProperty>()
         );
@@ -181,7 +195,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         public void DefaultJsonFormater_Should_Render_Exceptions()
         {
             CheckProperties(
-                CreateLogEventWithException,
+                () => CreateLogEventWithException(CreateThrownException()),
                 new ElasticsearchJsonFormatter(),
                 result =>
                 {
@@ -205,11 +219,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 });
         }
 
-        [Fact]
-        public void DefaultJsonFormater_Should_Render_Exceptions_With_StackTrace_As_Array()
+        [Theory]
+        [MemberData(nameof(TestExceptions))]
+        public void DefaultJsonFormater_Should_Render_Exceptions_With_StackTrace_As_Array(Exception exception)
         {
             CheckProperties(
-                CreateLogEventWithException,
+                () => CreateLogEventWithException(exception),
                 new ElasticsearchJsonFormatter(formatStackTraceAsArray: true),
                 result =>
                 {
@@ -232,5 +247,13 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                     Assert.StartsWith("[", stackTraceValue);
                 });
         }
+
+        public static IEnumerable<object[]> TestExceptions =>
+            new List<object[]>
+            {
+                new object[] { CreateThrownException() },
+                new object[] { CreateThrownExceptionWithNotThrownInner() },
+                new object[] { new Exception("Not thrown exception message") }
+            };
     }
 }
