@@ -63,7 +63,7 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.batchPostingLimit" value="50"/>
     <add key="serilog:write-to:Elasticsearch.period" value="2"/>
     <add key="serilog:write-to:Elasticsearch.inlineFields" value="true"/>
-    <add key="serilog:write-to:Elasticsearch.minimumLogEventLevel" value="Warning"/>
+    <add key="serilog:write-to:Elasticsearch.restrictedToMinimumLevel" value="Warning"/>
     <add key="serilog:write-to:Elasticsearch.bufferBaseFilename" value="C:\Temp\SerilogElasticBuffer"/>
     <add key="serilog:write-to:Elasticsearch.bufferFileSizeLimitBytes" value="5242880"/>
     <add key="serilog:write-to:Elasticsearch.bufferLogShippingInterval" value="5000"/>
@@ -182,7 +182,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "batchPostingLimit": 50,
           "period": 2000,
           "inlineFields": true,
-          "minimumLogEventLevel": "Warning",
+          "restrictedToMinimumLevel": "Warning",
           "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,

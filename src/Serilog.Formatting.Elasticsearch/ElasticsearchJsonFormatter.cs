@@ -247,7 +247,7 @@ namespace Serilog.Formatting.Elasticsearch
 
         private void WriteMultilineString(string name, string value, ref string delimeter, TextWriter output)
         {
-            string[] lines = value.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = value?.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries) ?? new string[] { };
             WriteJsonArrayProperty(name, lines, ref delimeter, output);
         }
 
