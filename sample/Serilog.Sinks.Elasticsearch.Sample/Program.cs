@@ -26,24 +26,55 @@ namespace Serilog.Sinks.Elasticsearch.Sample
         static void Main(string[] args)
         {
 
+            // Create Serilog Elasticsearch logger
+            Log.Logger = new LoggerConfiguration()
+               //.Enrich.With<MachineNameEnricher>()
+               .Enrich.WithProperty("Version", "v1")
+               .Enrich.WithProperty("Application", "YourAppName")
+               .Enrich.WithProperty("HostName", Environment.MachineName)
+               .Enrich
+               .FromLogContext()
+               .MinimumLevel.Warning()
+               .MinimumLevel.Override("Serilog", LogEventLevel.Information)
+               .MinimumLevel.Override("JorJika", LogEventLevel.Information)
+               .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://test.elklog.pashabank.ge:9200"))
+               {
+                   //MinimumLogEventLevel = LogEventLevel.Warning,
+                   AutoRegisterTemplate = true,
+                   AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                   OverwriteTemplate = true,
+                   NumberOfReplicas = 0,
+                   NumberOfShards = 1,
+                   IndexAliases = new string[] { "yourapp" },
+                   IndexFormat = "log-yourapp-{0:yyyy.MM}"
+               })
+               .CreateLogger();
+
             // Enable the selflog output
             SelfLog.Enable(Console.Error);
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console(theme: SystemConsoleTheme.Literate)
-                                //not persistant
-                                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration.GetConnectionString("elasticsearch"))) // for the docker-compose implementation
-                                {
-                                    AutoRegisterTemplate = true,
-                                    //BufferBaseFilename = "./buffer",
-                                    RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway,
-                                    FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
-                                    EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
-                                                       EmitEventFailureHandling.WriteToFailureSink |
-                                                       EmitEventFailureHandling.RaiseCallback,
-                                    FailureSink = new FileSink("./fail-{Date}.txt", new JsonFormatter(), null, null)
-                                })
-                    .CreateLogger();
+
+
+
+            Log.Logger.Information("Hi");
+            Log.Information("Hello, world!");
+            Console.ReadLine();
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.Debug()
+            //    .WriteTo.Console(theme: SystemConsoleTheme.Literate)
+            //                    //not persistant
+            //                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration.GetConnectionString("elasticsearch"))) // for the docker-compose implementation
+            //                    {
+            //                        AutoRegisterTemplate = true,
+            //                        //BufferBaseFilename = "./buffer",
+            //                        RegisterTemplateFailure = RegisterTemplateRecovery.IndexAnyway,
+            //                        FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
+            //                        EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
+            //                                           EmitEventFailureHandling.WriteToFailureSink |
+            //                                           EmitEventFailureHandling.RaiseCallback,
+            //                        FailureSink = new FileSink("./fail-{Date}.txt", new JsonFormatter(), null, null)
+            //                    })
+            //        .CreateLogger();
 
             //SetupLoggerWithSimplePersistantStorage();
             //LoggingLevelSwitch levelSwitch = SetupLoggerWithPersistantStorage();

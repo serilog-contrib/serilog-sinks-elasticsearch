@@ -159,11 +159,22 @@ namespace Serilog.Sinks.Elasticsearch
             };
             mappings = discoveredVersion?.StartsWith("6.") ?? false ? new { _doc = mappings } : mappings;
 
+            Dictionary<string, object> aliases = new Dictionary<string, object>();
+
+            if (options.IndexAliases?.Length > 0)
+                foreach (var alias in options.IndexAliases)
+                {
+                    //Added blank object for alias to make look like this in JSON:
+                    //"alias_1" : {}
+                    aliases.Add(alias, new object());
+                }
+
             return new
             {
-                index_patterns = new[] {templateMatchString},
+                index_patterns = new[] { templateMatchString },
                 settings = settings,
-                mappings = mappings
+                mappings = mappings,
+                aliases = aliases,
             };
         }
 

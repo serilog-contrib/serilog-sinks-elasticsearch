@@ -61,8 +61,8 @@ namespace Serilog
 
             return loggerSinkConfiguration.Sink(
                 sink,
-                restrictedToMinimumLevel : options.MinimumLogEventLevel ?? LevelAlias.Minimum,
-                levelSwitch : options.LevelSwitch
+                restrictedToMinimumLevel: options.MinimumLogEventLevel ?? LevelAlias.Minimum,
+                levelSwitch: options.LevelSwitch
             );
         }
 
@@ -101,7 +101,7 @@ namespace Serilog
            LoggingLevelSwitch levelSwitch)
         {
             return Elasticsearch(loggerSinkConfiguration, nodeUris, indexFormat, templateName, typeName, batchPostingLimit, period, inlineFields, restrictedToMinimumLevel, bufferBaseFilename,
-                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false, 
+                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false,
                 AutoRegisterTemplateVersion.ESv2, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
         }
 
@@ -134,6 +134,7 @@ namespace Serilog
         /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/>Optionally set this value to the name of the index that should be used when the template cannot be written to ES.</param>  
         /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/>The default number of shards.</param>   
         /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/>The default number of replicas.</param>
+        /// <param name="indexAliases">Index aliases, default is blank</param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="connection">Allows you to override the connection used to communicate with elasticsearch.</param>
         /// <param name="serializer">When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation</param>
@@ -155,7 +156,7 @@ namespace Serilog
             bool inlineFields = false,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string bufferBaseFilename = null,
-            long? bufferFileSizeLimitBytes = null,            
+            long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
             LoggingLevelSwitch levelSwitch = null,
@@ -170,6 +171,7 @@ namespace Serilog
             string deadLetterIndexName = null,
             int? numberOfShards = null,
             int? numberOfReplicas = null,
+            string[] indexAliases = null,
             IFormatProvider formatProvider = null,
             IConnection connection = null,
             IElasticsearchSerializer serializer = null,

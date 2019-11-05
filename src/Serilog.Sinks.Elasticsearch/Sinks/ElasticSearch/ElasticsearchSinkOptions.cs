@@ -76,6 +76,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public int? NumberOfReplicas { get; set; }
 
+        /// <summary>
+        /// Index aliases. Used in rollover jobs and etc.
+        /// Tested and works with ElasticSearch 7.x
+        /// </summary>
+        public string[] IndexAliases { get; set; }
+
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
