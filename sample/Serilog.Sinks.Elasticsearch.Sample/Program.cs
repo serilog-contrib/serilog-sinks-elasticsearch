@@ -37,7 +37,7 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                .MinimumLevel.Warning()
                .MinimumLevel.Override("Serilog", LogEventLevel.Information)
                .MinimumLevel.Override("JorJika", LogEventLevel.Information)
-               .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://test.elklog.pashabank.ge:9200"))
+               .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://127.0.0.1:9200"))
                {
                    //MinimumLogEventLevel = LogEventLevel.Warning,
                    AutoRegisterTemplate = true,
