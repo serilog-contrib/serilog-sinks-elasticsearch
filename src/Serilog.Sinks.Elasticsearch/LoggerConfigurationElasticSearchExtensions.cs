@@ -134,7 +134,7 @@ namespace Serilog
         /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/>Optionally set this value to the name of the index that should be used when the template cannot be written to ES.</param>  
         /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/>The default number of shards.</param>   
         /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/>The default number of replicas.</param>
-        /// <param name="indexAliases">Index aliases, default is blank</param>
+        /// <param name="indexAliases">Index aliases, default is null</param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="connection">Allows you to override the connection used to communicate with elasticsearch.</param>
         /// <param name="serializer">When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation</param>

@@ -161,6 +161,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             Dictionary<string, object> aliases = new Dictionary<string, object>();
 
+            //If index alias or aliases are specified
             if (options.IndexAliases?.Length > 0)
                 foreach (var alias in options.IndexAliases)
                 {

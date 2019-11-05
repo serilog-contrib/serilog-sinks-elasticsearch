@@ -79,6 +79,8 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Index aliases. Used in rollover jobs and etc.
         /// Tested and works with ElasticSearch 7.x
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to set index aliases.
+        /// If not provided, index aliases will be blank.
         /// </summary>
         public string[] IndexAliases { get; set; }
 
