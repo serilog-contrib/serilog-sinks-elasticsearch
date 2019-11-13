@@ -257,6 +257,7 @@ namespace Serilog
             options.OverwriteTemplate = overwriteTemplate;
             options.NumberOfShards = numberOfShards;
             options.NumberOfReplicas = numberOfReplicas;
+            options.IndexAliases = indexAliases;
 
             if (!string.IsNullOrWhiteSpace(deadLetterIndexName))
             {
