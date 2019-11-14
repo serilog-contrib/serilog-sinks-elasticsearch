@@ -77,7 +77,7 @@ namespace Serilog.Sinks.Elasticsearch
         public int? NumberOfReplicas { get; set; }
 
         /// <summary>
-        /// Index aliases. Used in rollover jobs and etc.
+        /// Index aliases. Sets alias/aliases to an index in elasticsearch.
         /// Tested and works with ElasticSearch 7.x
         /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to set index aliases.
         /// If not provided, index aliases will be blank.

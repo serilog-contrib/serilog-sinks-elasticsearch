@@ -14,6 +14,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         {
             _options.AutoRegisterTemplate = true;
             _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
+            _options.IndexAliases = new string[] { "logstash" };
 
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()

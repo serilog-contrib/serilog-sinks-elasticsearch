@@ -72,5 +72,7 @@
             }
         }
     },
-    "aliases": {}
+    "aliases": {
+        "logstash": {}
+    }
 }
