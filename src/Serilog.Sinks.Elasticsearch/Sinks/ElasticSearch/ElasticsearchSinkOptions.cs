@@ -278,7 +278,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
         /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
         /// </summary>
-        public static string DefaultTypeName { get; } = "logevent";
+        public static string DefaultTypeName { get; } = "_doc";
 
         /// <summary>
         /// Instructs the sink to auto detect the running Elasticsearch version.
