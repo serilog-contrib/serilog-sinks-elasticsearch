@@ -76,6 +76,14 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public int? NumberOfReplicas { get; set; }
 
+        /// <summary>
+        /// Index aliases. Sets alias/aliases to an index in elasticsearch.
+        /// Tested and works with ElasticSearch 7.x
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to set index aliases.
+        /// If not provided, index aliases will be blank.
+        /// </summary>
+        public string[] IndexAliases { get; set; }
+
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
