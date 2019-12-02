@@ -13,6 +13,7 @@ only_commits:
     - src/Serilog.Sinks.Elasticsearch/
     - src/Serilog.Formatting.Elasticsearch/
     - nuget.config
+    - appveyor.yml
     - Build.ps1
     - assets/
     - test/Serilog.Sinks.Elasticsearch.Tests/
