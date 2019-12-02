@@ -37,8 +37,4 @@
     <DefineConstants>$(DefineConstants);NO_SERIALIZATION</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
-  </ItemGroup>
-    
 </Project>
