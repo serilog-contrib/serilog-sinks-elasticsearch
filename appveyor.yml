@@ -31,7 +31,7 @@ deploy:
   artifact: /Serilog.*\.nupkg/
   tag: v$(appveyor_build_version)
 install:
-  - choco install gitversion.portable -y
+  - choco install gitversion.portable -y --pre
 assembly_info:
   patch: false
 before_build:
