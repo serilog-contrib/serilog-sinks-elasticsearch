@@ -40,7 +40,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink in code or using the appSettings reader (from v2.0.42+) as shown below.
+Register the sink in code or using the appSettings reader (from v2.0.42+) as shown below. Make sure to specify the version of ES you are targeting. Be aware that the AutoRegisterTemplate option will not overwrite an existing template.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
@@ -90,7 +90,7 @@ This example shows the options that are currently available when using the appSe
   </appSettings>
 ```
 
-With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to seperate them. All other properties are optional. Also required is the `<add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>` setting to include this sink. All other properties are optional. If you do not explicitly specify an indexFormat-setting, a generic index such as 'logstash-[current_date]' will be used automatically.
+With the appSettings configuration the `nodeUris` property is required. Multiple nodes can be specified using `,` or `;` to separate them. All other properties are optional. Also required is the `<add key="serilog:using" value="Serilog.Sinks.Elasticsearch"/>` setting to include this sink. All other properties are optional. If you do not explicitly specify an indexFormat-setting, a generic index such as 'logstash-[current_date]' will be used automatically.
 
 And start writing your events using Serilog.
 
@@ -134,7 +134,7 @@ In order to avoid a potentially deeply nested JSON structure for exceptions with
 by default the logged exception and it's inner exception is logged as an array of exceptions in the field `exceptions`. Use the 'Depth' field to traverse the inner exceptions flow.
 
 However, not all features in Kibana work just as well with JSON arrays - for instance, including
-exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsObjectJsonFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behaviour of the sink before version 2.
+exception fields on dashboards and visualizations. Therefore, we provide an alternative formatter,  `ExceptionAsObjectJsonFormatter`, which will serialize the exception into the `exception` field as an object with nested `InnerException` properties. This was also the default behavior of the sink before version 2.
 
 To use it, simply specify it as the `CustomFormatter` when creating the sink:
 
@@ -183,7 +183,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "period": 2000,
           "inlineFields": true,
           "restrictedToMinimumLevel": "Warning",
-          "bufferBaseFilename":  "C:/Temp/LogDigipolis/docker-elk-serilog-web-buffer",
+          "bufferBaseFilename":  "C:/Temp/docker-elk-serilog-web-buffer",
           "bufferFileSizeLimitBytes": 5242880,
           "bufferLogShippingInterval": 5000,
           "bufferRetainedInvalidPayloadsLimitBytes": 5000,
@@ -216,7 +216,7 @@ See the XML `<appSettings>` example above for a discussion of available `Args` o
 
 ### Handling errors
 
-From version 5.5 you have the option to specify how to handle issues with Elasticsearch. Since the sink delivers in a batch, it might be possible that one or more events could actually not be stored in the Elasticseach store.
+From version 5.5 you have the option to specify how to handle issues with Elasticsearch. Since the sink delivers in a batch, it might be possible that one or more events could actually not be stored in the Elasticsearch store.
 Can be a mapping issue for example. It is hard to find out what happened here. There is a new option called *EmitEventFailure* which is an enum (flagged) with the following options:
 
 * WriteToSelfLog, the default option in which the errors are written to the SelfLog.
@@ -285,7 +285,7 @@ Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which th
 
 Starting from version 6, the sink has been upgraded to work with Elasticsearch 6.0 and has support for the new templates used by ES 6.
 
-If you use the `AutoRegisterTemplate` option, you need to set the `AutoRegisterTemplateVersion` option to `ESv6` in order to generate default templates that are compatible with the breaking changes in ES 6.
+> If you use the `AutoRegisterTemplate` option, you need to set the `AutoRegisterTemplateVersion` option to `ESv6` in order to generate default templates that are compatible with the breaking changes in ES 6.
 
 #### Version 4
 
