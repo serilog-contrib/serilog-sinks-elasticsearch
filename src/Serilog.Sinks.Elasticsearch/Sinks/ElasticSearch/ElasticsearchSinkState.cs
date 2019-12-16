@@ -82,8 +82,8 @@ namespace Serilog.Sinks.Elasticsearch
             _templateName = options.TemplateName;
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
 
-            _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
-            _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
+            _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset).ToLowerInvariant());
+            _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset).ToLowerInvariant());
 
             _options = options;
 
