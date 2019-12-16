@@ -1,5 +1,9 @@
 ## Changelog
 
+8.1 
+ * Updated sample to use .NET 2.1 and ES 7.5
+ * Change default TypeName to '_doc' #298
+
 8.0
  * Adds Elasticsearch 7.0 support #256
  * Adds DetectElasticsearchVersion to the sink that will detect the running cluster version. Something we now use to support sending Esv6 templates to Elasticsearch 7.x and Esv7 templates to Elasticsearch 6.x which should simplify upgrades.

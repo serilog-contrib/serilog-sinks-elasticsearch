@@ -35,8 +35,10 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Configuration.GetConnectionString("elasticsearch"))) // for the docker-compose implementation
                 {
                     AutoRegisterTemplate = true,
+                    OverwriteTemplate = true,
                     DetectElasticsearchVersion = true,
-                    NumberOfReplicas = 0,
+                    AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7,
+                    NumberOfReplicas = 1,
                     NumberOfShards = 2,
                     //BufferBaseFilename = "./buffer",
                     RegisterTemplateFailure = RegisterTemplateRecovery.FailSink,
