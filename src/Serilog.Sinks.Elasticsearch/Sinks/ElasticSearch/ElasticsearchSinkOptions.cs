@@ -92,6 +92,7 @@ namespace Serilog.Sinks.Elasticsearch
         ///<summary>
         /// The index name formatter. A string.Format using the DateTimeOffset of the event is run over this string.
         /// defaults to "logstash-{0:yyyy.MM.dd}"
+        /// Needs to be lowercased.
         /// </summary>
         public string IndexFormat { get; set; }
 
@@ -286,7 +287,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
         /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
         /// </summary>
-        public static string DefaultTypeName { get; } = "logevent";
+        public static string DefaultTypeName { get; } = "_doc";
 
         /// <summary>
         /// Instructs the sink to auto detect the running Elasticsearch version.
@@ -382,7 +383,7 @@ namespace Serilog.Sinks.Elasticsearch
         IndexAnyway = 1,
 
         ///// <summary>
-        ///// Keep buffering the data until it is written. be aware you might hit a limit here.
+        ///// Keep buffering the data until it is written. be aware you might hit a limit here.                  
         ///// </summary>
         //BufferUntilSuccess = 2,
 

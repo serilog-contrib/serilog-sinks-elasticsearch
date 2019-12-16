@@ -82,8 +82,8 @@ namespace Serilog.Sinks.Elasticsearch
             _templateName = options.TemplateName;
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
 
-            _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
-            _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset));
+            _indexDecider = options.IndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset).ToLowerInvariant());
+            _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset).ToLowerInvariant());
 
             _options = options;
 
@@ -203,13 +203,13 @@ namespace Serilog.Sinks.Elasticsearch
 
         private PostData GetTemplatePostData()
         {
-            //PostData no longer exposes an implict cast from object.  Previously it supported that and would inspect the object Type to
-            //determine if it it was a litteral string to write directly or if it was an object that it needed to serialse.  Now the onus is 
-            //on us to tell it what type we are passing otherwise if the user specified the template as a json string it would be serialised again.
+            //PostData no longer exposes an implicit cast from object.  Previously it supported that and would inspect the object Type to
+            //determine if it it was a literal string to write directly or if it was an object that it needed to serialize.  Now the onus is 
+            //on us to tell it what type we are passing otherwise if the user specified the template as a json string it would be serialized again.
             var template = GetTemplateData();
-            if (template is string)
+            if (template is string s)
             {
-                return PostData.String((string)template);
+                return PostData.String(s);
             }
             else
             {
