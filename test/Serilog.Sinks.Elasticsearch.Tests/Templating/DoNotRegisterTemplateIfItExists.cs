@@ -25,7 +25,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
         [Fact]
-        public void WhenTempplateExists_ShoudNotSendAPutTemplate()
+        public void WhenTemplateExists_ShouldNotSendAPutTemplate()
         {
             DoRegister();
             this._seenHttpPosts.Should().NotBeNullOrEmpty().And.HaveCount(1);

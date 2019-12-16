@@ -24,6 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templating\template_0replicas.json" />
+    <None Remove="Templating\template_5replicas.json" />
     <None Remove="Templating\template_v2.json" />
     <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
@@ -31,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templating\template_0replicas.json" />
+    <EmbeddedResource Include="Templating\template_5replicas.json" />
     <EmbeddedResource Include="Templating\template_v7.json" />
     <EmbeddedResource Include="Templating\template_v6.json" />
     <EmbeddedResource Include="Templating\template_v5.json" />
