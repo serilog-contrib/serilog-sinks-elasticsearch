@@ -73,7 +73,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 }
                 action.IndexAction.Should().NotBeNull();
                 action.IndexAction.Index.Should().NotBeNullOrEmpty().And.StartWith("logstash-");
-                action.IndexAction.Type.Should().NotBeNullOrEmpty().And.Be("logevent");
+                action.IndexAction.Type.Should().NotBeNullOrEmpty().And.Be("_doc");
 
                 SerilogElasticsearchEvent actionMetaData;
                 try
