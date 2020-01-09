@@ -225,13 +225,13 @@ namespace Serilog.Sinks.Elasticsearch
         public EmitEventFailureHandling EmitEventFailure { get; set; }
 
         /// <summary>
-        /// Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// Sink to use when Elasticsearch is unable to accept the events. This is optional and depends on the EmitEventFailure setting.
         /// </summary>
         public ILogEventSink FailureSink { get; set; }
 
         /// <summary>
         /// A callback which can be used to handle logevents which are not submitted to Elasticsearch
-        /// like when it is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// like when it is unable to accept the events. This is optional and depends on the EmitEventFailure setting.
         /// </summary>
         public Action<LogEvent> FailureCallback { get; set; }
 
