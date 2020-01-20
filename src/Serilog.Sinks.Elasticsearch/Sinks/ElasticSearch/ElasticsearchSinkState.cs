@@ -160,7 +160,7 @@ namespace Serilog.Sinks.Elasticsearch
                 {
                     var templateExistsResponse = _client.Indices.TemplateExistsForAll<VoidResponse>(_templateName, new IndexTemplateExistsRequestParameters()
                     {
-                        RequestConfiguration = new RequestConfiguration() { AllowedStatusCodes = new [] {200, 404} }
+                        RequestConfiguration = new RequestConfiguration() { AllowedStatusCodes = new[] { 200, 404 } }
                     });
                     if (templateExistsResponse.HttpStatusCode == 200)
                     {
@@ -173,7 +173,7 @@ namespace Serilog.Sinks.Elasticsearch
                 var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
                     new PutIndexTemplateRequestParameters
                     {
-                        IncludeTypeName = IncludeTypeName ? true : (bool?) null
+                        IncludeTypeName = IncludeTypeName ? true : (bool?)null
                     });
 
                 if (!result.Success)
@@ -222,15 +222,15 @@ namespace Serilog.Sinks.Elasticsearch
             if (_options.GetTemplateContent != null)
                 return _options.GetTemplateContent();
 
-            var settings = new Dictionary<string, string>
-            {
-                {"index.refresh_interval", "5s"}
-            };
+            var settings = _options.TemplateCustomSettings ?? new Dictionary<string, string>();
 
-            if (_options.NumberOfShards.HasValue)
+            if (!settings.ContainsKey("index.refresh_interval"))
+                settings.Add("index.refresh_interval", "5s");
+
+            if (_options.NumberOfShards.HasValue && !settings.ContainsKey("number_of_shards"))
                 settings.Add("number_of_shards", _options.NumberOfShards.Value.ToString());
 
-            if (_options.NumberOfReplicas.HasValue)
+            if (_options.NumberOfReplicas.HasValue && !settings.ContainsKey("number_of_replicas"))
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
             return ElasticsearchTemplateProvider.GetTemplate(
@@ -245,14 +245,14 @@ namespace Serilog.Sinks.Elasticsearch
         public void DiscoverClusterVersion()
         {
             if (!_options.DetectElasticsearchVersion) return;
-            
+
             var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
-            {   
-                Headers = new [] { "v"}
+            {
+                Headers = new[] { "v" }
             });
             if (!response.Success) return;
 
-            _discoveredVersion = response.Body.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+            _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault();
 
             if (_discoveredVersion?.StartsWith("7.") ?? false)
