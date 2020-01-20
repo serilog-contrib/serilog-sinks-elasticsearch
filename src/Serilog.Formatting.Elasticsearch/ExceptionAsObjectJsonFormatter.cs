@@ -42,7 +42,7 @@ namespace Serilog.Formatting.Elasticsearch
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="serializer">Inject a serializer to force objects to be serialized over being ToString()</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
-        /// /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
+        /// <param name="renderMessageTemplate">If true, the message template will be rendered and written to the output as a
         /// property named RenderedMessageTemplate.</param>
         /// <param name="formatStackTraceAsArray">If true, splits the StackTrace by new line and writes it as a an array of strings</param>
         public ExceptionAsObjectJsonFormatter(bool omitEnclosingObject = false, 
