@@ -141,7 +141,8 @@ namespace Serilog
         /// <param name="customFormatter">Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="customDurableFormatter">Customizes the formatter used when converting log events into the durable sink. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
-        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>        
+        /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
+        /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -178,7 +179,8 @@ namespace Serilog
             ITextFormatter customDurableFormatter = null,
             ILogEventSink failureSink = null,
             long? singleEventSizePostingLimit = null,
-            int? bufferFileCountLimit = null)
+            int? bufferFileCountLimit = null,
+            Dictionary<string,string> templateCustomSettings = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -267,6 +269,8 @@ namespace Serilog
             options.CustomFormatter = customFormatter;
             options.CustomDurableFormatter = customDurableFormatter;
             options.Serializer = serializer;
+
+            options.TemplateCustomSettings = templateCustomSettings;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
