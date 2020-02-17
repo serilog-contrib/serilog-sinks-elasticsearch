@@ -117,7 +117,6 @@ var loggerConfig = new LoggerConfiguration()
 * [Basic information](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/basic-setup) on how to configure and use this sink.
 * [Configuration options](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/Configure-the-sink) which you can use.
 * How to use the [durability](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/durability) mode.
-* [Accessing](https://github.com/serilog/serilog-sinks-elasticsearch/wiki/access-logs) the logs using Kibana.
 * Get the [NuGet package](http://www.nuget.org/packages/Serilog.Sinks.Elasticsearch).
 * Report issues to the [issue tracker](https://github.com/serilog/serilog-sinks-elasticsearch/issues). PR welcome, but please do this against the dev branch.
 * For an overview of recent changes, have a look at the [change log](https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md).
