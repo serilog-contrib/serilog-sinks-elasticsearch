@@ -19,6 +19,7 @@ using Elasticsearch.Net;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
+using Serilog.Sinks.Elasticsearch.Durable;
 
 namespace Serilog.Sinks.Elasticsearch
 {
@@ -172,6 +173,11 @@ namespace Serilog.Sinks.Elasticsearch
         /// When passing a serializer unknown object will be serialized to object instead of relying on their ToString representation
         /// </summary>
         public IElasticsearchSerializer Serializer { get; set; }
+
+        ///<summary>
+        /// Allows Elasticsearch log client to be overridden.
+        /// </summary>
+        public ElasticsearchLogClient.Factory ElasticsearchLogClientFactory { get; set; } = ElasticsearchLogClient.Create;
 
         /// <summary>
         /// The connection pool describing the cluster to write event to

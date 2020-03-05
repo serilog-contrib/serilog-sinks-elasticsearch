@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Serilog.Debugging;
@@ -17,6 +14,15 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     {
         private readonly IElasticLowLevelClient _elasticLowLevelClient;
         private readonly Func<string, long?, string, string> _cleanPayload;
+
+        public delegate ILogClient<List<string>> Factory(
+            IElasticLowLevelClient elasticLowLevelClient,
+            Func<string, long?, string, string> cleanPayload);
+
+        public static ElasticsearchLogClient Create(
+            IElasticLowLevelClient elasticLowLevelClient,
+            Func<string, long?, string, string> cleanPayload) => 
+            new ElasticsearchLogClient(elasticLowLevelClient, cleanPayload);
 
         /// <summary>
         /// 

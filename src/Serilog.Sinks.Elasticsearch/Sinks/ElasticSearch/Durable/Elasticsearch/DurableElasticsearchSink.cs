@@ -53,9 +53,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     encoding: Encoding.UTF8)
                 .CreateLogger();
 
-            
-            var elasticSearchLogClient = new ElasticsearchLogClient(
-                 elasticLowLevelClient: _state.Client, 
+            var elasticSearchLogClient = _state.Options.ElasticsearchLogClientFactory(
+                elasticLowLevelClient: _state.Client,
                 cleanPayload: _state.Options.BufferCleanPayload);
 
             var payloadReader = new ElasticsearchPayloadReader(
