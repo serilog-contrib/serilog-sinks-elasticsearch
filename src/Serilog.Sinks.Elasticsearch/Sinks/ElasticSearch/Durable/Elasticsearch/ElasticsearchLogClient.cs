@@ -46,7 +46,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 {
                     var cleanPayload = new List<string>();
                     var invalidPayload = GetInvalidPayloadAsync(response, payload, out cleanPayload);
-                    if ((cleanPayload?.Any() == false) && first)
+                    if ((cleanPayload?.Any() ?? false) && first)
                     {
                         await SendPayloadAsync(cleanPayload, false);
                     }
@@ -96,20 +96,22 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 hasErrors = true;
                 var id = itemIndex?["_id"];
                 var error = itemIndex?["error"];
+                var errorString = $"type: {error?["type"] ?? "Unknown"}, reason: {error?["reason"] ?? "Unknown"}";
+
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
-                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, error?.ToString(), payload.ElementAt(index * 2 + 1));
+                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, errorString, payload.ElementAt(index * 2 + 1));
                     badPayload.Add(payload.ElementAt(index * 2));
                     badPayload.Add(payload.ElementAt(index * 2 + 1));
                     if (_cleanPayload != null)
                     {
                         cleanPayload.Add(payload.ElementAt(index * 2));
-                        cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, error?.ToString()));
+                        cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, errorString));
                     }
                 }
                 else
                 {
-                    SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {error?.ToString()}.");
+                    SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {errorString}.");
                 }
             }
 

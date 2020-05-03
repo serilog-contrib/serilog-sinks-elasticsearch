@@ -6,15 +6,15 @@ using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    public class Sendsv7TemplateTests : ElasticsearchSinkTestsBase
+    public class SetTwoShardsInTemplateTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
 
-        public Sendsv7TemplateTests()
+        public SetTwoShardsInTemplateTests()
         {
             _options.AutoRegisterTemplate = true;
-            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
-            _options.IndexAliases = new string[] { "logstash" };
+            _options.NumberOfShards = 2;
+            _options.NumberOfReplicas= 0;
 
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -36,9 +36,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
-
-            var method = typeof(Sendsv7TemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
-            JsonEquals(_templatePut.Item2, method, "template_v7.json");
+            var method = typeof(SendsTemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
+            JsonEquals(_templatePut.Item2, method, "template");
         }
 
         [Fact]
@@ -51,11 +50,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         protected void JsonEquals(string json, MethodBase method, string fileName = null)
         {
 #if DOTNETCORE
-            var assembly = typeof(Sendsv7TemplateTests).GetTypeInfo().Assembly;
+            var assembly = typeof(SendsTemplateTests).GetTypeInfo().Assembly;
 #else
             var assembly = Assembly.GetExecutingAssembly();
 #endif
-            var expected = TestDataHelper.ReadEmbeddedResource(assembly, fileName ?? "template.json");
+            var expected = TestDataHelper.ReadEmbeddedResource(assembly, "template_2shards.json");
 
             var nJson = JObject.Parse(json);
             var nOtherJson = JObject.Parse(expected);

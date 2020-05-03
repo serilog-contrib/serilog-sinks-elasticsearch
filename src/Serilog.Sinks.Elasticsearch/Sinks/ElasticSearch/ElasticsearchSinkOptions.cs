@@ -59,6 +59,12 @@ namespace Serilog.Sinks.Elasticsearch
         public Func<object> GetTemplateContent { get; set; }
 
         /// <summary>
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to override the default template content.
+        /// If not provided, a default template that is optimized to deal with Serilog events is used.
+        /// </summary>
+        public Dictionary<string,string> TemplateCustomSettings { get; set; }
+
+        /// <summary>
         /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to overwrite the template in Elasticsearch if it already exists.
         /// Defaults to: false
         /// </summary>
@@ -76,6 +82,14 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         public int? NumberOfReplicas { get; set; }
 
+        /// <summary>
+        /// Index aliases. Sets alias/aliases to an index in elasticsearch.
+        /// Tested and works with ElasticSearch 7.x
+        /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows you to set index aliases.
+        /// If not provided, index aliases will be blank.
+        /// </summary>
+        public string[] IndexAliases { get; set; }
+
         ///<summary>
         /// Connection configuration to use for connecting to the cluster.
         /// </summary>
@@ -84,6 +98,7 @@ namespace Serilog.Sinks.Elasticsearch
         ///<summary>
         /// The index name formatter. A string.Format using the DateTimeOffset of the event is run over this string.
         /// defaults to "logstash-{0:yyyy.MM.dd}"
+        /// Needs to be lowercased.
         /// </summary>
         public string IndexFormat { get; set; }
 
@@ -216,13 +231,13 @@ namespace Serilog.Sinks.Elasticsearch
         public EmitEventFailureHandling EmitEventFailure { get; set; }
 
         /// <summary>
-        /// Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// Sink to use when Elasticsearch is unable to accept the events. This is optional and depends on the EmitEventFailure setting.
         /// </summary>
         public ILogEventSink FailureSink { get; set; }
 
         /// <summary>
         /// A callback which can be used to handle logevents which are not submitted to Elasticsearch
-        /// like when it is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.
+        /// like when it is unable to accept the events. This is optional and depends on the EmitEventFailure setting.
         /// </summary>
         public Action<LogEvent> FailureCallback { get; set; }
 
@@ -278,7 +293,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
         /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
         /// </summary>
-        public static string DefaultTypeName { get; } = "logevent";
+        public static string DefaultTypeName { get; } = "_doc";
 
         /// <summary>
         /// Instructs the sink to auto detect the running Elasticsearch version.
@@ -374,7 +389,7 @@ namespace Serilog.Sinks.Elasticsearch
         IndexAnyway = 1,
 
         ///// <summary>
-        ///// Keep buffering the data until it is written. be aware you might hit a limit here.
+        ///// Keep buffering the data until it is written. be aware you might hit a limit here.                  
         ///// </summary>
         //BufferUntilSuccess = 2,
 

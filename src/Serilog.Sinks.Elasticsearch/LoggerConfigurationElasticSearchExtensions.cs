@@ -61,8 +61,8 @@ namespace Serilog
 
             return loggerSinkConfiguration.Sink(
                 sink,
-                restrictedToMinimumLevel : options.MinimumLogEventLevel ?? LevelAlias.Minimum,
-                levelSwitch : options.LevelSwitch
+                restrictedToMinimumLevel: options.MinimumLogEventLevel ?? LevelAlias.Minimum,
+                levelSwitch: options.LevelSwitch
             );
         }
 
@@ -101,7 +101,7 @@ namespace Serilog
            LoggingLevelSwitch levelSwitch)
         {
             return Elasticsearch(loggerSinkConfiguration, nodeUris, indexFormat, templateName, typeName, batchPostingLimit, period, inlineFields, restrictedToMinimumLevel, bufferBaseFilename,
-                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false, 
+                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false,
                 AutoRegisterTemplateVersion.ESv2, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
         }
 
@@ -155,7 +155,7 @@ namespace Serilog
             bool inlineFields = false,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
             string bufferBaseFilename = null,
-            long? bufferFileSizeLimitBytes = null,            
+            long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
             string connectionGlobalHeaders = null,
             LoggingLevelSwitch levelSwitch = null,

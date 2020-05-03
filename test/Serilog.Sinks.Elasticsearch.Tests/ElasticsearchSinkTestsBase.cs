@@ -69,11 +69,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(string.Format("Can not deserialize into BulkOperation \r\n:{0}", totalBulks[i]), e);
+                    throw new Exception($"Can not deserialize into BulkOperation \r\n:{totalBulks[i]}", e);
                 }
                 action.IndexAction.Should().NotBeNull();
                 action.IndexAction.Index.Should().NotBeNullOrEmpty().And.StartWith("logstash-");
-                action.IndexAction.Type.Should().NotBeNullOrEmpty().And.Be("logevent");
+                action.IndexAction.Type.Should().NotBeNullOrEmpty().And.Be("_doc");
 
                 SerilogElasticsearchEvent actionMetaData;
                 try
@@ -82,7 +82,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(string.Format("Can not deserialize into SerilogElasticsearchMessage \r\n:{0}", totalBulks[i + 1]), e);
+                    throw new Exception(
+                        $"Can not deserialize into SerilogElasticsearchMessage \r\n:{totalBulks[i + 1]}", e);
                 }
                 actionMetaData.Should().NotBeNull();
                 bulkActions.Add(actionMetaData);
