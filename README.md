@@ -179,7 +179,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "typeName": "myCustomLogEventType",
           "pipelineName": "myCustomPipelineName",
           "batchPostingLimit": 50,
-          "period": 2000,
+          "period": 2,
           "inlineFields": true,
           "restrictedToMinimumLevel": "Warning",
           "bufferBaseFilename":  "C:/Temp/docker-elk-serilog-web-buffer",
