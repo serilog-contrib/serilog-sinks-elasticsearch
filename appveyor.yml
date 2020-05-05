@@ -7,7 +7,6 @@ test: off
 artifacts:
   - path: artifacts/Serilog.Sinks.Elasticsearch*.nupkg
   - path: artifacts/Serilog.Formatting.Elasticsearch*.nupkg
-<<<<<<< HEAD
 only_commits:
   files:
     - serilog-sinks-elasticsearch.sln
@@ -22,12 +21,6 @@ deploy:
 - provider: NuGet
   api_key:
     secure: jWslQvxA4UMn98aYnsFDBfl8A2vAXUjtmmPZNxZnbJvMW/JV55iQ1fRcqD9B70sK
-=======
-deploy:
-- provider: NuGet
-  api_key:
-    secure: nvZ/z+pMS91b3kG4DgfES5AcmwwGoBYQxr9kp4XiJHj25SAlgdIxFx++1N0lFH2x
->>>>>>> c7dd8ca... Updated nuget key
   on:
     branch: /^(master|dev)$/
 - provider: GitHub
