@@ -198,6 +198,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "deadLetterIndexName": "deadletter-{0:yyyy.MM}",
           "numberOfShards": 20,
           "numberOfReplicas": 10,
+          "templateCustomSettings": [{ "index.mapping.total_fields.limit": "10000000" } ],
           "formatProvider": "My.Namespace.MyFormatProvider, My.Assembly.Name",
           "connection": "My.Namespace.MyConnection, My.Assembly.Name",
           "serializer": "My.Namespace.MySerializer, My.Assembly.Name",
