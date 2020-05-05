@@ -19,7 +19,7 @@ only_commits:
 deploy:
 - provider: NuGet
   api_key:
-    secure: GltmkKBYpiHJZwgLgb98PTJfdCa4HFj9cbdZKAa1Zxcp/pJst9swF2/3XSdSjTZz
+    secure: jWslQvxA4UMn98aYnsFDBfl8A2vAXUjtmmPZNxZnbJvMW/JV55iQ1fRcqD9B70sK
   on:
     branch: /^(master|dev)$/
 - provider: GitHub
