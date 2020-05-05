@@ -15,6 +15,7 @@ only_commits:
     - nuget.config
     - Build.ps1
     - assets/
+    - appveyor.yml
     - test/Serilog.Sinks.Elasticsearch.Tests/
 deploy:
 - provider: NuGet
