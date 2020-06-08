@@ -98,24 +98,16 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 var error = itemIndex?["error"];
                 var errorString = $"type: {error?["type"] ?? "Unknown"}, reason: {error?["reason"] ?? "Unknown"}";
 
+                SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {errorString}.");
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
                     badPayload.Add(payload.ElementAt(index * 2));
                     badPayload.Add(payload.ElementAt(index * 2 + 1));
                     if (_cleanPayload != null)
                     {
-                        SelfLog.WriteLine("Received failed ElasticSearch shipping result, calling clean payload {0}: {1}", status, errorString);
                         cleanPayload.Add(payload.ElementAt(index * 2));
                         cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, errorString));
                     }
-                    else
-                    {
-                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, errorString, payload.ElementAt(index * 2 + 1));
-                    }
-                }
-                else
-                {
-                    SelfLog.WriteLine($"Received failed ElasticSearch shipping result {status}: {errorString}.");
                 }
             }
 
