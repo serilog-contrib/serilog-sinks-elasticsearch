@@ -48,7 +48,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     var invalidPayload = GetInvalidPayloadAsync(response, payload, out cleanPayload);
                     if ((cleanPayload?.Any() ?? false) && first)
                     {
-                        await SendPayloadAsync(cleanPayload, false);
+                        return await SendPayloadAsync(cleanPayload, false);
                     }
 
                     return new SentPayloadResult(response, true, invalidPayload);
@@ -100,13 +100,17 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
                 if (int.TryParse(id.Split('_')[0], out int index))
                 {
-                    SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, errorString, payload.ElementAt(index * 2 + 1));
                     badPayload.Add(payload.ElementAt(index * 2));
                     badPayload.Add(payload.ElementAt(index * 2 + 1));
                     if (_cleanPayload != null)
                     {
+                        SelfLog.WriteLine("Received failed ElasticSearch shipping result, calling clean payload {0}: {1}", status, errorString);
                         cleanPayload.Add(payload.ElementAt(index * 2));
                         cleanPayload.Add(_cleanPayload(payload.ElementAt(index * 2 + 1), status, errorString));
+                    }
+                    else
+                    {
+                        SelfLog.WriteLine("Received failed ElasticSearch shipping result {0}: {1}. Failed payload : {2}.", status, errorString, payload.ElementAt(index * 2 + 1));
                     }
                 }
                 else
