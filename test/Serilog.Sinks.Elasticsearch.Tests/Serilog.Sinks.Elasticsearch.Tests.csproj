@@ -51,15 +51,15 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-version" Version="1.1.2" />
-      
+
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.0.0" />
-    <PackageReference Include="NEST" Version="7.0.0" />
-    <PackageReference Include="NEST.JsonNetSerializer" Version="7.0.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.8.1" />
+    <PackageReference Include="NEST" Version="7.8.1" />
+    <PackageReference Include="NEST.JsonNetSerializer" Version="7.8.1" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
   </ItemGroup>
@@ -77,7 +77,7 @@
 
 
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
     </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">

@@ -8,7 +8,7 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch7.Bootstrap
 
 		private static ClientTestClusterConfiguration CreateConfiguration()
 		{
-			return new ClientTestClusterConfiguration("7.0.0")
+			return new ClientTestClusterConfiguration("7.8.0")
 			{
 				MaxConcurrency = 1
 			};
