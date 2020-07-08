@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
-using Elastic.Managed.Ephemeral;
-using Elastic.Xunit;
-using Elastic.Xunit.XunitPlumbing;
+using Elastic.Elasticsearch.Ephemeral;
+using Elastic.Elasticsearch.Xunit;
+using Elastic.Elasticsearch.Xunit.XunitPlumbing;
 using Elasticsearch.Net6;
 using Nest6;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
