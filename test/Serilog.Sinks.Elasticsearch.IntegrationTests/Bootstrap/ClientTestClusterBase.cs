@@ -1,7 +1,7 @@
-﻿using Elastic.Managed.Ephemeral;
-using Elastic.Managed.Ephemeral.Plugins;
-using Elastic.Xunit;
-using Nest;
+﻿using Elastic.Elasticsearch.Ephemeral;
+using Elastic.Elasticsearch.Ephemeral.Plugins;
+using Elastic.Elasticsearch.Xunit;
+using Elastic.Stack.ArtifactsApi.Products;
 
 namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap
 {
