@@ -125,7 +125,7 @@ var loggerConfig = new LoggerConfiguration()
 
 Be aware that there is an explicit and implicit mapping of types inside an Elasticsearch index. A value called `X` as a string will be indexed as being a string. Sending the same `X` as an integer in a next log message will not work. ES will raise a mapping exception, however it is not that evident that your log item was not stored due to the bulk actions performed.
 
-So be careful about defining and using your fields (and type of fields). It is easy to miss that you first send a {User} as a simple username (string) and next as a User object. The first mapping dynamically created in the index wins. See also issue #184 for details and a possible solution. There are also limits in ES on the number of dynamic fields you can actually throw inside an index.
+So be careful about defining and using your fields (and type of fields). It is easy to miss that you first send a {User} as a simple username (string) and next as a User object. The first mapping dynamically created in the index wins. See also issue [#184](https://github.com/serilog/serilog-sinks-elasticsearch/issues/184) for details and a possible solution. There are also limits in ES on the number of dynamic fields you can actually throw inside an index.
 
 ### A note about Kibana
 
