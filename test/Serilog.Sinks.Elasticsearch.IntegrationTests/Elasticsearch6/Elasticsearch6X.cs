@@ -1,5 +1,5 @@
 using System.Linq;
-using Elastic.Xunit.XunitPlumbing;
+using Elastic.Elasticsearch.Xunit.XunitPlumbing;
 using FluentAssertions;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Bootstrap;
 using Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6.Bootstrap;

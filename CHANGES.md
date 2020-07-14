@@ -1,5 +1,8 @@
 ## Changelog
 
+8.2 
+ * Updated Elasticsearch.Net dependency #340
+
 8.1 
  * Updated sample to use .NET 2.1 and ES 7.5
  * Change default TypeName to '_doc' #298
