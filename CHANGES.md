@@ -2,6 +2,7 @@
 
 8.2
  * Allow the use of templateCustomSettings when reading from settings json (#315)
+ * Updated Elasticsearch.Net dependency #340
 
 8.1 
  * Updated sample to use .NET 2.1 and ES 7.5
