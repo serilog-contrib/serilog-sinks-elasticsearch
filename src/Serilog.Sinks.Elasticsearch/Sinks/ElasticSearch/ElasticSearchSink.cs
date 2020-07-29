@@ -80,7 +80,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
-                return Task.FromResult<T>(default);
+                return Task.FromResult<T>(default(T));
 
             var payload = CreatePlayLoad<T>(events);
             return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
