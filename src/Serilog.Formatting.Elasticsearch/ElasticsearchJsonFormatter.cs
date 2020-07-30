@@ -116,45 +116,6 @@ namespace Serilog.Formatting.Elasticsearch
         }
 
         /// <summary>
-        /// Escape the name of the Property before calling ElasticSearch
-        /// </summary>
-        protected override void WriteDictionary(IReadOnlyDictionary<ScalarValue, LogEventPropertyValue> elements, TextWriter output)
-        {
-            var escaped = elements.ToDictionary(e => DotEscapeFieldName(e.Key), e => e.Value);
-
-            base.WriteDictionary(escaped, output);
-        }
-
-        /// <summary>
-        /// Escape the name of the Property before calling ElasticSearch
-        /// </summary>
-        protected override void WriteJsonProperty(string name, object value, ref string precedingDelimiter, TextWriter output)
-        {
-            name = DotEscapeFieldName(name);
-
-            base.WriteJsonProperty(name, value, ref precedingDelimiter, output);
-        }
-
-        /// <summary>
-        /// Escapes Dots in Strings and does nothing to objects
-        /// </summary>
-        protected virtual ScalarValue DotEscapeFieldName(ScalarValue value)
-        {
-            return value.Value is string s ? new ScalarValue(DotEscapeFieldName(s)) : value;
-        }
-
-        /// <summary>
-        /// Dots are not allowed in Field Names, replaces '.' with '/'
-        /// https://github.com/elastic/elasticsearch/issues/14594
-        /// </summary>
-        protected virtual string DotEscapeFieldName(string value)
-        {
-            if (value == null) return null;
-
-            return value.Replace('.', '/');
-        }
-
-        /// <summary>
         /// Writes out the attached exception
         /// </summary>
         protected override void WriteException(Exception exception, ref string delim, TextWriter output)
@@ -171,15 +132,24 @@ namespace Serilog.Formatting.Elasticsearch
 
         private void WriteExceptionSerializationInfo(Exception exception, ref string delim, TextWriter output, int depth)
         {
-            output.Write(delim);
-            output.Write("{");
-            delim = "";
-            WriteSingleException(exception, ref delim, output, depth);
-            output.Write("}");
+            while (true)
+            {
+                output.Write(delim);
+                output.Write("{");
+                delim = "";
+                WriteSingleException(exception, ref delim, output, depth);
+                output.Write("}");
 
-            delim = ",";
-            if (exception.InnerException != null && depth < 20)
-                this.WriteExceptionSerializationInfo(exception.InnerException, ref delim, output, ++depth);
+                delim = ",";
+                if (exception.InnerException != null && depth < 20)
+                {
+                    exception = exception.InnerException;
+                    depth = ++depth;
+                    continue;
+                }
+
+                break;
+            }
         }
 
         /// <summary>
