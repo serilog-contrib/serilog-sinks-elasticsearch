@@ -38,12 +38,12 @@ namespace Serilog
         /// <summary>
         /// Adds a sink that writes log events as documents to an Elasticsearch index.
         /// This works great with the Kibana web interface when using the default settings.
-        /// 
-        /// By passing in the BufferBaseFilename, you make this into a durable sink. 
+        ///
+        /// By passing in the BufferBaseFilename, you make this into a durable sink.
         /// Meaning it will log to disk first and tries to deliver to the Elasticsearch server in the background.
         /// </summary>
         /// <remarks>
-        /// Make sure to have a sensible mapping in your Elasticsearch indexes. 
+        /// Make sure to have a sensible mapping in your Elasticsearch indexes.
         /// You can automatically create one by specifying this in the options.
         /// </remarks>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
@@ -120,19 +120,19 @@ namespace Serilog
         /// <param name="levelSwitch">A switch allowing the pass-through minimum level to be changed at runtime.</param>
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
-        /// <param name="bufferFileCountLimit"><see cref="ElasticsearchSinkOptions.BufferFileCountLimit"/></param>        
+        /// <param name="bufferFileCountLimit"><see cref="ElasticsearchSinkOptions.BufferFileCountLimit"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
-        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
-        /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>   
-        /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/>Specifies how failing emits should be handled.</param>  
-        /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/>The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>   
-        /// <param name="pipelineName"><see cref="ElasticsearchSinkOptions.PipelineName"/>Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.</param>   
-        /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/>When set to true the sink will register an index template for the logs in elasticsearch.</param>   
-        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/>When using the AutoRegisterTemplate feature, this allows to set the Elasticsearch version. Depending on the version, a template will be selected. Defaults to pre 5.0.</param>  
-        /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/>When using the AutoRegisterTemplate feature, this allows you to overwrite the template in Elasticsearch if it already exists. Defaults to false</param>   
-        /// <param name="registerTemplateFailure"><see cref="ElasticsearchSinkOptions.RegisterTemplateFailure"/>Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.</param>  
-        /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/>Optionally set this value to the name of the index that should be used when the template cannot be written to ES.</param>  
-        /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/>The default number of shards.</param>   
+        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>
+        /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>
+        /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/>Specifies how failing emits should be handled.</param>
+        /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/>The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>
+        /// <param name="pipelineName"><see cref="ElasticsearchSinkOptions.PipelineName"/>Name the Pipeline where log events are sent to sink. Please note that the Pipeline should be existing before the usage starts.</param>
+        /// <param name="autoRegisterTemplate"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplate"/>When set to true the sink will register an index template for the logs in elasticsearch.</param>
+        /// <param name="autoRegisterTemplateVersion"><see cref="ElasticsearchSinkOptions.AutoRegisterTemplateVersion"/>When using the AutoRegisterTemplate feature, this allows to set the Elasticsearch version. Depending on the version, a template will be selected. Defaults to pre 5.0.</param>
+        /// <param name="overwriteTemplate"><see cref="ElasticsearchSinkOptions.OverwriteTemplate"/>When using the AutoRegisterTemplate feature, this allows you to overwrite the template in Elasticsearch if it already exists. Defaults to false</param>
+        /// <param name="registerTemplateFailure"><see cref="ElasticsearchSinkOptions.RegisterTemplateFailure"/>Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.</param>
+        /// <param name="deadLetterIndexName"><see cref="ElasticsearchSinkOptions.DeadLetterIndexName"/>Optionally set this value to the name of the index that should be used when the template cannot be written to ES.</param>
+        /// <param name="numberOfShards"><see cref="ElasticsearchSinkOptions.NumberOfShards"/>The default number of shards.</param>
         /// <param name="numberOfReplicas"><see cref="ElasticsearchSinkOptions.NumberOfReplicas"/>The default number of replicas.</param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="connection">Allows you to override the connection used to communicate with elasticsearch.</param>
@@ -140,9 +140,10 @@ namespace Serilog
         /// <param name="connectionPool">The connectionpool describing the cluster to write event to</param>
         /// <param name="customFormatter">Customizes the formatter used when converting log events into ElasticSearch documents. Please note that the formatter output must be valid JSON :)</param>
         /// <param name="customDurableFormatter">Customizes the formatter used when converting log events into the durable sink. Please note that the formatter output must be valid JSON :)</param>
-        /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
+        /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
+        /// <param name="bufferRetainedInvalidPayloadsLimitBytes"><see cref="ElasticsearchSinkOptions.BufferRetainedInvalidPayloadsLimitBytes"/>A soft limit for the number of bytes to use for storing failed requests</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -180,7 +181,8 @@ namespace Serilog
             ILogEventSink failureSink = null,
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
-            Dictionary<string,string> templateCustomSettings = null)
+            Dictionary<string,string> templateCustomSettings = null,
+            long? bufferRetainedInvalidPayloadsLimitBytes = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -230,6 +232,10 @@ namespace Serilog
                 options.BufferFileCountLimit = bufferFileCountLimit.Value;
             }
             options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
+            if (bufferRetainedInvalidPayloadsLimitBytes.HasValue)
+            {
+                options.BufferRetainedInvalidPayloadsLimitBytes = bufferRetainedInvalidPayloadsLimitBytes.Value;
+            }
 
             if (!string.IsNullOrWhiteSpace(connectionGlobalHeaders))
             {
