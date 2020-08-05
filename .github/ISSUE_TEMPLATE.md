@@ -3,7 +3,7 @@
 > Is this an issue related to the [Serilog core project](https://github.com/serilog/serilog) or one of the [sinks](https://github.com/serilog/serilog/wiki/Provided-Sinks) or 
 [community projects](https://github.com/serilog/serilog/wiki/Community-Projects).  
 This issue list is intended for Serilog Elasticsearch Sink issues. If this issue relates to another sink or to the code project, 
-please log on the related repository.  Please use [Gitter chat](https://gitter.im/serilog/serilog) and [Stack Overflow](http://stackoverflow.com/questions/tagged/serilog)  for discussions and questons.
+please log on the related repository.  Please use [Gitter chat](https://gitter.im/serilog/serilog) and [Stack Overflow](http://stackoverflow.com/questions/tagged/serilog)  for discussions and questions.
 
 
 **Does this issue relate to a new *feature* or an existing *bug*?**
