@@ -74,10 +74,6 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 options.TypeName = "_doc";
             }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(options.TypeName)) throw new ArgumentException("options.TypeName");
-            }
 
             _templateName = options.TemplateName;
             _templateMatchString = IndexFormatRegex.Replace(options.IndexFormat, @"$1*$2");
