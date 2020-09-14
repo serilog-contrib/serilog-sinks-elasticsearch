@@ -204,10 +204,17 @@ namespace Serilog.Sinks.Elasticsearch
             if (result.Success && result.Body?["errors"] == true)
             {
                 var indexer = 0;
+                var opType = _state.Options.BatchAction == ElasticOpType.Create
+                    ? "create"
+                    : "index";
                 var items = result.Body["items"];
                 foreach (var item in items)
                 {
-                    if (item["index"] != null && HasProperty(item["index"], "error") && item["index"]["error"] != null)
+                    var action = item.ContainsKey(opType)
+                        ? item[opType]
+                        : null;
+                    
+                    if (action != null && action.ContainsKey("error"))
                     {
                         var e = events.ElementAt(indexer);
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
@@ -216,8 +223,8 @@ namespace Serilog.Sinks.Elasticsearch
                             SelfLog.WriteLine(
                                 "Failed to store event with template '{0}' into Elasticsearch. Elasticsearch reports for index {1} the following: {2}",
                                 e.MessageTemplate,
-                                item["index"]["_index"],
-                                _state.Serialize(item["index"]["error"]));
+                                action["_index"],
+                                _state.Serialize(action["error"]));
                         }
 
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
@@ -251,7 +258,6 @@ namespace Serilog.Sinks.Elasticsearch
                                     _state.Options.FailureCallback);
                             }
                         }
-
                     }
                     indexer++;
                 }
