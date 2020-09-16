@@ -156,7 +156,7 @@ namespace Serilog.Sinks.Elasticsearch
         // Helper function: checks if a given dynamic member / dictionary key exists at runtime
         private static bool HasProperty(dynamic settings, string name)
         {
-            if (settings is System.Dynamic.ExpandoObject)
+            if (settings is IDictionary<string, object>)
                 return ((IDictionary<string, object>)settings).ContainsKey(name);
 
             if (settings is System.Dynamic.DynamicObject)
