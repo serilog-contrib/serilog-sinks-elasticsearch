@@ -37,7 +37,7 @@ function Invoke-Build()
     Write-Output "Creating packages"
     foreach ($project in $projects)
     {
-        & dotnet pack $project -c Release -o ..\..\artifacts  --include-symbols --include-source /p:PackageVersion=$env:GitVersion_NuGetVersionV2    
+        & dotnet pack $project -c Release -o ..\..\artifacts  -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg /p:PackageVersion=$env:GitVersion_NuGetVersionV2    
     }
   
     if($LASTEXITCODE -ne 0) 
