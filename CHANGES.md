@@ -1,5 +1,8 @@
 ## Changelog
 
+8.3 
+ * Do not crash when ES is unreachable and the option `DetectElasticsearchVersion` is set to true.
+
 8.2
  * Allow the use of templateCustomSettings when reading from settings json (#315)
  * Updated Elasticsearch.Net dependency #340

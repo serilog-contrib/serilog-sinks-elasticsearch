@@ -41,7 +41,7 @@ namespace Serilog.Sinks.Elasticsearch.Sample
                     NumberOfReplicas = 1,
                     NumberOfShards = 2,
                     //BufferBaseFilename = "./buffer",
-                    RegisterTemplateFailure = RegisterTemplateRecovery.FailSink,
+                   // RegisterTemplateFailure = RegisterTemplateRecovery.FailSink,
                     FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
                     EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
                                        EmitEventFailureHandling.WriteToFailureSink |
