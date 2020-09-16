@@ -1,5 +1,7 @@
 ## Changelog
 
+* Disable dot-escaping for field names, because ELK already supports dots in field names.
+
 8.2
  * Allow the use of templateCustomSettings when reading from settings json (#315)
  * Updated Elasticsearch.Net dependency #340
