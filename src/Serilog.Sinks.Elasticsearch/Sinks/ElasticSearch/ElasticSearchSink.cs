@@ -82,7 +82,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return Task.FromResult<T>(default(T));
 
-            var payload = CreatePlayLoad<T>(events);
+            var payload = CreatePlayLoad(events);
             return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
         }
 
@@ -97,7 +97,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return null;
 
-            var payload = CreatePlayLoad<T>(events);
+            var payload = CreatePlayLoad(events);
             return _state.Client.Bulk<T>(PostData.MultiJson(payload));
         }
 
@@ -165,8 +165,7 @@ namespace Serilog.Sinks.Elasticsearch
             return settings.GetType().GetProperty(name) != null;
         }
 
-        private IEnumerable<string> CreatePlayLoad<T>(IEnumerable<LogEvent> events)
-            where T : class, IElasticsearchResponse, new()
+        private IEnumerable<string> CreatePlayLoad(IEnumerable<LogEvent> events)
         {
             if (!_state.TemplateRegistrationSuccess && _state.Options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
             {
@@ -179,15 +178,11 @@ namespace Serilog.Sinks.Elasticsearch
                 var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
                 var pipelineName = _state.Options.PipelineNameDecider?.Invoke(e) ?? _state.Options.PipelineName;
 
-                var actionPayload = new ElasticActionPayload(
-                        indexName, 
-                        string.IsNullOrWhiteSpace(pipelineName) ? null : pipelineName,
-                        _state.Options.TypeName
-                    );
-
-                var action = _state.Options.BatchAction == ElasticOpType.Create
-                    ? (object) new ElasticCreateAction(actionPayload)
-                    : new ElasticIndexAction(actionPayload);
+                var action = CreateElasticAction(
+                    opType: _state.Options.BatchAction, 
+                    indexName: indexName,
+                    pipelineName: pipelineName, 
+                    mappingType: _state.Options.TypeName);
                 payload.Add(LowLevelRequestResponseSerializer.Instance.SerializeToString(action));
 
                 var sw = new StringWriter();
@@ -204,9 +199,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (result.Success && result.Body?["errors"] == true)
             {
                 var indexer = 0;
-                var opType = _state.Options.BatchAction == ElasticOpType.Create
-                    ? "create"
-                    : "index";
+                var opType = BulkAction(_state.Options.BatchAction);
                 var items = result.Body["items"];
                 foreach (var item in items)
                 {
@@ -267,6 +260,26 @@ namespace Serilog.Sinks.Elasticsearch
                 HandleException(result.OriginalException, events);
             }
         }
+
+        internal static string BulkAction(ElasticOpType elasticOpType) =>
+            elasticOpType == ElasticOpType.Create
+                ? "create"
+                : "index";
+        
+        internal static object CreateElasticAction(ElasticOpType opType, string indexName, string pipelineName = null, string id = null, string mappingType = null)
+        {
+            var actionPayload = new ElasticActionPayload(
+                indexName: indexName,
+                pipeline: string.IsNullOrWhiteSpace(pipelineName) ? null : pipelineName,
+                id: id,
+                mappingType: mappingType
+            );
+
+            var action = opType == ElasticOpType.Create
+                ? (object) new ElasticCreateAction(actionPayload)
+                : new ElasticIndexAction(actionPayload);
+            return action;
+        }
         
         sealed class ElasticCreateAction
         {
@@ -291,10 +304,11 @@ namespace Serilog.Sinks.Elasticsearch
         }
 
         sealed class ElasticActionPayload {
-            public ElasticActionPayload(string indexName, string pipeline = null, string mappingType = null)
+            public ElasticActionPayload(string indexName, string pipeline = null, string id = null, string mappingType = null)
             {
                 IndexName = indexName;
                 Pipeline = pipeline;
+                Id = id;
                 MappingType = mappingType;
             }
 
@@ -306,6 +320,9 @@ namespace Serilog.Sinks.Elasticsearch
 
             [DataMember(Name = "pipeline")]
             public string Pipeline { get; }
+            
+            [DataMember(Name = "_id")]
+            public string Id { get; }
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
 using Serilog.Debugging;
@@ -17,17 +14,21 @@ namespace Serilog.Sinks.Elasticsearch.Durable
     {
         private readonly IElasticLowLevelClient _elasticLowLevelClient;
         private readonly Func<string, long?, string, string> _cleanPayload;
+        private readonly ElasticOpType _elasticOpType;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="elasticLowLevelClient"></param>
         /// <param name="cleanPayload"></param>
+        /// <param name="elasticOpType"></param>
         public ElasticsearchLogClient(IElasticLowLevelClient elasticLowLevelClient,
-            Func<string, long?, string, string> cleanPayload)
+            Func<string, long?, string, string> cleanPayload,
+            ElasticOpType elasticOpType)
         {
             _elasticLowLevelClient = elasticLowLevelClient;
             _cleanPayload = cleanPayload;
+            _elasticOpType = elasticOpType;
         }
 
         public async Task<SentPayloadResult> SendPayloadAsync(List<string> payload)
@@ -85,7 +86,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             bool hasErrors = false;
             foreach (dynamic item in items)
             {
-                var itemIndex = item?["index"];
+                var itemIndex = item?[ElasticsearchSink.BulkAction(_elasticOpType)];
                 long? status = itemIndex?["status"];
                 i++;
                 if (!status.HasValue || status < 300)
