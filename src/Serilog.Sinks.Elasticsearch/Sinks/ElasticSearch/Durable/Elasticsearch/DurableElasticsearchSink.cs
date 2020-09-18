@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Elasticsearch.Net;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -55,15 +54,16 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
             
             var elasticSearchLogClient = new ElasticsearchLogClient(
-                 elasticLowLevelClient: _state.Client, 
-                cleanPayload: _state.Options.BufferCleanPayload);
+                elasticLowLevelClient: _state.Client, 
+                cleanPayload: _state.Options.BufferCleanPayload,
+                elasticOpType: _state.Options.BatchAction);
 
             var payloadReader = new ElasticsearchPayloadReader(
                  pipelineName: _state.Options.PipelineName,  
                  typeName:_state.Options.TypeName, 
                  serialize:_state.Serialize,  
-                 getIndexForEvent: _state.GetBufferedIndexForEvent
-                );
+                 getIndexForEvent: _state.GetBufferedIndexForEvent,
+                 elasticOpType: _state.Options.BatchAction);
 
             _shipper = new ElasticsearchLogShipper(
                 bufferBaseFilename: _state.Options.BufferBaseFilename,

@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Elasticsearch.Net;
 using Serilog.Core;
 using Serilog.Events;
@@ -112,6 +113,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default elasticsearch type name to use for the log events. Defaults to: logevent.
         /// </summary>
         public string TypeName { get; set; }
+
+        /// <summary>
+        /// Configures the <see cref="OpType"/> being used when bulk indexing documents.
+        /// In order to use data streams, this needs to be set to OpType.Create. 
+        /// </summary>
+        public ElasticOpType BatchAction { get; set; } = ElasticOpType.Index;
 
         /// <summary>
         /// Function to decide which Pipeline to use for the LogEvent
@@ -402,5 +409,26 @@ namespace Serilog.Sinks.Elasticsearch
         /// When the template cannot be registered, throw an exception and fail the sink.
         /// </summary>
         FailSink = 8
+    }
+
+    /// <summary>
+    /// Collection of op_type:s that can be used when indexing documents
+    /// ‹https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html
+    ///
+    /// This is the same as the internal <seealso cref="OpType"/> but we don't want to
+    /// expose it in the API.
+    /// </summary>
+    public enum ElasticOpType
+    {
+        /// <summary>
+        /// Default option, creates or updates a document.
+        /// </summary>
+        [EnumMember(Value = "index")] Index,
+        /// <summary>
+        /// Set to create to only index the document if it does not already exist (put if absent).
+        /// - If a document with the specified _id already exists, the indexing operation will fail.
+        /// - If the request targets a data stream, an op_type of create is required
+        /// </summary>
+        [EnumMember(Value = "create")] Create
     }
 }

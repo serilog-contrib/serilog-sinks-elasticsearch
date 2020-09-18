@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Elasticsearch.Net;
 
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
@@ -17,6 +16,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         private readonly string _typeName;
         private readonly Func<object, string> _serialize;
         private readonly Func<string, DateTime,string> _getIndexForEvent;
+        private readonly ElasticOpType _elasticOpType;
         private List<string> _payload;
         private int _count;
         private DateTime _date;
@@ -28,12 +28,15 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="typeName"></param>
         /// <param name="serialize"></param>
         /// <param name="getIndexForEvent"></param>
-        public ElasticsearchPayloadReader(string pipelineName,string typeName, Func<object,string> serialize,Func<string,DateTime,string> getIndexForEvent)
+        /// <param name="elasticOpType"></param>
+        public ElasticsearchPayloadReader(string pipelineName, string typeName, Func<object, string> serialize,
+            Func<string, DateTime, string> getIndexForEvent, ElasticOpType elasticOpType)
         {
             _pipelineName = pipelineName;
             _typeName = typeName;
             _serialize = serialize;
             _getIndexForEvent = getIndexForEvent;
+            _elasticOpType = elasticOpType;
         }
 
         /// <summary>
@@ -80,18 +83,13 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         protected override void AddToPayLoad(string nextLine)
         {
             var indexName = _getIndexForEvent(nextLine, _date);
-            var action = default(object);
+            var action = ElasticsearchSink.CreateElasticAction(
+                opType: _elasticOpType, 
+                indexName: indexName, pipelineName: _pipelineName,
+                id: _count + "_" + Guid.NewGuid(),
+                mappingType: _typeName);
+            var actionJson = LowLevelRequestResponseSerializer.Instance.SerializeToString(action);
 
-            if (string.IsNullOrWhiteSpace(_pipelineName))
-            {
-                action = new { index = new { _index = indexName, _type = _typeName, _id = _count + "_" + Guid.NewGuid() } };
-            }
-            else
-            {
-                action = new { index = new { _index = indexName, _type = _typeName, _id = _count + "_" + Guid.NewGuid(), pipeline = _pipelineName } };
-            }
-
-            var actionJson = _serialize(action);
             _payload.Add(actionJson);
             _payload.Add(nextLine);
             _count++;
