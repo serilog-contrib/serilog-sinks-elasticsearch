@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [8.3.0] - 2020-09-19
+## [8.4.0] - 2020-09-19
 ### Added
 - Do not crash when ES is unreachable and the option `DetectElasticsearchVersion` is set to true. #359
 - Create snupkg instead of the old style symbol files. #360
