@@ -5,8 +5,8 @@ build_script:
 - ps: ./Build.ps1 
 test: off
 artifacts:
-  - path: artifacts/Serilog.Sinks.Elasticsearch*.nupkg
-  - path: artifacts/Serilog.Formatting.Elasticsearch*.nupkg
+  - path: artifacts/Serilog.Sinks.Elasticsearch*.*nupkg
+  - path: artifacts/Serilog.Formatting.Elasticsearch*.*nupkg
 only_commits:
   files:
     - serilog-sinks-elasticsearch.sln

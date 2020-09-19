@@ -104,9 +104,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             throw new Exception("boom!");
         }
 
-        protected string[] AssertSeenHttpPosts(List<string> _seenHttpPosts, int lastN)
+        protected string[] AssertSeenHttpPosts(List<string> _seenHttpPosts, int lastN, int expectedNumberOfRequests = 2)
         {
-            _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(2);
+            _seenHttpPosts.Should().NotBeEmpty().And.HaveCount(expectedNumberOfRequests);
             var json = string.Join("", _seenHttpPosts);
             var bulkJsonPieces = json.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 

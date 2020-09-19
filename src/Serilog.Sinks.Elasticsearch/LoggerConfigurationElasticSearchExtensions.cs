@@ -143,6 +143,7 @@ namespace Serilog
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
+        /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -180,7 +181,8 @@ namespace Serilog
             ILogEventSink failureSink = null,
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
-            Dictionary<string,string> templateCustomSettings = null)
+            Dictionary<string,string> templateCustomSettings = null,
+            ElasticOpType batchAction = ElasticOpType.Index)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -208,6 +210,7 @@ namespace Serilog
             }
 
             options.BatchPostingLimit = batchPostingLimit;
+            options.BatchAction = batchAction;
             options.SingleEventSizePostingLimit = singleEventSizePostingLimit;
             options.Period = TimeSpan.FromSeconds(period);
             options.InlineFields = inlineFields;

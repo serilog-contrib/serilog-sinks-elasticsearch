@@ -61,6 +61,7 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.typeName" value="myCustomLogEventType"/>
     <add key="serilog:write-to:Elasticsearch.pipelineName" value="myCustomPipelineName"/>
     <add key="serilog:write-to:Elasticsearch.batchPostingLimit" value="50"/>
+    <add key="serilog:write-to:Elasticsearch.batchAction" value="create"/>
     <add key="serilog:write-to:Elasticsearch.period" value="2"/>
     <add key="serilog:write-to:Elasticsearch.inlineFields" value="true"/>
     <add key="serilog:write-to:Elasticsearch.restrictedToMinimumLevel" value="Warning"/>
@@ -179,6 +180,7 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "typeName": "myCustomLogEventType",
           "pipelineName": "myCustomPipelineName",
           "batchPostingLimit": 50,
+          "batchAction": "create",
           "period": 2,
           "inlineFields": true,
           "restrictedToMinimumLevel": "Warning",

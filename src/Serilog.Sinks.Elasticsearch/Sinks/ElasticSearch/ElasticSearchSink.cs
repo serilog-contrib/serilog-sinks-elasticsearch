@@ -16,9 +16,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Specification.SecurityApi;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
@@ -82,7 +82,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return Task.FromResult<T>(default(T));
 
-            var payload = CreatePlayLoad<T>(events);
+            var payload = CreatePlayLoad(events);
             return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
         }
 
@@ -97,7 +97,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return null;
 
-            var payload = CreatePlayLoad<T>(events);
+            var payload = CreatePlayLoad(events);
             return _state.Client.Bulk<T>(PostData.MultiJson(payload));
         }
 
@@ -165,8 +165,7 @@ namespace Serilog.Sinks.Elasticsearch
             return settings.GetType().GetProperty(name) != null;
         }
 
-        private IEnumerable<string> CreatePlayLoad<T>(IEnumerable<LogEvent> events)
-            where T : class, IElasticsearchResponse, new()
+        private IEnumerable<string> CreatePlayLoad(IEnumerable<LogEvent> events)
         {
             if (!_state.TemplateRegistrationSuccess && _state.Options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
             {
@@ -177,19 +176,15 @@ namespace Serilog.Sinks.Elasticsearch
             foreach (var e in events)
             {
                 var indexName = _state.GetIndexForEvent(e, e.Timestamp.ToUniversalTime());
-                var action = default(object);
-
                 var pipelineName = _state.Options.PipelineNameDecider?.Invoke(e) ?? _state.Options.PipelineName;
-                if (string.IsNullOrWhiteSpace(pipelineName))
-                {
-                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName } };
-                }
-                else
-                {
-                    action = new { index = new { _index = indexName, _type = _state.Options.TypeName, pipeline = pipelineName } };
-                }
-                var actionJson = _state.Serialize(action);
-                payload.Add(actionJson);
+
+                var action = CreateElasticAction(
+                    opType: _state.Options.BatchAction, 
+                    indexName: indexName,
+                    pipelineName: pipelineName, 
+                    mappingType: _state.Options.TypeName);
+                payload.Add(LowLevelRequestResponseSerializer.Instance.SerializeToString(action));
+
                 var sw = new StringWriter();
                 _state.Formatter.Format(e, sw);
                 payload.Add(sw.ToString());
@@ -204,10 +199,15 @@ namespace Serilog.Sinks.Elasticsearch
             if (result.Success && result.Body?["errors"] == true)
             {
                 var indexer = 0;
+                var opType = BulkAction(_state.Options.BatchAction);
                 var items = result.Body["items"];
                 foreach (var item in items)
                 {
-                    if (item["index"] != null && HasProperty(item["index"], "error") && item["index"]["error"] != null)
+                    var action = item.ContainsKey(opType)
+                        ? item[opType]
+                        : null;
+                    
+                    if (action != null && action.ContainsKey("error"))
                     {
                         var e = events.ElementAt(indexer);
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
@@ -216,8 +216,8 @@ namespace Serilog.Sinks.Elasticsearch
                             SelfLog.WriteLine(
                                 "Failed to store event with template '{0}' into Elasticsearch. Elasticsearch reports for index {1} the following: {2}",
                                 e.MessageTemplate,
-                                item["index"]["_index"],
-                                _state.Serialize(item["index"]["error"]));
+                                action["_index"],
+                                _state.Serialize(action["error"]));
                         }
 
                         if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
@@ -251,7 +251,6 @@ namespace Serilog.Sinks.Elasticsearch
                                     _state.Options.FailureCallback);
                             }
                         }
-
                     }
                     indexer++;
                 }
@@ -260,6 +259,70 @@ namespace Serilog.Sinks.Elasticsearch
             {
                 HandleException(result.OriginalException, events);
             }
+        }
+
+        internal static string BulkAction(ElasticOpType elasticOpType) =>
+            elasticOpType == ElasticOpType.Create
+                ? "create"
+                : "index";
+        
+        internal static object CreateElasticAction(ElasticOpType opType, string indexName, string pipelineName = null, string id = null, string mappingType = null)
+        {
+            var actionPayload = new ElasticActionPayload(
+                indexName: indexName,
+                pipeline: string.IsNullOrWhiteSpace(pipelineName) ? null : pipelineName,
+                id: id,
+                mappingType: mappingType
+            );
+
+            var action = opType == ElasticOpType.Create
+                ? (object) new ElasticCreateAction(actionPayload)
+                : new ElasticIndexAction(actionPayload);
+            return action;
+        }
+        
+        sealed class ElasticCreateAction
+        {
+            public ElasticCreateAction(ElasticActionPayload payload)
+            {
+                Payload = payload;
+            }
+
+            [DataMember(Name = "create")]
+            public ElasticActionPayload Payload { get; }
+        }
+
+        sealed class ElasticIndexAction
+        {
+            public ElasticIndexAction(ElasticActionPayload payload)
+            {
+                Payload = payload;
+            }
+
+            [DataMember(Name = "index")]
+            public ElasticActionPayload Payload { get; }
+        }
+
+        sealed class ElasticActionPayload {
+            public ElasticActionPayload(string indexName, string pipeline = null, string id = null, string mappingType = null)
+            {
+                IndexName = indexName;
+                Pipeline = pipeline;
+                Id = id;
+                MappingType = mappingType;
+            }
+
+            [DataMember(Name = "_type")]
+            public string MappingType { get; }
+
+            [DataMember(Name = "_index")]
+            public string IndexName { get; }
+
+            [DataMember(Name = "pipeline")]
+            public string Pipeline { get; }
+            
+            [DataMember(Name = "_id")]
+            public string Id { get; }
         }
     }
 }
