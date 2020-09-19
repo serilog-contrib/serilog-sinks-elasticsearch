@@ -1,26 +1,35 @@
-## Changelog
+# Changelog
+All notable changes to this project will be documented in this file.
 
-8.3 
- * Do not crash when ES is unreachable and the option `DetectElasticsearchVersion` is set to true.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-* Disable dot-escaping for field names, because ELK already supports dots in field names.
-* Support for explicitly setting `Options.TypeName` to `null` this will remove the 
-  deprecated `_type` from the bulk payload being sent to Elastic. Earlier an exception was
-  thrown if the `Options.TypeName` was `null`. _If you're using `AutoRegisterTemplateVersion.ESv7`
-  we'll not force the type to `_doc` if it's set to `null`. This is a small step towards support 
-  for writing logs to Elastic v8. #345
-* Support for setting the Elastic `op_type` e.g. `index` or `create` for bulk actions.
-  This is a requirement for writing to [data streams](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/data-streams.html)
-  that's only supporting `create`. Data streams is a more slipped stream way to handle rolling
-  indices, that previous required an ILM, template and a magic write alias. Now it's more integrated
-  in Elasticsearch and Kibana. If you're running Elastic `7.9` you'll get rolling indices out of the box
-  with this configuration:
-  ```
-  TypeName = null,
-  IndexFormat = "logs-my-stream",
-  BatchAction = ElasticOpType.Create,
-  ```
-  _Note: that current templates doesn't support data streams._ #355
+## [Unreleased]
+
+## [8.3.0] - 2020-09-19
+### Added
+- Do not crash when ES is unreachable and the option `DetectElasticsearchVersion` is set to true. #359
+- Create snupkg instead of the old style symbol files. #360
+- Support for explicitly setting `Options.TypeName` to `null` this will remove the 
+   deprecated `_type` from the bulk payload being sent to Elastic. Earlier an exception was
+   thrown if the `Options.TypeName` was `null`. _If you're using `AutoRegisterTemplateVersion.ESv7`
+   we'll not force the type to `_doc` if it's set to `null`. This is a small step towards support 
+   for writing logs to Elastic v8. #345
+- Support for setting the Elastic `op_type` e.g. `index` or `create` for bulk actions.
+   This is a requirement for writing to [data streams](https://www.elastic.co/guide/en/elasticsearch/reference/7.9/data-streams.html)
+   that's only supporting `create`. Data streams is a more slipped stream way to handle rolling
+   indices, that previous required an ILM, template and a magic write alias. Now it's more integrated
+   in Elasticsearch and Kibana. If you're running Elastic `7.9` you'll get rolling indices out of the box
+   with this configuration:
+   ```
+   TypeName = null,
+   IndexFormat = "logs-my-stream",
+   BatchAction = ElasticOpType.Create,
+   ```
+   _Note: that current templates doesn't support data streams._ #355
+
+### Removed
+- Disable dot-escaping for field names, because ELK already supports dots in field names. #351
 
 8.2
  * Allow the use of templateCustomSettings when reading from settings json (#315)
