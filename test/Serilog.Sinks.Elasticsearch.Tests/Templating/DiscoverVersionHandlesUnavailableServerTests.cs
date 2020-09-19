@@ -8,10 +8,10 @@ using Serilog.Debugging;
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
     [Collection("isolation")]
-    public class SendsTemplateHandlesUnavailableServerTests : ElasticsearchSinkTestsBase
+    public class DiscoverVersionHandlesUnavailableServerTests : ElasticsearchSinkTestsBase
     {
         [Fact]
-        public void Should_not_crash_when_server_is_unavailable()
+        public void Should_not_crash_when_server_is_unavaiable()
         {
             // If this crashes, the test will fail
             CreateLoggerThatCrashes();
@@ -27,7 +27,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             CreateLoggerThatCrashes();
 
             var selfLogContents = selfLogMessages.ToString();
-            selfLogContents.Should().Contain("Failed to create the template");
+            selfLogContents.Should().Contain("Failed to discover the cluster version");
 
         }
 
@@ -36,8 +36,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             var loggerConfig = new LoggerConfiguration()
                 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9199"))
                 {
-                    AutoRegisterTemplate = true,
-                    TemplateName = "crash"
+                    DetectElasticsearchVersion = true
                 });
 
             return loggerConfig.CreateLogger();

@@ -1,5 +1,8 @@
 ## Changelog
 
+8.3 
+ * Do not crash when ES is unreachable and the option `DetectElasticsearchVersion` is set to true.
+
 * Disable dot-escaping for field names, because ELK already supports dots in field names.
 * Support for explicitly setting `Options.TypeName` to `null` this will remove the 
   deprecated `_type` from the bulk payload being sent to Elastic. Earlier an exception was

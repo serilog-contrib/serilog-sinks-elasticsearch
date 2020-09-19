@@ -23,6 +23,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         protected readonly ElasticsearchSinkOptions _options;
         protected List<string> _seenHttpPosts = new List<string>();
         protected List<int> _seenHttpHeads = new List<int>();
+        protected List<Tuple<Uri, int>> _seenHttpGets = new List<Tuple<Uri, int>>();
         protected List<Tuple<Uri, string>> _seenHttpPuts = new List<Tuple<Uri, string>>();
         private IElasticsearchSerializer _serializer;
 
@@ -32,10 +33,11 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         {
             _seenHttpPosts = new List<string>();
             _seenHttpHeads = new List<int>();
+            _seenHttpGets = new List<Tuple<Uri,int>>();
             _seenHttpPuts = new List<Tuple<Uri, string>>();
 
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-            _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, () => _templateExistsReturnCode);
+            _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, _seenHttpGets, () => _templateExistsReturnCode);
             _serializer = JsonNetSerializer.Default(LowLevelRequestResponseSerializer.Instance, new ConnectionSettings(connectionPool, _connection));
 
             _options = new ElasticsearchSinkOptions(connectionPool)
@@ -119,6 +121,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         {
             private Func<int> _templateExistReturnCode;
             private List<int> _seenHttpHeads;
+            private List<Tuple<Uri, int>> _seenHttpGets;
             private List<string> _seenHttpPosts;
             private List<Tuple<Uri, string>> _seenHttpPuts;
 
@@ -126,12 +129,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 List<string> _seenHttpPosts,
                 List<int> _seenHttpHeads,
                 List<Tuple<Uri, string>> _seenHttpPuts,
+                List<Tuple<Uri, int>> _seenHttpGets,
                 Func<int> templateExistReturnCode
                 )
             {
                 this._seenHttpPosts = _seenHttpPosts;
                 this._seenHttpHeads = _seenHttpHeads;
                 this._seenHttpPuts = _seenHttpPuts;
+                this._seenHttpGets = _seenHttpGets;
                 this._templateExistReturnCode = templateExistReturnCode;
             }
 
@@ -148,6 +153,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         break;
                     case HttpMethod.POST:
                         _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                        break;
+                    case HttpMethod.GET:
+                        _seenHttpGets.Add(Tuple.Create(requestData.Uri, this._templateExistReturnCode()));
                         break;
                     case HttpMethod.HEAD:
                         _seenHttpHeads.Add(this._templateExistReturnCode());
@@ -171,6 +179,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         break;
                     case HttpMethod.POST:
                         _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                        break;
+                    case HttpMethod.GET:
+                        _seenHttpGets.Add(Tuple.Create(requestData.Uri, this._templateExistReturnCode()));
                         break;
                     case HttpMethod.HEAD:
                         _seenHttpHeads.Add(this._templateExistReturnCode());

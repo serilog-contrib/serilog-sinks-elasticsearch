@@ -242,17 +242,25 @@ namespace Serilog.Sinks.Elasticsearch
         {
             if (!_options.DetectElasticsearchVersion) return;
 
-            var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
+            try
             {
-                Headers = new[] { "v" }
-            });
-            if (!response.Success) return;
 
-            _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .FirstOrDefault();
+                var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
+                {
+                    Headers = new[] { "v" }
+                });
+                if (!response.Success) return;
 
-            if (_discoveredVersion?.StartsWith("7.") ?? false)
-                _options.TypeName = "_doc";
+                _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault();
+
+                if (_discoveredVersion?.StartsWith("7.") ?? false)
+                    _options.TypeName = "_doc";
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine("Failed to discover the cluster version. {0}", ex);
+            }
         }
     }
 }
