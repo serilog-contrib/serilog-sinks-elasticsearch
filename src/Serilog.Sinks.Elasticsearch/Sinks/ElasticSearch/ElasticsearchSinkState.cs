@@ -70,7 +70,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (string.IsNullOrWhiteSpace(options.TemplateName)) throw new ArgumentException("options.TemplateName");
 
             // Since TypeName is deprecated we shouldn't set it, if has been deliberately set to null.
-            if (options.TypeName == null && options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv7)
+            if (options.TypeName != null && options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv7)
             {
                 options.TypeName = "_doc";
             }
