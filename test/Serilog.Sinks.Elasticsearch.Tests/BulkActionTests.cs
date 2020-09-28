@@ -25,6 +25,24 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             const string expectedAction = @"{""index"":{""_type"":""_doc"",""_index"":""logs""}}";
             bulkJsonPieces[0].Should().Be(expectedAction);
         }
+
+        [Fact]
+        public void BulkActionV7OverrideTypeName()
+        {
+            _options.IndexFormat = "logs";
+            _options.TypeName = "logevent"; // This is the default value when creating the sink via configuration
+            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
+            _options.PipelineName = null;
+            using (var sink = new ElasticsearchSink(_options))
+            {
+                sink.Emit(ADummyLogEvent());
+                sink.Emit(ADummyLogEvent());
+            }
+
+            var bulkJsonPieces = this.AssertSeenHttpPosts(_seenHttpPosts, 2, 1);
+            const string expectedAction = @"{""index"":{""_type"":""_doc"",""_index"":""logs""}}";
+            bulkJsonPieces[0].Should().Be(expectedAction);
+        }        
         
         [Fact]
         public void DefaultBulkActionV8()

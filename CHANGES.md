@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Make sure TypeName is set to `_doc` when setting the template version to `ESv7`.
+   The regression was introduced in `8.4.0`. #364
 
 ## [8.4.0] - 2020-09-19
 ### Added
