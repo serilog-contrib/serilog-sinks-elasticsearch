@@ -110,7 +110,7 @@ namespace Serilog.Sinks.Elasticsearch
         public string DeadLetterIndexName { get; set; }
 
         ///<summary>
-        /// The default elasticsearch type name to use for the log events. Defaults to: logevent.
+        /// The default elasticsearch type name to use for the log events. Defaults to: "_doc".
         /// </summary>
         public string TypeName { get; set; }
 
