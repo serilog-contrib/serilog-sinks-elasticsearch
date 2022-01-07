@@ -144,6 +144,7 @@ namespace Serilog
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
+        /// <param name="indexAliases">Index aliases. Sets alias/aliases to an index in elasticsearch.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -182,7 +183,8 @@ namespace Serilog
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
             Dictionary<string,string> templateCustomSettings = null,
-            ElasticOpType batchAction = ElasticOpType.Index)
+            ElasticOpType batchAction = ElasticOpType.Index,
+            string[] indexAliases = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -274,7 +276,8 @@ namespace Serilog
             options.Serializer = serializer;
 
             options.TemplateCustomSettings = templateCustomSettings;
-
+            options.IndexAliases = indexAliases;
+            
             return Elasticsearch(loggerSinkConfiguration, options);
         }
     }
