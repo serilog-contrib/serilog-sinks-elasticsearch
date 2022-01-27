@@ -82,7 +82,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return Task.FromResult<T>(default(T));
 
-            var payload = CreatePlayLoad(events);
+            var payload = CreatePayload(events);
             return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
         }
 
@@ -97,7 +97,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (events == null || !events.Any())
                 return null;
 
-            var payload = CreatePlayLoad(events);
+            var payload = CreatePayload(events);
             return _state.Client.Bulk<T>(PostData.MultiJson(payload));
         }
 
@@ -111,7 +111,7 @@ namespace Serilog.Sinks.Elasticsearch
             if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
             {
                 // ES reports an error, output the error to the selflog
-                SelfLog.WriteLine("Caught exception while preforming bulk operation to Elasticsearch: {0}", ex);
+                SelfLog.WriteLine("Caught exception while performing bulk operation to Elasticsearch: {0}", ex);
             }
             if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
                 _state.Options.FailureSink != null)
@@ -165,7 +165,7 @@ namespace Serilog.Sinks.Elasticsearch
             return settings.GetType().GetProperty(name) != null;
         }
 
-        private IEnumerable<string> CreatePlayLoad(IEnumerable<LogEvent> events)
+        private IEnumerable<string> CreatePayload(IEnumerable<LogEvent> events)
         {
             if (!_state.TemplateRegistrationSuccess && _state.Options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
             {
