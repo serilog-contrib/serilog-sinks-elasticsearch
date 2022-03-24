@@ -273,6 +273,11 @@ namespace Serilog.Sinks.Elasticsearch
         /// When set to true splits the StackTrace by new line and writes it as a an array of strings.
         /// </summary>
         public bool FormatStackTraceAsArray { get; set; }
+        
+        /// <summary>
+        /// The interval at which buffer log files will roll over to a new file. The default is <see cref="RollingInterval.Day"/>.
+        /// </summary>
+        public RollingInterval BufferFileRollingInterval { get; set; }
 
         /// <summary>
         /// Configures the elasticsearch sink defaults
@@ -294,6 +299,7 @@ namespace Serilog.Sinks.Elasticsearch
             this.BufferFileSizeLimitBytes = 100L * 1024 * 1024;
             this.FormatStackTraceAsArray = false;
             this.ConnectionPool = new SingleNodeConnectionPool(_defaultNode);
+            this.BufferFileRollingInterval = RollingInterval.Day;
         }
 
         /// <summary>

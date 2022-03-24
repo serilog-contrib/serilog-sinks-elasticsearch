@@ -44,14 +44,13 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 .MinimumLevel.Verbose()
                 .WriteTo.File(_state.DurableFormatter,
                     options.BufferBaseFilename + FileNameSuffix,
-                    rollingInterval: RollingInterval.Day,
+                    rollingInterval: options.BufferFileRollingInterval,
                     fileSizeLimitBytes: options.BufferFileSizeLimitBytes,
                     rollOnFileSizeLimit: true,
                     retainedFileCountLimit: options.BufferFileCountLimit,
                     levelSwitch: _state.Options.LevelSwitch,
                     encoding: Encoding.UTF8)
                 .CreateLogger();
-
             
             var elasticSearchLogClient = new ElasticsearchLogClient(
                 elasticLowLevelClient: _state.Client, 
