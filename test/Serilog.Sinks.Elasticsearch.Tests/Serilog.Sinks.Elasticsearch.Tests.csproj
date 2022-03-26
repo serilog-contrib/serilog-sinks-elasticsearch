@@ -21,6 +21,8 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\assets\Serilog.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +33,9 @@
     <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
     <None Remove="Templating\template_v7.json" />
+    <None Include="..\..\assets\Serilog.snk">
+      <Link>Serilog.snk</Link>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
