@@ -22,7 +22,10 @@ public class FileSetTests : IDisposable
 
     public void Dispose()
     {
-        foreach (var bufferFileName in _bufferFileNames.Values) System.IO.File.Delete(bufferFileName);
+        foreach (var bufferFileName in _bufferFileNames.Values)
+        {
+            System.IO.File.Delete(bufferFileName);
+        }
     }
 
     [Theory]
@@ -32,12 +35,13 @@ public class FileSetTests : IDisposable
     [InlineData(RollingInterval.Minute)]
     [InlineData(RollingInterval.Month)]
     [InlineData(RollingInterval.Year)]
+    // Ensures that from all presented files FileSet gets only files with specified rolling interval and not the others.  
     public void GetBufferFiles_ReturnsOnlySpecifiedTypeOfRollingFile(RollingInterval rollingInterval)
     {
         // Arrange
         var format = rollingInterval.GetFormat();
         _bufferFileNames = GenerateFilesUsingFormat(format);
-        var fileSet = new FileSet(_fileNameBase);
+        var fileSet = new FileSet(_fileNameBase, rollingInterval);
         var bufferFileForInterval = _bufferFileNames[rollingInterval];
 
         // Act
@@ -48,7 +52,7 @@ public class FileSetTests : IDisposable
     }
 
     /// <summary>
-    ///     Generates buffer files for all RollingIntervals and returns dictionary of {rollingInterval, fileName} pairs.
+    /// Generates buffer files for all RollingIntervals and returns dictionary of {rollingInterval, fileName} pairs.
     /// </summary>
     /// <param name="format"></param>
     /// <returns></returns>

@@ -19,18 +19,17 @@ public class ElasticsearchPayloadReaderTests : IDisposable
 
     public void Dispose()
     {
-        System.IO.File.Delete(_bufferFileName);
+        if (!string.IsNullOrEmpty(_bufferFileName))
+        {
+            System.IO.File.Delete(_bufferFileName);
+        }
     }
 
     [Theory]
     [InlineData(RollingInterval.Day)]
     [InlineData(RollingInterval.Hour)]
-    [InlineData(RollingInterval.Infinite)]
     [InlineData(RollingInterval.Minute)]
-    [InlineData(RollingInterval.Month)]
-    [InlineData(RollingInterval.Year)]
-    public void ElasticsearchPayloadReader_ReadPayload_ShouldReadSpecifiedTypesOfRollingFile(
-        RollingInterval rollingInterval)
+    public void ReadPayload_ShouldReadSpecifiedTypesOfRollingFile(RollingInterval rollingInterval)
     {
         // Arrange
         var format = rollingInterval.GetFormat();
@@ -38,7 +37,8 @@ public class ElasticsearchPayloadReaderTests : IDisposable
             "TestTypeName",
             null,
             (_, _) => "TestIndex",
-            ElasticOpType.Index);
+            ElasticOpType.Index,
+            rollingInterval);
         var lines = new[]
         {
             rollingInterval.ToString()
@@ -51,15 +51,36 @@ public class ElasticsearchPayloadReaderTests : IDisposable
         // Act
         var fileSetPosition = new FileSetPosition(0, _bufferFileName);
         var count = 0;
-        var payload =
-            payloadReader.ReadPayload(int.MaxValue,
-                null,
-                ref fileSetPosition,
-                ref count,
-                _bufferFileName);
+        var payload = payloadReader.ReadPayload(int.MaxValue,
+            null,
+            ref fileSetPosition,
+            ref count,
+            _bufferFileName);
 
         // Assert
+        // Thus we ensure that file was properly handled by PayloadReader  
         payload.Count.Should().Be(lines.Length * 2);
         payload[1].Should().Be(lines[0]);
+    }
+
+    [Theory]
+    [InlineData(RollingInterval.Infinite)]
+    [InlineData(RollingInterval.Year)]
+    [InlineData(RollingInterval.Month)]
+    public void ElasticsearchPayloadReader_CannotUseRollingIntervalLessFrequentThanDay(RollingInterval rollingInterval)
+    {
+        // Arrange
+
+        // Act
+        Action act = () => new ElasticsearchPayloadReader("testPipelineName",
+            "TestTypeName",
+            null,
+            (_, _) => "TestIndex",
+            ElasticOpType.Index,
+            rollingInterval);
+
+        // Assert
+        act.ShouldThrow<ArgumentException>()
+            .WithMessage("Rolling intervals less frequent than RollingInterval.Day are not supported");
     }
 }

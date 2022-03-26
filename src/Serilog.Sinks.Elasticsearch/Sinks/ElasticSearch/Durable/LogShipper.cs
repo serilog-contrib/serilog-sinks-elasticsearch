@@ -76,6 +76,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="payloadReader"></param>
         /// <param name="retainedInvalidPayloadsLimitBytes"></param>
         /// <param name="bufferSizeLimitBytes"></param>
+        /// <param name="rollingInterval"></param>
         public LogShipper(            
             string bufferBaseFilename,            
             int batchPostingLimit,
@@ -85,7 +86,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             ILogClient<TPayload> logClient,
             IPayloadReader<TPayload> payloadReader,
             long? retainedInvalidPayloadsLimitBytes,
-            long? bufferSizeLimitBytes)
+            long? bufferSizeLimitBytes,
+            RollingInterval rollingInterval = RollingInterval.Day)
         {
             _batchPostingLimit = batchPostingLimit;
             _eventBodyLimitBytes = eventBodyLimitBytes;
@@ -95,7 +97,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             _connectionSchedule = new ExponentialBackoffConnectionSchedule(period);
             _retainedInvalidPayloadsLimitBytes = retainedInvalidPayloadsLimitBytes;
             _bufferSizeLimitBytes = bufferSizeLimitBytes;
-            _fileSet = new FileSet(bufferBaseFilename);
+            _fileSet = new FileSet(bufferBaseFilename, rollingInterval);
             _timer = new PortableTimer(c => OnTick());
             SetTimer();
 

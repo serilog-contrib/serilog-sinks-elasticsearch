@@ -30,5 +30,26 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                     throw new ArgumentException("Invalid rolling interval");
             }
         }
+
+        public static string GetMatchingDateRegularExpressionPart(this RollingInterval interval)
+        {
+            switch (interval)
+            {
+                case RollingInterval.Infinite:
+                    return "";
+                case RollingInterval.Year:
+                    return "\\d{4}";
+                case RollingInterval.Month:
+                    return "\\d{6}";
+                case RollingInterval.Day:
+                    return "\\d{8}";
+                case RollingInterval.Hour:
+                    return "\\d{10}";
+                case RollingInterval.Minute:
+                    return "\\d{12}";
+                default:
+                    throw new ArgumentException("Invalid rolling interval");
+            }
+        }
     }
 }

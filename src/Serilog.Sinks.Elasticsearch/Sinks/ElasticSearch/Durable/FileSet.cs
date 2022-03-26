@@ -39,14 +39,16 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
         const string InvalidPayloadFilePrefix = "invalid-";
 
-        public FileSet(string bufferBaseFilename)
+        public FileSet(string bufferBaseFilename, RollingInterval rollingInterval)
         {
             if (bufferBaseFilename == null) throw new ArgumentNullException(nameof(bufferBaseFilename));
 
             _bookmarkFilename = Path.GetFullPath(bufferBaseFilename + ".bookmark");
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(bufferBaseFilename) + "-*.json";
-            _filenameMatcher = new Regex("^" + Regex.Escape(Path.GetFileName(bufferBaseFilename)) + "-(?<date>\\d{8})(?<sequence>_[0-9]{3,}){0,1}\\.json$");
+            var dateRegularExpressionPart = rollingInterval.GetMatchingDateRegularExpressionPart();
+            _filenameMatcher = new Regex("^" + Regex.Escape(Path.GetFileName(bufferBaseFilename)) + "-(?<date>" 
+                                         + dateRegularExpressionPart + ")(?<sequence>_[0-9]{3,}){0,1}\\.json$");
         }
 
         public BookmarkFile OpenBookmarkFile()
