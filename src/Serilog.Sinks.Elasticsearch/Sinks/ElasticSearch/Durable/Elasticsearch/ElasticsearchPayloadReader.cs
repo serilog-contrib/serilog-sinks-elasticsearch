@@ -74,7 +74,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
             var dateFormat = _rollingInterval.GetFormat();
             var dateString = lastToken.Substring(0, dateFormat.Length);
-            _date = DateTime.ParseExact(dateString, dateFormat, CultureInfo.InvariantCulture);            
+            _date = DateTime.ParseExact(dateString, dateFormat, CultureInfo.InvariantCulture);
         }
        /// <summary>
        /// 
