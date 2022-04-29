@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.dotnet-pack.outputs.nupkg-filename }}
-          path: ${{ steps.dotnet-pack.outputs.nupkg-filename }}
+          path: '**/*.nupkg'
     
       - name: Retrieve tag message
         run: |
@@ -99,15 +99,12 @@ jobs:
           name: ${{ needs.package.outputs.nupkg-filename }}
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          tag_name: ${{ needs.package.outputs.version }}
-          release_name: Version ${{ needs.package.outputs.version }}
-          body: ${{ needs.package.outputs.release-body }}
-          draft: false
-          prerelease: ${{ contains(needs.package.outputs.version, '-') }}
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: true
+          files: |
+            '**/*.nupkg'
 
       - name: Publish NuGet package on nuget.org
         run: dotnet nuget push ${{ needs.package.outputs.nupkg-filename }} --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}"
