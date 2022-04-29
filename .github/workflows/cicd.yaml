@@ -74,7 +74,7 @@ jobs:
       - name: Upload NuGet package artifact        
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.dotnet-pack.outputs.nupkg-filename }}
+          name: nuget
           path: '**/*.nupkg'
     
       - name: Retrieve tag message
@@ -96,7 +96,7 @@ jobs:
       - name: Download NuGet package artifact
         uses: actions/download-artifact@v3
         with:
-          name: ${{ needs.package.outputs.nupkg-filename }}
+          name: nuget
 
       - name: Create GitHub Release
         uses: "marvinpinto/action-automatic-releases@latest"
