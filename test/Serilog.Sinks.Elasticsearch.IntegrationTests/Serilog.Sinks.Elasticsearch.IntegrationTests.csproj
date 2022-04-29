@@ -18,7 +18,7 @@
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.2.4" />
     <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.2.4" />
     <PackageReference Include="FluentAssertions" Version="5.7.0" />
