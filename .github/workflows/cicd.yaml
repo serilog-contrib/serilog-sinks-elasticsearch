@@ -102,6 +102,7 @@ jobs:
      
           for f in ./nuget/*.nupkg
           do             
+            echo @$f
             dotnet nuget push @$f --source "github"
           done
 
