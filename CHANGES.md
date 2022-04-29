@@ -6,7 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0] - 2022-04-29
 
+### Fixed
+ - Dropped support for old .NET framework, and now uses .NET Core. Previous versions were out of support by MS anyway.
+ - Fixed the build so it uses GitHub Actions as AppVeyor was not working
+ - Created packages in GitHub Packages 
+
+### Added
+ - PR #420
+ - PR #416 
+ - PR #406
 ## [8.4.1] - 2020-09-28
 ### Fixed
 - Make sure TypeName is set to `_doc` when setting the template version to `ESv7`.
