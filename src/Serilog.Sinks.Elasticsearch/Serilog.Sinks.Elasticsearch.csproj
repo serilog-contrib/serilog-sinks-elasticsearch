@@ -11,10 +11,10 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>Serilog.Sinks.Elasticsearch</PackageId>
     <PackageTags>serilog;elasticsearch;logging;event;collector</PackageTags>
-    <PackageReleaseNotes>https://github.com/serilog/serilog-sinks-elasticsearch/blob/master/CHANGES.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/serilog-contrib/serilog-sinks-elasticsearch/blob/master/CHANGES.md</PackageReleaseNotes>
     <PackageIcon>serilog-sink-nuget.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/serilog/serilog-sinks-elasticsearch</PackageProjectUrl>    
-    <RepositoryUrl>https://github.com/serilog/serilog-sinks-elasticsearch</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/serilog-contrib/serilog-sinks-elasticsearch</PackageProjectUrl>    
+    <RepositoryUrl>https://github.com/serilog-contrib/serilog-sinks-elasticsearch</RepositoryUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
