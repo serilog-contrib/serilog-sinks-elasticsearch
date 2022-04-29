@@ -14,7 +14,7 @@
     <PackageId>Serilog.Formatting.Elasticsearch</PackageId>
     <PackageTags>serilog;elasticsearch;logging;event;formatting</PackageTags>
     <PackageReleaseNotes>https://github.com/serilog-contrib/serilog-sinks-elasticsearch/blob/master/CHANGES.md</PackageReleaseNotes>
-    <PackageIcon>https://cdn.jsdelivr.net/gh/serilog-contrib/brand/logo/sink/serilog-sink-nuget.png</PackageIcon>
+    <PackageIcon>serilog-sink-nuget.png</PackageIcon>
     <PackageProjectUrl>https://github.com/serilog-contrib/serilog-sinks-elasticsearch</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/serilog-contrib/serilog-sinks-elasticsearch</RepositoryUrl>
@@ -37,4 +37,9 @@
     <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
   </ItemGroup>
     
+  <ItemGroup>
+    <None Include="..\..\assets\serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>
