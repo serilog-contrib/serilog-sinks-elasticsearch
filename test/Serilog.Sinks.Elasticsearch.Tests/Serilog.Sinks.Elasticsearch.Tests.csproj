@@ -66,7 +66,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Elasticsearch.Net" Version="7.8.1" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.1" />
     <PackageReference Include="NEST" Version="7.8.1" />
     <PackageReference Include="NEST.JsonNetSerializer" Version="7.8.1" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
