@@ -32,7 +32,6 @@
 
   
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
 
     <ProjectReference Include="..\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj" />
       

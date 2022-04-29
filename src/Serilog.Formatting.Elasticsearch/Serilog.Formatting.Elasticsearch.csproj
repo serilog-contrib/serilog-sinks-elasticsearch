@@ -30,10 +30,6 @@
   <ItemGroup>
     <PackageReference Include="Serilog" Version="2.11.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-version" Version="1.1.0" />
-  </ItemGroup>
     
   <ItemGroup>
     <None Include="..\..\assets\serilog-sink-nuget.png" Pack="true" Visible="false" PackagePath="" />
