@@ -134,7 +134,7 @@ jobs:
           arrTag=(${GITHUB_REF//\// })
           VERSION="${arrTag[2]}"
           VERSION="${VERSION//v}"
-          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o nupkg
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o ./nupkg
       
       - name: Push to GitHub Feed
         run: |
@@ -146,4 +146,4 @@ jobs:
           done
 
       - name: Publish NuGet package on nuget.org
-        run: dotnet nuget push nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}"
+        run: dotnet nuget push ./nuget/*.nupkg --source https://api.nuget.org/v3/index.json --api-key "${{ secrets.NUGET_API_KEY }}"
