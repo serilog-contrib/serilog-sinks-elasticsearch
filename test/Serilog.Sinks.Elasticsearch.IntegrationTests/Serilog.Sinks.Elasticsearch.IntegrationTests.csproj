@@ -16,9 +16,12 @@
     <PackageReference Include="Elasticsearch.Net.v6" Version="6.9.0-ci20190620T132817" />
     <PackageReference Include="NEST.v6" Version="6.9.0-ci20190620T132817" />
       
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.2.4" />
     <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.2.4" />
@@ -26,7 +29,7 @@
     <PackageReference Include="NEST" Version="7.8.1" />
     <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
     <PackageReference Include="coverlet.msbuild" Version="3.1.2" PrivateAssets="all" />
-    <PackageReference Include="ReportGenerator" Version="5.1.4" />    
+    <PackageReference Include="ReportGenerator" Version="5.1.5" />    
   </ItemGroup>
 
   <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
