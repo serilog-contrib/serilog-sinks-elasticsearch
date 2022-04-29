@@ -30,12 +30,13 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="retainedInvalidPayloadsLimitBytes"></param>
         /// <param name="bufferSizeLimitBytes"></param>
         /// <param name="registerTemplateIfNeeded"></param>
+        /// <param name="rollingInterval"></param>
         public ElasticsearchLogShipper(string bufferBaseFilename, int batchPostingLimit, TimeSpan period,
             long? eventBodyLimitBytes, LoggingLevelSwitch levelControlSwitch, ILogClient<List<string>> logClient,
             IPayloadReader<List<string>> payloadReader, long? retainedInvalidPayloadsLimitBytes,
-            long? bufferSizeLimitBytes, Action registerTemplateIfNeeded)
-            : base(bufferBaseFilename, batchPostingLimit, period, eventBodyLimitBytes,
-            levelControlSwitch, logClient, payloadReader, retainedInvalidPayloadsLimitBytes, bufferSizeLimitBytes)
+            long? bufferSizeLimitBytes, Action registerTemplateIfNeeded, RollingInterval rollingInterval)
+            : base(bufferBaseFilename, batchPostingLimit, period, eventBodyLimitBytes, levelControlSwitch, logClient, 
+                payloadReader, retainedInvalidPayloadsLimitBytes, bufferSizeLimitBytes, rollingInterval)
         {
             _registerTemplateIfNeeded = registerTemplateIfNeeded;                        
         }
