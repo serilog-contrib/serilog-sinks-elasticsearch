@@ -204,10 +204,7 @@ namespace Serilog
                 options.TemplateName = templateName;
             }
 
-            if (!string.IsNullOrWhiteSpace(typeName))
-            {
-                options.TypeName = typeName;
-            }
+            options.TypeName = !string.IsNullOrWhiteSpace(typeName) ? typeName : null;
 
             options.BatchPostingLimit = batchPostingLimit;
             options.BatchAction = batchAction;
