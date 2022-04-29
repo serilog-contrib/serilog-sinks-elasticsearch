@@ -101,7 +101,7 @@ jobs:
         name: Push to GitHub feed
         with:
           nupkg-path:  './nuget/*.nupkg'
-          repo-owner:  ${{ env.GITHUB_USER }}
+          repo-owner:  'serilog-contrib'
           gh-user:  ${{ env.GITHUB_USER }}
           token:  ${{ secrets.GITHUB_TOKEN }}
 
@@ -139,7 +139,7 @@ jobs:
         name: Push to GitHub feed
         with:
           nupkg-path:  './nuget/*.nupkg'
-          repo-owner:  ${{ env.GITHUB_USER }}
+          repo-owner:  'serilog-contrib'
           gh-user:  ${{ env.GITHUB_USER }}
           token:  ${{ secrets.GITHUB_TOKEN }}
 
