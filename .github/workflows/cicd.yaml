@@ -88,13 +88,14 @@ jobs:
    
   prerelease:
     needs: package
+    name: Create prerelease 
     if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v3
         with:
-          name: nupkg
+          name: nuget
       - name: Push to GitHub Feed
         run: |
           for f in ./nupkg/*.nupkg
@@ -106,7 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: package
     if: github.event_name == 'release'
-    name: Publish NuGet package and create GitHub release
+    name: Publish NuGet package 
     steps:
       - name: Checkout git repository
         uses: actions/checkout@v3
