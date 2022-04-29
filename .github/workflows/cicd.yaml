@@ -96,12 +96,13 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: nuget
-      - name: Push to GitHub Feed
-        run: |
-          for f in ./nuget/*.nupkg
-          do
-            curl -vX PUT -u "$GITHUB_USER:$GITHUB_TOKEN" -F package=@$f $GITHUB_FEED
-          done
+
+      - uses: tanaka-takayoshi/nuget-publish-to-github-packages-action@v2.1
+        with:
+          nupkg-path:  './nuget/*.nupkg'
+          repo-owner:  '$GITHUB_USER'
+          gh-user:  '$GITHUB_USER'
+          token:  ${{ secrets.GITHUB_TOKEN }}
 
   publish:
     runs-on: ubuntu-latest
