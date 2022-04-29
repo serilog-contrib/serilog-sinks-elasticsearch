@@ -96,7 +96,7 @@ jobs:
     name: Publish NuGet package and create GitHub release
     steps:
       - name: Download NuGet package artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: ${{ needs.package.outputs.nupkg-filename }}
           
