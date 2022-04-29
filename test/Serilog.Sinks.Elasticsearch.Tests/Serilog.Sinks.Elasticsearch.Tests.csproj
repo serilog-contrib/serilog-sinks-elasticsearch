@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Serilog.Sinks.Elasticsearch.Tests</AssemblyName>
     <PackageId>Serilog.Sinks.Elasticsearch.Tests</PackageId>
 
@@ -107,7 +107,7 @@
         <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
     </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
     <DefineConstants>$(DefineConstants);DOTNETCORE;PARTIALLY_SERIALIZATION</DefineConstants>
   </PropertyGroup>
 
