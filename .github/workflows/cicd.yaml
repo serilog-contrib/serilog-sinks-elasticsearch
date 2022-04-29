@@ -42,7 +42,7 @@ jobs:
         run: dotnet build
 
       - name: Run tests
-        run: dotnet test --no-build --logger "html;LogFileName=../../TestResults-${{ runner.os }}.html" --logger "trx;LogFileName=../../TestResults-${{ runner.os }}.trx" --logger GitHubActions
+        run: dotnet test --no-build --logger "html;LogFileName=TestResults-${{ runner.os }}.html" --logger "trx;LogFileName=TestResults-${{ runner.os }}.trx" --logger GitHubActions
         id: dotnet-test
       
       - name: Upload received files from failing tests
@@ -64,7 +64,7 @@ jobs:
         if: always()
         with:
           name: Test Results (${{ runner.os }})
-          path: TestResults-${{ runner.os }}.trx
+          path: '**.trx'
           reporter: dotnet-trx
 
       - name: Create NuGet package
@@ -99,7 +99,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ needs.package.outputs.nupkg-filename }}
-          
+
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
