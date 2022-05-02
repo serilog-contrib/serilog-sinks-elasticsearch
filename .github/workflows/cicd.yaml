@@ -55,14 +55,14 @@ jobs:
         id: dotnet-test
       
       - name: Upload received files from failing tests
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Received-${{ runner.os }}
           path: "**/*.received.*"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: TestResults-${{ runner.os }}
@@ -81,7 +81,7 @@ jobs:
         id: dotnet-pack
     
       - name: Upload NuGet package artifact        
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nuget
           path: '**/*.nupkg'
