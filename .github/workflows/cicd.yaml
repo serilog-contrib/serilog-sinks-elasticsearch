@@ -146,4 +146,4 @@ jobs:
           done
 
       - name: Publish NuGet package on nuget.org
-        run: dotnet nuget push ./nuget/*.nupkg --api-key "${{ secrets.NUGET_API_KEY }}"
+        run: dotnet nuget push ./nuget/*.nupkg --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate
