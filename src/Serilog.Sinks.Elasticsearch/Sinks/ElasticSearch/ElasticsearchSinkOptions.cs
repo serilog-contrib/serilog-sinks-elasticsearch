@@ -246,7 +246,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// A callback which can be used to handle logevents which are not submitted to Elasticsearch
         /// like when it is unable to accept the events. This is optional and depends on the EmitEventFailure setting.
         /// </summary>
-        public Action<LogEvent> FailureCallback { get; set; }
+        public Action<LogEvent, Exception> FailureCallback { get; set; }
 
         /// <summary>
         /// The maximum number of events that will be held in-memory while waiting to ship them to
