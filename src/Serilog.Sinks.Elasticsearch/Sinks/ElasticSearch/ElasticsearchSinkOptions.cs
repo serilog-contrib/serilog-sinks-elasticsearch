@@ -281,7 +281,7 @@ namespace Serilog.Sinks.Elasticsearch
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
             this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
-            this.TypeName = DefaultTypeName;
+            //this.TypeName = DefaultTypeName;
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.SingleEventSizePostingLimit = null;
@@ -300,7 +300,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
         /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
         /// </summary>
-        public static string DefaultTypeName { get; } = "_doc";
+        public static string DefaultTypeName { get; } = null;
 
         /// <summary>
         /// Instructs the sink to auto detect the running Elasticsearch version.
