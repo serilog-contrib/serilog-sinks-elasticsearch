@@ -23,7 +23,7 @@
     </PackageReference>
     <PackageReference Include="xunit.extensibility.execution" Version="2.4.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.2.4" />
+    <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.3.2" />
     <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.2.4" />
     <PackageReference Include="FluentAssertions" Version="5.7.0" />
     <PackageReference Include="NEST" Version="7.8.1" />
