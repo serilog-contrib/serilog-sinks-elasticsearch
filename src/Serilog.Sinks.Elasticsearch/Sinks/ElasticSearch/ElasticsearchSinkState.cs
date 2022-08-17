@@ -244,7 +244,6 @@ namespace Serilog.Sinks.Elasticsearch
 
             try
             {
-
                 var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
                 {
                     Headers = new[] { "v" }
@@ -254,8 +253,18 @@ namespace Serilog.Sinks.Elasticsearch
                 _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .FirstOrDefault();
 
-                if (_discoveredVersion?.StartsWith("7.") ?? false)
-                    _options.TypeName = "_doc";
+                if (_discoveredVersion == null)
+                    return;
+
+                if (int.TryParse(_discoveredVersion.Substring(0, _discoveredVersion.IndexOf('.')), out int majorVersion))
+                {
+                    if (majorVersion < 7)
+                        _options.TypeName = String.IsNullOrWhiteSpace(_options.TypeName)
+                            ? ElasticsearchSinkOptions.DefaultTypeName // "logevent"
+                            : _options.TypeName;
+                    else
+                        _options.TypeName = null;
+                }
             }
             catch (Exception ex)
             {
