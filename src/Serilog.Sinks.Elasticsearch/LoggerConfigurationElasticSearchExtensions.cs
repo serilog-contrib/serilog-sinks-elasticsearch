@@ -143,6 +143,7 @@ namespace Serilog
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
+        /// <param name="detectElasticsearchVersion">Turns on detection of elasticsearch version via background HTTP call. This will also set `TypeName` automatically, according to the version of Elasticsearch.</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
@@ -151,7 +152,7 @@ namespace Serilog
             string nodeUris,
             string indexFormat = null,
             string templateName = null,
-            string typeName = "logevent",
+            string typeName = null,
             int batchPostingLimit = 50,
             int period = 2,
             bool inlineFields = false,
@@ -182,7 +183,8 @@ namespace Serilog
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
             Dictionary<string,string> templateCustomSettings = null,
-            ElasticOpType batchAction = ElasticOpType.Index)
+            ElasticOpType batchAction = ElasticOpType.Index,
+            bool detectElasticsearchVersion = false)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -203,8 +205,6 @@ namespace Serilog
                 options.AutoRegisterTemplate = true;
                 options.TemplateName = templateName;
             }
-
-            options.TypeName = !string.IsNullOrWhiteSpace(typeName) ? typeName : null;
 
             options.BatchPostingLimit = batchPostingLimit;
             options.BatchAction = batchAction;
@@ -271,6 +271,8 @@ namespace Serilog
             options.Serializer = serializer;
 
             options.TemplateCustomSettings = templateCustomSettings;
+
+            options.DetectElasticsearchVersion = detectElasticsearchVersion;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }

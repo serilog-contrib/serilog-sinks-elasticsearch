@@ -30,7 +30,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         public void BulkActionV7OverrideTypeName()
         {
             _options.IndexFormat = "logs";
-            _options.TypeName = "logevent"; // This is the default value when creating the sink via configuration
+            _options.TypeName = null; // This is the default value, starting v9.0.0
             _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
             _options.PipelineName = null;
             using (var sink = new ElasticsearchSink(_options))
