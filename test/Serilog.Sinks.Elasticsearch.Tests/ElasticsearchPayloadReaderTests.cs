@@ -114,7 +114,7 @@ public class ElasticsearchPayloadReaderTests : IDisposable
             rollingInterval);
 
         // Assert
-        act.ShouldThrow<ArgumentException>()
+        act.Should().Throw<ArgumentException>()
             .WithMessage("Rolling intervals less frequent than RollingInterval.Day are not supported");
     }
 }
