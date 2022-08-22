@@ -4,8 +4,6 @@ using System.IO;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Core;
 using Serilog.Debugging;

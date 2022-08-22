@@ -39,19 +39,17 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 throw new ArgumentException("Cannot create the durable ElasticSearch sink without a buffer base file name!");
             }
 
-            
             _sink = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
                 .WriteTo.File(_state.DurableFormatter,
                     options.BufferBaseFilename + FileNameSuffix,
-                    rollingInterval: RollingInterval.Day,
+                    rollingInterval: options.BufferFileRollingInterval,
                     fileSizeLimitBytes: options.BufferFileSizeLimitBytes,
                     rollOnFileSizeLimit: true,
                     retainedFileCountLimit: options.BufferFileCountLimit,
                     levelSwitch: _state.Options.LevelSwitch,
                     encoding: Encoding.UTF8)
                 .CreateLogger();
-
             
             var elasticSearchLogClient = new ElasticsearchLogClient(
                 elasticLowLevelClient: _state.Client, 
@@ -63,7 +61,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                  typeName:_state.Options.TypeName, 
                  serialize:_state.Serialize,  
                  getIndexForEvent: _state.GetBufferedIndexForEvent,
-                 elasticOpType: _state.Options.BatchAction);
+                 elasticOpType: _state.Options.BatchAction,
+                 rollingInterval: options.BufferFileRollingInterval);
 
             _shipper = new ElasticsearchLogShipper(
                 bufferBaseFilename: _state.Options.BufferBaseFilename,
@@ -75,7 +74,8 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 payloadReader: payloadReader,
                 retainedInvalidPayloadsLimitBytes: _state.Options.BufferRetainedInvalidPayloadsLimitBytes,
                 bufferSizeLimitBytes: _state.Options.BufferFileSizeLimitBytes,
-                registerTemplateIfNeeded: _state.RegisterTemplateIfNeeded);
+                registerTemplateIfNeeded: _state.RegisterTemplateIfNeeded,
+                rollingInterval: options.BufferFileRollingInterval);
                 
         }
 

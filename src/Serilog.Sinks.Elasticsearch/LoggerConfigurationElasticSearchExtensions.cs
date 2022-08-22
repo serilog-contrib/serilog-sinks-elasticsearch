@@ -70,7 +70,7 @@ namespace Serilog
         /// Overload to allow basic configuration through AppSettings.
         /// </summary>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
-        /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
+        /// <param name="nodeUris">A comma or semi-colon separated list of URIs for Elasticsearch nodes.</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
         /// <param name="typeName"><see cref="ElasticsearchSinkOptions.TypeName"/></param>
@@ -82,7 +82,7 @@ namespace Serilog
         /// <param name="bufferBaseFilename"><see cref="ElasticsearchSinkOptions.BufferBaseFilename"/></param>
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
-        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>
+        /// <param name="connectionGlobalHeaders">A comma or semi-colon separated list of key value pairs of headers to be added to each elastic http request</param>
         [Obsolete("New code should not be compiled against this obsolete overload"), EditorBrowsable(EditorBrowsableState.Never)]
         public static LoggerConfiguration Elasticsearch(
            this LoggerSinkConfiguration loggerSinkConfiguration,
@@ -109,7 +109,7 @@ namespace Serilog
         /// Overload to allow basic configuration through AppSettings.
         /// </summary>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
-        /// <param name="nodeUris">A comma or semi column separated list of URIs for Elasticsearch nodes.</param>
+        /// <param name="nodeUris">A comma or semi-colon separated list of URIs for Elasticsearch nodes.</param>
         /// <param name="indexFormat"><see cref="ElasticsearchSinkOptions.IndexFormat"/></param>
         /// <param name="templateName"><see cref="ElasticsearchSinkOptions.TemplateName"/></param>
         /// <param name="typeName"><see cref="ElasticsearchSinkOptions.TypeName"/></param>
@@ -122,7 +122,7 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferFileCountLimit"><see cref="ElasticsearchSinkOptions.BufferFileCountLimit"/></param>        
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
-        /// <param name="connectionGlobalHeaders">A comma or semi column separated list of key value pairs of headers to be added to each elastic http request</param>   
+        /// <param name="connectionGlobalHeaders">A comma or semi-colon separated list of key value pairs of headers to be added to each elastic http request</param>
         /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>   
         /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/>Specifies how failing emits should be handled.</param>  
         /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/>The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>   
@@ -204,10 +204,7 @@ namespace Serilog
                 options.TemplateName = templateName;
             }
 
-            if (!string.IsNullOrWhiteSpace(typeName))
-            {
-                options.TypeName = typeName;
-            }
+            options.TypeName = !string.IsNullOrWhiteSpace(typeName) ? typeName : null;
 
             options.BatchPostingLimit = batchPostingLimit;
             options.BatchAction = batchAction;

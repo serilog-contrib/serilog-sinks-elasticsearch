@@ -278,6 +278,10 @@ Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which th
 
 ### Breaking changes
 
+#### Version 9
+
+* Dropped support for 456 and sticking now with NETSTANDARD
+
 #### Version 7
 
 * Nuget Serilog.Sinks.File is now used instead of deprecated Serilog.Sinks.RollingFile
