@@ -26,6 +26,40 @@ public class ElasticsearchPayloadReaderTests : IDisposable
     }
 
     [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    [InlineData(" ")]
+    public void ReadPayload_SkipsEmptyLines(string emptyLine)
+    {
+        // Arrange
+        var payloadReader = new ElasticsearchPayloadReader("testPipelineName", "TestTypeName", null,
+            (_, _) => "TestIndex", ElasticOpType.Index, RollingInterval.Day);
+        var lines = new[]
+        {
+            "line1",
+            emptyLine,
+            "line2"
+        };
+        _bufferFileName = string.Format(_tempFileFullPathTemplate, new DateTime(2000, 1, 1).ToString(RollingInterval.Day.GetFormat()));
+        // Important to use UTF8 with BOM if we are starting from 0 position 
+        System.IO.File.WriteAllLines(_bufferFileName, lines, new UTF8Encoding(true));
+
+        // Act
+        var fileSetPosition = new FileSetPosition(0, _bufferFileName);
+        var count = 0;
+        var payload = payloadReader.ReadPayload(int.MaxValue, null, ref fileSetPosition, ref count, _bufferFileName);
+
+        // Assert
+        payload.Count.Should().Be((lines.Length - 1) * 2);
+        payload[1].Should().Be(lines[0]);
+        payload[3].Should().Be(lines[2]);
+        if (!string.IsNullOrEmpty(_bufferFileName))
+        {
+            System.IO.File.Delete(_bufferFileName);
+        }
+    }
+
+    [Theory]
     [InlineData(RollingInterval.Day)]
     [InlineData(RollingInterval.Hour)]
     [InlineData(RollingInterval.Minute)]

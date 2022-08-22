@@ -91,9 +91,15 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="nextLine"></param>
         protected override void AddToPayLoad(string nextLine)
         {
+            // No need to add empty or whitespace lines to payload
+            if (string.IsNullOrWhiteSpace(nextLine))
+            {
+                return;
+            }
+
             var indexName = _getIndexForEvent(nextLine, _date);
             var action = ElasticsearchSink.CreateElasticAction(
-                opType: _elasticOpType, 
+                opType: _elasticOpType,
                 indexName: indexName, pipelineName: _pipelineName,
                 id: _count + "_" + Guid.NewGuid(),
                 mappingType: _typeName);
@@ -101,6 +107,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
             _payload.Add(actionJson);
             _payload.Add(nextLine);
+
             _count++;
         }
     }
