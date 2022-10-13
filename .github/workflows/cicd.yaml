@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3.0.2
 
       - name: Retrieve cached NuGet packages
         uses: actions/cache@v3
@@ -118,7 +118,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3.0.2
 
       - name: Retrieve cached NuGet packages
         uses: actions/cache@v3
