@@ -314,6 +314,7 @@ namespace Serilog.Sinks.Elasticsearch
         ///
         /// <para>
         /// This information is used to attempt to register an older or newer template
+        /// and to decide which version of index-template API to use.
         /// </para>
         /// <para></para>
         ///

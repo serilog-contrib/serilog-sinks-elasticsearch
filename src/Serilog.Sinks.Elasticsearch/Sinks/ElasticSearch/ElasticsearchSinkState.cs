@@ -54,9 +54,8 @@ namespace Serilog.Sinks.Elasticsearch
         private string _discoveredVersion;
 
         public string DiscoveredVersion => _discoveredVersion;
-        private bool IncludeTypeName =>
-            (DiscoveredVersion?.StartsWith("7.") ?? false)
-            && _options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv6;
+        public int DiscoveredMajorVersion { get; private set; }
+        private bool IncludeTypeName => DiscoveredMajorVersion >= 7;
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -166,11 +165,32 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
-                    new PutIndexTemplateRequestParameters
+                if (_options.DetectElasticsearchVersion == true) { 
+                    _options.AutoRegisterTemplateVersion = DiscoveredMajorVersion switch
                     {
-                        IncludeTypeName = IncludeTypeName ? true : (bool?)null
-                    });
+                        8 => AutoRegisterTemplateVersion.ESv8,
+                        7 => AutoRegisterTemplateVersion.ESv7,
+                        6 => AutoRegisterTemplateVersion.ESv6,
+                        5 => AutoRegisterTemplateVersion.ESv5,
+                        2 => AutoRegisterTemplateVersion.ESv2,
+                        _ => throw new NotSupportedException()
+                    };
+                }
+
+                StringResponse result;                
+                if (_options.DetectElasticsearchVersion = true && DiscoveredMajorVersion < 8)
+                { 
+                    result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
+                        new PutIndexTemplateRequestParameters
+                        {
+                            IncludeTypeName = IncludeTypeName ? true : (bool?)null
+                        });
+                }
+                else
+                {
+                    // Default to version 8 API
+                    result = _client.Indices.PutTemplateV2ForAll<StringResponse>(_templateName, GetTemplatePostData());
+                }
 
                 if (!result.Success)
                 {
@@ -231,7 +251,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             return ElasticsearchTemplateProvider.GetTemplate(
                 _options,
-                DiscoveredVersion,
+                DiscoveredMajorVersion,
                 settings,
                 _templateMatchString,
                 _options.AutoRegisterTemplateVersion);
@@ -256,9 +276,11 @@ namespace Serilog.Sinks.Elasticsearch
                 if (_discoveredVersion == null)
                     return;
 
+
                 if (int.TryParse(_discoveredVersion.Substring(0, _discoveredVersion.IndexOf('.')), out int majorVersion))
                 {
-                    if (majorVersion < 7)
+                    DiscoveredMajorVersion = majorVersion;
+                    if (DiscoveredMajorVersion < 7)
                         _options.TypeName = String.IsNullOrWhiteSpace(_options.TypeName)
                             ? ElasticsearchSinkOptions.DefaultTypeName // "logevent"
                             : _options.TypeName;

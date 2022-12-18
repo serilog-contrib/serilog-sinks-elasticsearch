@@ -9,8 +9,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
     public class OverwriteTemplateTests : ElasticsearchSinkTestsBase
     {
-
-        public void DoRegister()
+        private void DoRegister()
         {
             _templateExistsReturnCode = 200;
 
