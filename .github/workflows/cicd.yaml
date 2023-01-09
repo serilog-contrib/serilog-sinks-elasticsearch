@@ -37,6 +37,8 @@ jobs:
 
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3.0.2
+        with:
+          dotnet-version: '3.1.x'
 
       - name: Retrieve cached NuGet packages
         uses: actions/cache@v3
