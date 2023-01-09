@@ -143,6 +143,7 @@ namespace Serilog
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
+        /// <param name="formatStackTraceAsArray">When set to true splits the StackTrace by new line and writes it as a an array of strings.</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
@@ -182,6 +183,7 @@ namespace Serilog
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
             Dictionary<string,string> templateCustomSettings = null,
+            bool formatStackTraceAsArray=false,
             ElasticOpType batchAction = ElasticOpType.Index)
         {
             if (string.IsNullOrEmpty(nodeUris))
@@ -271,6 +273,7 @@ namespace Serilog
             options.Serializer = serializer;
 
             options.TemplateCustomSettings = templateCustomSettings;
+            options.FormatStackTraceAsArray = formatStackTraceAsArray;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
