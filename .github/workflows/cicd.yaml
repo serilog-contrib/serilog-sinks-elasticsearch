@@ -98,6 +98,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: nuget
+          path: nuget
       - name: Push to GitHub Feed
         run: | 
           dotnet nuget add source --username $GITHUB_USER --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/serilog-contrib/index.json"
