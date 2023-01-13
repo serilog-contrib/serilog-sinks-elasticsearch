@@ -36,7 +36,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3.0.2
+        with:
+          dotnet-version: '3.1.x'
 
       - name: Retrieve cached NuGet packages
         uses: actions/cache@v3
@@ -55,14 +57,14 @@ jobs:
         id: dotnet-test
       
       - name: Upload received files from failing tests
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: Received-${{ runner.os }}
           path: "**/*.received.*"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: TestResults-${{ runner.os }}
@@ -81,7 +83,7 @@ jobs:
         id: dotnet-pack
     
       - name: Upload NuGet package artifact        
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nuget
           path: '**/*.nupkg'
@@ -93,9 +95,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: nuget
+          path: nuget
       - name: Push to GitHub Feed
         run: | 
           dotnet nuget add source --username $GITHUB_USER --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/serilog-contrib/index.json"
@@ -118,7 +121,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3.0.2
 
       - name: Retrieve cached NuGet packages
         uses: actions/cache@v3
