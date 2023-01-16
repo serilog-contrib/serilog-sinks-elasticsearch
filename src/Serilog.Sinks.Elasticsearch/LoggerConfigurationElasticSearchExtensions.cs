@@ -12,19 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Serilog.Sinks.Elasticsearch;
+using Serilog.Sinks.Elasticsearch.Durable;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Serilog.Configuration;
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Sinks.Elasticsearch;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using Elasticsearch.Net;
-using Serilog.Formatting;
-using Serilog.Sinks.Elasticsearch.Durable;
+using System.IO;
+using System.Linq;
 
 namespace Serilog
 {
@@ -143,6 +138,7 @@ namespace Serilog
         /// <param name="failureSink">Sink to use when Elasticsearch is unable to accept the events. This is optionally and depends on the EmitEventFailure setting.</param>   
         /// <param name="singleEventSizePostingLimit"><see cref="ElasticsearchSinkOptions.SingleEventSizePostingLimit"/>The maximum length of an event allowed to be posted to Elasticsearch.default null</param>
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
+        /// <param name="bufferRetainedInvalidPayloadsLimitBytes"><see cref="ElasticsearchSinkOptions.BufferRetainedInvalidPayloadsLimitBytes"/></param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
@@ -181,7 +177,8 @@ namespace Serilog
             ILogEventSink failureSink = null,
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
-            Dictionary<string,string> templateCustomSettings = null,
+            Dictionary<string, string> templateCustomSettings = null,
+            long? bufferRetainedInvalidPayloadsLimitBytes = null,
             ElasticOpType batchAction = ElasticOpType.Index)
         {
             if (string.IsNullOrEmpty(nodeUris))
@@ -271,6 +268,8 @@ namespace Serilog
             options.Serializer = serializer;
 
             options.TemplateCustomSettings = templateCustomSettings;
+
+            options.BufferRetainedInvalidPayloadsLimitBytes = bufferRetainedInvalidPayloadsLimitBytes;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
