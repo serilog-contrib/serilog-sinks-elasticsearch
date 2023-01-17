@@ -120,6 +120,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         public class ConnectionStub : InMemoryConnection
         {
             private Func<int> _templateExistReturnCode;
+            private readonly string _productVersion;
             private List<int> _seenHttpHeads;
             private List<Tuple<Uri, int>> _seenHttpGets;
             private List<string> _seenHttpPosts;
@@ -130,14 +131,16 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 List<int> _seenHttpHeads,
                 List<Tuple<Uri, string>> _seenHttpPuts,
                 List<Tuple<Uri, int>> _seenHttpGets,
-                Func<int> templateExistReturnCode
-                )
+                Func<int> templateExistReturnCode,
+                string productVersion = "8.6.0"
+                ) : base()
             {
                 this._seenHttpPosts = _seenHttpPosts;
                 this._seenHttpHeads = _seenHttpHeads;
                 this._seenHttpPuts = _seenHttpPuts;
                 this._seenHttpGets = _seenHttpGets;
                 this._templateExistReturnCode = templateExistReturnCode;
+                this._productVersion = productVersion;
             }
 
             public override TReturn Request<TReturn>(RequestData requestData)
@@ -146,6 +149,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 if (requestData.PostData != null)
                     requestData.PostData.Write(ms, new ConnectionConfiguration());
 
+                var responseStream = new MemoryStream();
+                int responseStatusCode = 200;
                 switch (requestData.Method)
                 {
                     case HttpMethod.PUT:
@@ -155,41 +160,31 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
                         break;
                     case HttpMethod.GET:
-                        _seenHttpGets.Add(Tuple.Create(requestData.Uri, this._templateExistReturnCode()));
+                        switch (requestData.Uri.PathAndQuery.ToLower())
+                        {
+                            case "/":
+                                // handle pre-flight call to Elasticsearch, added in Elasticsearch.NET 7.16 version
+                                return ReturnConnectionStatus<TReturn>(requestData); 
+                            case "/_cat/nodes":
+                                responseStream.Write(Encoding.UTF8.GetBytes(_productVersion));
+                                responseStream.Position = 0;
+                                responseStatusCode = 200;
+                                break;
+                        }
+                        _seenHttpGets.Add(Tuple.Create(requestData.Uri, responseStatusCode));
                         break;
                     case HttpMethod.HEAD:
-                        _seenHttpHeads.Add(this._templateExistReturnCode());
+                        responseStatusCode = _templateExistReturnCode();
+                        _seenHttpHeads.Add(responseStatusCode);
                         break;
                 }
 
-                var responseStream = new MemoryStream();
-                return ResponseBuilder.ToResponse<TReturn>(requestData, null, this._templateExistReturnCode(), Enumerable.Empty<string>(), responseStream);
+                return ResponseBuilder.ToResponse<TReturn>(requestData, null, responseStatusCode, Enumerable.Empty<string>(), responseStream, "text/plain");
             }
 
-            public override async Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
+            public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
             {
-                var ms = new MemoryStream();
-                if (requestData.PostData != null)
-                    await requestData.PostData.WriteAsync(ms, new ConnectionConfiguration(), cancellationToken);
-
-                switch (requestData.Method)
-                {
-                    case HttpMethod.PUT:
-                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
-                        break;
-                    case HttpMethod.POST:
-                        _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
-                        break;
-                    case HttpMethod.GET:
-                        _seenHttpGets.Add(Tuple.Create(requestData.Uri, this._templateExistReturnCode()));
-                        break;
-                    case HttpMethod.HEAD:
-                        _seenHttpHeads.Add(this._templateExistReturnCode());
-                        break;
-                }
-
-                var responseStream = new MemoryStream();
-                return await ResponseBuilder.ToResponseAsync<TResponse>(requestData, null, this._templateExistReturnCode(), Enumerable.Empty<string>(), responseStream, null, cancellationToken);
+                return Task.FromResult(this.Request<TResponse>(requestData));
             }
         }
     }
