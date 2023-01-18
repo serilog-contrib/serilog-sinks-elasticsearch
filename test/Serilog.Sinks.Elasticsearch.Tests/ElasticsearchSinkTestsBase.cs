@@ -119,12 +119,21 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         public class ConnectionStub : InMemoryConnection
         {
-            private Func<int> _templateExistReturnCode;
+            private readonly Func<int> _templateExistReturnCode;
+            private readonly List<int> _seenHttpHeads;
+            private readonly List<Tuple<Uri, int>> _seenHttpGets;
+            private readonly List<string> _seenHttpPosts;
+            private readonly List<Tuple<Uri, string>> _seenHttpPuts;
+
             private readonly string _productVersion;
-            private List<int> _seenHttpHeads;
-            private List<Tuple<Uri, int>> _seenHttpGets;
-            private List<string> _seenHttpPosts;
-            private List<Tuple<Uri, string>> _seenHttpPuts;
+
+            /// <summary>
+            /// Elasticsearch.NET client version 7.16 or higher
+            /// uses pre-flight request, before any other request is served,
+            /// to check product (Elasticsearch) and version of the product.
+            /// It can be seen on <see cref="IConnectionPool.ProductCheckStatus"/> property.
+            /// </summary>
+            private bool _productCheckDone;
 
             public ConnectionStub(
                 List<string> _seenHttpPosts,
@@ -145,41 +154,59 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
             public override TReturn Request<TReturn>(RequestData requestData)
             {
-                var ms = new MemoryStream();
-                if (requestData.PostData != null)
-                    requestData.PostData.Write(ms, new ConnectionConfiguration());
+                if (_productCheckDone == false)
+                {
+                    if (requestData.Method != HttpMethod.GET || requestData.PathAndQuery != string.Empty)
+                        throw new InvalidOperationException(
+                            $"{nameof(ConnectionStub)} expects first request" +
+                            $" to be productCheck pre-flight request");
 
-                var responseStream = new MemoryStream();
+                    _productCheckDone = true;
+                    return ReturnConnectionStatus<TReturn>(requestData); // root page returned
+                }
+
+                byte[] responseBytes = Array.Empty<byte>();
+                if (requestData.PostData != null)
+                {
+                    using var ms = new MemoryStream();
+                    requestData.PostData.Write(ms, new ConnectionConfiguration());
+                    responseBytes = ms.ToArray();
+                }
+
                 int responseStatusCode = 200;
+
                 switch (requestData.Method)
                 {
                     case HttpMethod.PUT:
-                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(ms.ToArray())));
+                        _seenHttpPuts.Add(Tuple.Create(requestData.Uri, Encoding.UTF8.GetString(responseBytes)));
                         break;
                     case HttpMethod.POST:
-                        _seenHttpPosts.Add(Encoding.UTF8.GetString(ms.ToArray()));
+                        _seenHttpPosts.Add(Encoding.UTF8.GetString(responseBytes));
                         break;
                     case HttpMethod.GET:
                         switch (requestData.Uri.PathAndQuery.ToLower())
                         {
                             case "/":
-                                // handle pre-flight call to Elasticsearch, added in Elasticsearch.NET 7.16 version
-                                return ReturnConnectionStatus<TReturn>(requestData); 
+                                // ReturnConnectionStatus(...) call at the bottom will return dummy product page
+                                // when root "/" is requested.
+                                break;
                             case "/_cat/nodes":
-                                responseStream.Write(Encoding.UTF8.GetBytes(_productVersion));
-                                responseStream.Position = 0;
+                                responseBytes = Encoding.UTF8.GetBytes(_productVersion);
                                 responseStatusCode = 200;
                                 break;
                         }
                         _seenHttpGets.Add(Tuple.Create(requestData.Uri, responseStatusCode));
                         break;
                     case HttpMethod.HEAD:
-                        responseStatusCode = _templateExistReturnCode();
+                        if (requestData.Uri.PathAndQuery.ToLower().StartsWith("/_template/"))
+                        {
+                            responseStatusCode = _templateExistReturnCode();
+                        }
                         _seenHttpHeads.Add(responseStatusCode);
                         break;
                 }
 
-                return ResponseBuilder.ToResponse<TReturn>(requestData, null, responseStatusCode, Enumerable.Empty<string>(), responseStream, "text/plain");
+                return ReturnConnectionStatus<TReturn>(requestData, responseBytes, responseStatusCode);
             }
 
             public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
