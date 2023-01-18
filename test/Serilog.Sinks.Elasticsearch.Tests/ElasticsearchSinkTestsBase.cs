@@ -174,6 +174,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 }
 
                 int responseStatusCode = 200;
+                string contentType = null;
 
                 switch (requestData.Method)
                 {
@@ -191,8 +192,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                                 // when root "/" is requested.
                                 break;
                             case "/_cat/nodes":
+                            case "/_cat/nodes?h=v":
                                 responseBytes = Encoding.UTF8.GetBytes(_productVersion);
                                 responseStatusCode = 200;
+                                contentType = "text/plain; charset=UTF-8";
                                 break;
                         }
                         _seenHttpGets.Add(Tuple.Create(requestData.Uri, responseStatusCode));
@@ -206,7 +209,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                         break;
                 }
 
-                return ReturnConnectionStatus<TReturn>(requestData, responseBytes, responseStatusCode);
+                return ReturnConnectionStatus<TReturn>(requestData, responseBytes, responseStatusCode, contentType);
             }
 
             public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
