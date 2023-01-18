@@ -51,11 +51,10 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
-        private string _discoveredVersion;
 
-        public string DiscoveredVersion => _discoveredVersion;
-        public int DiscoveredMajorVersion { get; private set; }
-        private bool IncludeTypeName => DiscoveredMajorVersion >= 7;
+        public Version DiscoveredVersion { get; private set; }
+        private bool IncludeTypeName => DiscoveredVersion.Major >= 7;
+
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -81,6 +80,11 @@ namespace Serilog.Sinks.Elasticsearch
             _bufferedIndexDecider = options.BufferIndexDecider ?? ((@event, offset) => string.Format(options.IndexFormat, offset).ToLowerInvariant());
 
             _options = options;
+
+            if (_options.DetectElasticsearchVersion == false)
+            {
+                DiscoveredVersion = new Version(); // Default
+            }
 
 
             var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, options.Serializer)
@@ -166,7 +170,7 @@ namespace Serilog.Sinks.Elasticsearch
                 }
 
                 if (_options.DetectElasticsearchVersion == true) { 
-                    _options.AutoRegisterTemplateVersion = DiscoveredMajorVersion switch
+                    _options.AutoRegisterTemplateVersion = DiscoveredVersion.Major switch
                     {
                         8 => AutoRegisterTemplateVersion.ESv8,
                         7 => AutoRegisterTemplateVersion.ESv7,
@@ -178,7 +182,7 @@ namespace Serilog.Sinks.Elasticsearch
                 }
 
                 StringResponse result;                
-                if (_options.DetectElasticsearchVersion = true && DiscoveredMajorVersion < 8)
+                if (_options.DetectElasticsearchVersion = true && DiscoveredVersion.Major < 8)
                 { 
                     result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
                         new PutIndexTemplateRequestParameters
@@ -251,7 +255,7 @@ namespace Serilog.Sinks.Elasticsearch
 
             return ElasticsearchTemplateProvider.GetTemplate(
                 _options,
-                DiscoveredMajorVersion,
+                DiscoveredVersion.Major,
                 settings,
                 _templateMatchString,
                 _options.AutoRegisterTemplateVersion);
@@ -270,23 +274,19 @@ namespace Serilog.Sinks.Elasticsearch
                 });
                 if (!response.Success) return;
 
-                _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                var discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                     .FirstOrDefault();
 
-                if (_discoveredVersion == null)
+                if (discoveredVersion == null)
                     return;
 
-
-                if (int.TryParse(_discoveredVersion.Substring(0, _discoveredVersion.IndexOf('.')), out int majorVersion))
-                {
-                    DiscoveredMajorVersion = majorVersion;
-                    if (DiscoveredMajorVersion < 7)
-                        _options.TypeName = String.IsNullOrWhiteSpace(_options.TypeName)
-                            ? ElasticsearchSinkOptions.DefaultTypeName // "logevent"
-                            : _options.TypeName;
-                    else
-                        _options.TypeName = null;
-                }
+                this.DiscoveredVersion = new Version(discoveredVersion);
+                if (DiscoveredVersion.Major < 7)
+                    _options.TypeName = string.IsNullOrWhiteSpace(_options.TypeName)
+                        ? ElasticsearchSinkOptions.DefaultTypeName // "logevent"
+                        : _options.TypeName;
+                else
+                    _options.TypeName = null;
             }
             catch (Exception ex)
             {
