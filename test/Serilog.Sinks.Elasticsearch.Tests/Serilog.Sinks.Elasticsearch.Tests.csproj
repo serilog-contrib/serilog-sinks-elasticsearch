@@ -70,7 +70,7 @@
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="NEST.JsonNetSerializer" Version="7.17.5" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
-    <PackageReference Include="FluentAssertions" Version="5.7.0" />
+    <PackageReference Include="FluentAssertions" Version="6.9.0" />
     <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
     <PackageReference Include="ReportGenerator" Version="5.1.13" />
 
