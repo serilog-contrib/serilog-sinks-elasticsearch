@@ -17,7 +17,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
-                .WriteTo.ColoredConsole()
+                .WriteTo.Console()
                 .WriteTo.Elasticsearch(_options);
 
             var logger = loggerConfig.CreateLogger();

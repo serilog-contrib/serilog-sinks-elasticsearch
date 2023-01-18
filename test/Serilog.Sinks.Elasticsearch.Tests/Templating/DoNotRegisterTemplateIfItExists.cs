@@ -14,7 +14,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
-                .WriteTo.ColoredConsole()
+                .WriteTo.Console()
                 .WriteTo.Elasticsearch(_options);
 
             var logger = loggerConfig.CreateLogger();
