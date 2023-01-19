@@ -38,9 +38,9 @@ namespace Serilog.Sinks.Elasticsearch
 
         /// <summary>
         /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows to set the Elasticsearch version. Depending on the
-        /// version, a template will be selected. Defaults to pre 5.0.
+        /// version, a template will be selected. Defaults to 7.0.
         /// </summary>
-        public AutoRegisterTemplateVersion AutoRegisterTemplateVersion { get; set; }
+        public AutoRegisterTemplateVersion? AutoRegisterTemplateVersion { get; set; }
 
         /// <summary>
         /// Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.
@@ -329,7 +329,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv6"/> against <c> Elasticsearch 7.x </c>
         /// </para>
         /// </summary>
-        public bool DetectElasticsearchVersion { get; set; }
+        public bool DetectElasticsearchVersion { get; set; } = true;
 
         /// <summary>
         /// Configures the elasticsearch sink

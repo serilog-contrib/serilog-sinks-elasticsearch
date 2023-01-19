@@ -167,7 +167,7 @@ namespace Serilog
             int queueSizeLimit = 100000,
             string pipelineName = null,
             bool autoRegisterTemplate = false,
-            AutoRegisterTemplateVersion autoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv2,
+            AutoRegisterTemplateVersion? autoRegisterTemplateVersion = null,
             bool overwriteTemplate = false,
             RegisterTemplateRecovery registerTemplateFailure = RegisterTemplateRecovery.IndexAnyway,
             string deadLetterIndexName = null,
@@ -184,7 +184,7 @@ namespace Serilog
             int? bufferFileCountLimit = null,
             Dictionary<string,string> templateCustomSettings = null,
             ElasticOpType batchAction = ElasticOpType.Index,
-            bool detectElasticsearchVersion = false)
+            bool detectElasticsearchVersion = true)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");

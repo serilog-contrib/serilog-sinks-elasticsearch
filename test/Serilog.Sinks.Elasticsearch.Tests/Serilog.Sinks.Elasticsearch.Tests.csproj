@@ -27,29 +27,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templating\template_0replicas.json" />
-    <None Remove="Templating\template_2shards.json" />
-    <None Remove="Templating\template_5replicas.json" />
-    <None Remove="Templating\template_v2.json" />
     <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
     <None Remove="Templating\template_v7.json" />
+    <None Remove="Templating\template_v7_no-aliases.json" />
     <None Remove="Templating\template_v8.json" />
+    <None Remove="Templating\template_v8_no-aliases_0replicas.json" />
+    <None Remove="Templating\template_v8_no-aliases_2shards.json" />
+    <None Remove="Templating\template_v8_no-aliases_5replicas.json" />
     <None Include="..\..\assets\Serilog.snk">
       <Link>Serilog.snk</Link>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templating\template_0replicas.json" />
-    <EmbeddedResource Include="Templating\template_2shards.json" />
-    <EmbeddedResource Include="Templating\template_5replicas.json" />
+    <EmbeddedResource Include="Templating\template_v7_no-aliases.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_0replicas.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_2shards.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_5replicas.json" />
     <EmbeddedResource Include="Templating\template_v8.json" />
     <EmbeddedResource Include="Templating\template_v7.json" />
     <EmbeddedResource Include="Templating\template_v6.json" />
     <EmbeddedResource Include="Templating\template_v5.json" />
-    <EmbeddedResource Include="Templating\template_v2.json" />
-    <EmbeddedResource Include="Templating\template.json" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
   <ItemGroup>

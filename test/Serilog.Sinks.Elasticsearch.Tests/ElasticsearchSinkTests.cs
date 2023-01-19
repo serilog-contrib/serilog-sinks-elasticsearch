@@ -13,19 +13,41 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         [InlineData("8.0.0", null, null)]
         [InlineData("7.17.5", null, null)]
         [InlineData("6.8.1", null, "logevent")]
-        public void DiscoverClusterVersion_DetectElasticsearchVersionSetToTrue_SetsTypeName(string elasticVersion, string configuredTypeName, string expectedTypeName)
+        public void Ctor_DetectElasticsearchVersionSetToTrue_SetsTypeName(string elasticVersion, string configuredTypeName, string expectedTypeName)
         {
             /* ARRANGE */
             var options = new ElasticsearchSinkOptions
             {
                 Connection = FakeResponse(elasticVersion),
-                DetectElasticsearchVersion = true,
                 TypeName = configuredTypeName
             };
-            var sink = ElasticsearchSinkState.Create(options);
 
             /* ACT */
-            sink.DiscoverClusterVersion();
+            _ = ElasticsearchSinkState.Create(options);
+
+            /* Assert */
+            Assert.Equal(expectedTypeName, options.TypeName);
+        }
+
+        [Theory]
+        [InlineData("8.0.0", "my-logevent", null)]
+        [InlineData("7.17.5", "my-logevent", null)]
+        [InlineData("6.8.1", "my-logevent", null)]
+        [InlineData("8.0.0", null, null)]
+        [InlineData("7.17.5", null, null)]
+        [InlineData("6.8.1", null, null)]
+        public void Ctor_DetectElasticsearchVersionSetToFalseAssumesVersion7_SetsTypeNameToNull(string elasticVersion, string configuredTypeName, string expectedTypeName)
+        {
+            /* ARRANGE */
+            var options = new ElasticsearchSinkOptions
+            {
+                Connection = FakeResponse(elasticVersion),
+                DetectElasticsearchVersion = false,
+                TypeName = configuredTypeName
+            };
+
+            /* ACT */
+            _ = ElasticsearchSinkState.Create(options);
 
             /* Assert */
             Assert.Equal(expectedTypeName, options.TypeName);

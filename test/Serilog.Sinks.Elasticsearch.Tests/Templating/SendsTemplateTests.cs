@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -12,6 +10,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 
         public SendsTemplateTests()
         {
+            _options.DetectElasticsearchVersion = false;
             _options.AutoRegisterTemplate = true;
 
             var loggerConfig = new LoggerConfiguration()
@@ -32,9 +31,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
         [Fact]
-        public void ShouldRegisterTheCorrectTemplateOnRegistration()
+        public void ShouldRegisterTheVersion7TemplateOnRegistrationWhenDetectElasticsearchVersionFalse()
         {
-            JsonEquals(_templatePut.Item2, "template.json");
+            JsonEquals(_templatePut.Item2, "template_v7_no-aliases.json");
         }
 
         [Fact]

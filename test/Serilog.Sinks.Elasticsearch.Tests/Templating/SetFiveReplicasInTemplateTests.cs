@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -35,14 +33,14 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
-            JsonEquals(_templatePut.Item2, "template_5replicas.json");
+            JsonEquals(_templatePut.Item2, "template_v8_no-aliases_5replicas.json");
         }
 
         [Fact]
         public void TemplatePutToCorrectUrl()
         {
             var uri = _templatePut.Item1;
-            uri.AbsolutePath.Should().Be("/_template/serilog-events-template");
+            uri.AbsolutePath.Should().Be("/_index_template/serilog-events-template");
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -11,6 +9,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         private readonly Tuple<Uri, string> _templatePut;
 
         public Sendsv6TemplateTests()
+            : base("6.0.0")
         {
             _options.AutoRegisterTemplate = true;
             _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6;
@@ -33,7 +32,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
         [Fact]
-        public void ShouldRegisterTheCorrectTemplateOnRegistration()
+        public void ShouldRegisterTheVersion6TemplateOnRegistrationWhenDetectedElasticsearchVersionIsV6()
         {
             JsonEquals(_templatePut.Item2, "template_v6.json");
         }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using FluentAssertions;
-using Xunit;
+﻿using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -12,6 +9,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         private readonly Tuple<Uri, string> _templatePut;
 
         public TemplateMatchTests()
+            : base("7.0.0")
         {
             _options.AutoRegisterTemplate = true;
             _options.IndexFormat = "dailyindex-{0:yyyy.MM.dd}-mycompany";
@@ -46,7 +44,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         public void TemplateMatchShouldReflectConfiguredIndexFormat()
         {
             var json = this._templatePut.Item2;
-            json.Should().Contain(@"""template"":""dailyindex-*-mycompany""");
+            json.Should().Contain(@"""index_patterns"":[""dailyindex-*-mycompany""]");
         }
 
     }

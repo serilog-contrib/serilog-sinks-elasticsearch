@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.Elasticsearch;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
     public class CustomIndexTypeNameTests : ElasticsearchSinkTestsBase
     {
+        public CustomIndexTypeNameTests()
+            : base("6.0.0")
+        {
+
+        }
+
         [Fact]
         public void CustomIndex_And_TypeName_EndsUpInTheOutput()
         {

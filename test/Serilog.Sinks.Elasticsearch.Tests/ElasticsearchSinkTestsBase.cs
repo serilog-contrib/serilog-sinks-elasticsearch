@@ -27,7 +27,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected int _templateExistsReturnCode = 404;
 
-        protected ElasticsearchSinkTestsBase()
+        protected ElasticsearchSinkTestsBase(string productVersion = "8.6.0")
         {
             _seenHttpPosts = new List<string>();
             _seenHttpHeads = new List<int>();
@@ -35,7 +35,12 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             _seenHttpPuts = new List<Tuple<Uri, string>>();
 
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
-            _connection = new ConnectionStub(_seenHttpPosts, _seenHttpHeads, _seenHttpPuts, _seenHttpGets, () => _templateExistsReturnCode);
+            _connection = new ConnectionStub(_seenHttpPosts,
+                                             _seenHttpHeads,
+                                             _seenHttpPuts,
+                                             _seenHttpGets,
+                                             () => _templateExistsReturnCode,
+                                             productVersion);
             _serializer = JsonNetSerializer.Default(LowLevelRequestResponseSerializer.Instance, new ConnectionSettings(connectionPool, _connection));
 
             _options = new ElasticsearchSinkOptions(connectionPool)

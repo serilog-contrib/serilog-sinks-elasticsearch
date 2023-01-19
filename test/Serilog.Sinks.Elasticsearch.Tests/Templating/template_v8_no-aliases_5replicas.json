@@ -1,39 +1,35 @@
 ﻿{
-    "template": "logstash-*",
-    "settings": {
-        "index.refresh_interval": "5s",
-        "number_of_replicas":  "5" 
-    },
-    "mappings": {
-        "_default_": {
-            "_all": {
-                "enabled": true,
-                "omit_norms" : true
-            },
+    "index_patterns": [ "logstash-*" ],
+    "template": {
+        "settings": {
+            "index.refresh_interval": "5s",
+            "number_of_replicas": "5"
+        },
+        "mappings": {
             "dynamic_templates": [
                 {
-                  "numerics_in_fields": {
-                      "path_match":"fields\\.[\\d+]$",
-                      "match_pattern":"regex",
-                      "mapping": {
-                          "type":"string",
-                          "index":"analyzed",
-                          "omit_norms":true
-                      }
-                  }
+                    "numerics_in_fields": {
+                        "path_match": "fields\\.[\\d+]$",
+                        "match_pattern": "regex",
+                        "mapping": {
+                            "type": "text",
+                            "index": true,
+                            "norms": false
+                        }
+                    }
                 },
                 {
                     "string_fields": {
                         "match": "*",
                         "match_mapping_type": "string",
                         "mapping": {
-                            "type": "string",
-                            "index": "analyzed",
-                            "omit_norms": true,
+                            "type": "text",
+                            "index": true,
+                            "norms": false,
                             "fields": {
                                 "raw": {
-                                    "type": "string",
-                                    "index": "not_analyzed",
+                                    "type": "keyword",
+                                    "index": true,
                                     "ignore_above": 256
                                 }
                             }
@@ -43,8 +39,8 @@
             ],
             "properties": {
                 "message": {
-                    "type": "string",
-                    "index": "analyzed"
+                    "type": "text",
+                    "index": true
                 },
                 "exceptions": {
                     "type": "nested",
@@ -59,12 +55,12 @@
                             "type": "integer"
                         },
                         "StackTraceString": {
-                            "type": "string",
-                            "index": "analyzed"
+                            "type": "text",
+                            "index": true
                         },
                         "RemoteStackTraceString": {
-                            "type": "string",
-                            "index": "analyzed"
+                            "type": "text",
+                            "index": true
                         },
                         "ExceptionMessage": {
                             "type": "object",
@@ -77,6 +73,8 @@
                     }
                 }
             }
+        },
+        "aliases": {
         }
     }
 }

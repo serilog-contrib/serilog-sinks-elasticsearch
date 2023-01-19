@@ -56,7 +56,6 @@ namespace Serilog.Sinks.Elasticsearch
         public BatchedElasticsearchSink(ElasticsearchSinkOptions options)
         {
             _state = ElasticsearchSinkState.Create(options);
-            _state.DiscoverClusterVersion();
             _state.RegisterTemplateIfNeeded();
         }
         /// <summary>
