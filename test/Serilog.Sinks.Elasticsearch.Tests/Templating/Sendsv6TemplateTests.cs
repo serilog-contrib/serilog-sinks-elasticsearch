@@ -35,9 +35,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         [Fact]
         public void ShouldRegisterTheCorrectTemplateOnRegistration()
         {
-
-            var method = typeof(Sendsv6TemplateTests).GetMethod(nameof(ShouldRegisterTheCorrectTemplateOnRegistration));
-            JsonEquals(_templatePut.Item2, method, "template_v6.json");
+            JsonEquals(_templatePut.Item2, "template_v6.json");
         }
 
         [Fact]
@@ -45,22 +43,6 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         {
             var uri = _templatePut.Item1;
             uri.AbsolutePath.Should().Be("/_template/serilog-events-template");
-        }
-
-        protected void JsonEquals(string json, MethodBase method, string fileName = null)
-        {
-#if DOTNETCORE
-            var assembly = typeof(Sendsv6TemplateTests).GetTypeInfo().Assembly;
-#else
-            var assembly = Assembly.GetExecutingAssembly();
-#endif
-            var expected = TestDataHelper.ReadEmbeddedResource(assembly, fileName ?? "template.json");
-
-            var nJson = JObject.Parse(json);
-            var nOtherJson = JObject.Parse(expected);
-            var equals = JToken.DeepEquals(nJson, nOtherJson);
-            if (equals) return;
-            expected.Should().BeEquivalentTo(json);
         }
     }
 }

@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 using Elasticsearch.Net;
 using FluentAssertions;
 using Nest;
-using Xunit;
-using Serilog.Debugging;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
 using Nest.JsonNetSerializer;
-using System.Collections;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -114,6 +112,22 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             var skip = Math.Max(0, bulkJsonPieces.Count() - lastN);
 
             return bulkJsonPieces.Skip(skip).Take(lastN).ToArray();
+        }
+
+        protected void JsonEquals(string json, string embeddedResourceNameEndsWith)
+        {
+#if DOTNETCORE
+            var assembly = GetType().Assembly;
+#else
+            var assembly = Assembly.GetExecutingAssembly();
+#endif
+            var expected = TestDataHelper.ReadEmbeddedResource(assembly, embeddedResourceNameEndsWith);
+
+            var nJson = JObject.Parse(json);
+            var nOtherJson = JObject.Parse(expected);
+            var equals = JToken.DeepEquals(nJson, nOtherJson);
+            if (equals) return;
+            expected.Should().BeEquivalentTo(json);
         }
 
 
