@@ -14,10 +14,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Specification.CatApi;
 using Elasticsearch.Net.Specification.IndicesApi;
 using Serilog.Debugging;
 using Serilog.Events;
