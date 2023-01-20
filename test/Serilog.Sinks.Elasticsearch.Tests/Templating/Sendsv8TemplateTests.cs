@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating

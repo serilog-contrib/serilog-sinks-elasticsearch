@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests

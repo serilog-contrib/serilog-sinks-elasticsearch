@@ -1,4 +1,6 @@
-﻿namespace Serilog.Sinks.Elasticsearch.Tests
+﻿using Serilog.Sinks.Elasticsearch.Tests.Stubs;
+
+namespace Serilog.Sinks.Elasticsearch.Tests
 {
     public class ElasticSearchLogShipperTests : ElasticsearchSinkTestsBase
     {

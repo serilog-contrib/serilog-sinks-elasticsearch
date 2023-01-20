@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Serilog.Events;
 using Serilog.Parsing;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests

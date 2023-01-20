@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using Elasticsearch.Net;
 using FluentAssertions;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {

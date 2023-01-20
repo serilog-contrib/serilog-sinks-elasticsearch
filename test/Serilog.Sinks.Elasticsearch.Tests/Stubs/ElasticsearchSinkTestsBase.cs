@@ -12,7 +12,7 @@ using Nest.JsonNetSerializer;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 
-namespace Serilog.Sinks.Elasticsearch.Tests
+namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
 {
     public abstract class ElasticsearchSinkTestsBase
     {
@@ -31,7 +31,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         {
             _seenHttpPosts = new List<string>();
             _seenHttpHeads = new List<int>();
-            _seenHttpGets = new List<Tuple<Uri,int>>();
+            _seenHttpGets = new List<Tuple<Uri, int>>();
             _seenHttpPuts = new List<Tuple<Uri, string>>();
 
             var connectionPool = new SingleNodeConnectionPool(new Uri("http://localhost:9200"));
@@ -60,8 +60,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
         /// <returns></returns>
         protected IList<SerilogElasticsearchEvent> GetPostedLogEvents(int expectedCount)
         {
-            this._seenHttpPosts.Should().NotBeNullOrEmpty();
-            var totalBulks = this._seenHttpPosts.SelectMany(p => p.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)).ToList();
+            _seenHttpPosts.Should().NotBeNullOrEmpty();
+            var totalBulks = _seenHttpPosts.SelectMany(p => p.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries)).ToList();
             totalBulks.Should().NotBeNullOrEmpty().And.HaveCount(expectedCount * 2);
 
             var bulkActions = new List<SerilogElasticsearchEvent>();
@@ -70,7 +70,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 BulkOperation action;
                 try
                 {
-                    action = this.Deserialize<BulkOperation>(totalBulks[i]);
+                    action = Deserialize<BulkOperation>(totalBulks[i]);
                 }
                 catch (Exception e)
                 {
@@ -83,7 +83,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 SerilogElasticsearchEvent actionMetaData;
                 try
                 {
-                    actionMetaData = this.Deserialize<SerilogElasticsearchEvent>(totalBulks[i + 1]);
+                    actionMetaData = Deserialize<SerilogElasticsearchEvent>(totalBulks[i + 1]);
                 }
                 catch (Exception e)
                 {
@@ -98,7 +98,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
         protected T Deserialize<T>(string json)
         {
-            return this._serializer.Deserialize<T>(new MemoryStream(Encoding.UTF8.GetBytes(json)));
+            return _serializer.Deserialize<T>(new MemoryStream(Encoding.UTF8.GetBytes(json)));
         }
 
         protected async Task ThrowAsync()
@@ -167,8 +167,8 @@ namespace Serilog.Sinks.Elasticsearch.Tests
                 this._seenHttpHeads = _seenHttpHeads;
                 this._seenHttpPuts = _seenHttpPuts;
                 this._seenHttpGets = _seenHttpGets;
-                this._templateExistReturnCode = templateExistReturnCode;
-                this._productVersion = productVersion;
+                _templateExistReturnCode = templateExistReturnCode;
+                _productVersion = productVersion;
             }
 
             public override TReturn Request<TReturn>(RequestData requestData)
@@ -233,7 +233,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
 
             public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
             {
-                return Task.FromResult(this.Request<TResponse>(requestData));
+                return Task.FromResult(Request<TResponse>(requestData));
             }
         }
     }
