@@ -123,7 +123,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
 #if DOTNETCORE
             var assembly = GetType().Assembly;
 #else
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 #endif
             var expected = TestDataHelper.ReadEmbeddedResource(assembly, embeddedResourceNameEndsWith);
 
