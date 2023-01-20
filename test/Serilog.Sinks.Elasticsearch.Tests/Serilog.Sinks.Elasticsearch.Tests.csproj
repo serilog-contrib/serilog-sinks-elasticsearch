@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;net48</TargetFrameworks>
     <AssemblyName>Serilog.Sinks.Elasticsearch.Tests</AssemblyName>
     <PackageId>Serilog.Sinks.Elasticsearch.Tests</PackageId>
 
@@ -109,7 +109,7 @@
         <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
     </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
     <DefineConstants>$(DefineConstants);DOTNETCORE;PARTIALLY_SERIALIZATION</DefineConstants>
   </PropertyGroup>
 
