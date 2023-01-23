@@ -28,7 +28,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
     <None Remove="Templating\template_v7.json" />
     <None Remove="Templating\template_v7_no-aliases.json" />
@@ -49,7 +48,6 @@
     <EmbeddedResource Include="Templating\template_v8.json" />
     <EmbeddedResource Include="Templating\template_v7.json" />
     <EmbeddedResource Include="Templating\template_v6.json" />
-    <EmbeddedResource Include="Templating\template_v5.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -71,7 +69,7 @@
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
     <PackageReference Include="FluentAssertions" Version="6.9.0" />
     <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
-    <PackageReference Include="ReportGenerator" Version="5.1.13" />
+    <PackageReference Include="ReportGenerator" Version="5.1.15" />
 
   </ItemGroup>
 

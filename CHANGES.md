@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - PR #462
+ - PR #488
 
 ### Major Changes
 - `DetectElasticsearchVersion` is set to `true` by default.
@@ -17,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When `DetectElasticsearchVersion` is set to `true`, `TypeName` is handled automatically across different versions of Elasticserach (6.x to 8.x). For example, user-defined name will NOT be used on v7 and v8. Also, correct templates endpoint will be picked up.
 - Elasticsearch 8.x endpoint for templates is supported (`_index_template`)
 - Internal class `ElasticsearchVersionManager` has been added, mainly to handle situations where detection of version fails or when it is disabled. In the case of fallback, sink will assume "default" version 7.
-- Elasticsearch.NET client version 7.15.2 (latest version 7, until new `Elastic.Clients.Elasticsearch` 8.x catches up functional parity with 7.x)
+- Elasticsearch.NET client version 7.15.2 (latest version 7, until new `Elastic.Clients.Elasticsearch` 8.x catches up functional parity with 7.x).
+- Elasticsearch server versions 2 and 5 are no longer supported.
 
 ### Other Changes
 - Nuget pacakges have been updated (except for the Elasticsearch integration-tests related packages)
