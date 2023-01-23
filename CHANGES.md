@@ -6,6 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [9.0.0] - 2023-01-23
+
+### Added
+ - PR #462
+
+### Major Changes
+- `DetectElasticsearchVersion` is set to `true` by default.
+- When `DetectElasticsearchVersion` is set to `false` Elasticsearch version 7 is assumed (as it has broadest wire-compatibility at the moment - v7 and v8)
+- When `DetectElasticsearchVersion` is set to `true`, `TypeName` is handled automatically across different versions of Elasticserach (6.x to 8.x). For example, user-defined name will NOT be used on v7 and v8. Also, correct templates endpoint will be picked up.
+- Elasticsearch 8.x endpoint for templates is supported (`_index_template`)
+- Internal class `ElasticsearchVersionManager` has been added, mainly to handle situations where detection of version fails or when it is disabled. In the case of fallback, sink will assume "default" version 7.
+- Elasticsearch.NET client version 7.15.2 (latest version 7, until new `Elastic.Clients.Elasticsearch` 8.x catches up functional parity with 7.x)
+
+### Other Changes
+- Nuget pacakges have been updated (except for the Elasticsearch integration-tests related packages)
+- Most of the `ElasticserachSink` functionality has been moved into internal `BatchedElasticsearchSink` class that inherits from `IBatchedLogEventSink`, so it complies with new recommended way of integration with `PeriodicBatchingSink` and we don't use obsolete constructors.
+- `ConnectionStub` was moved out of `ElasticsearchSinkTestsBase` and extended. Both are now in `/Stubs` subfolder. Newer versions of Elasticsearch.NET client are now using "pre-flight" request to determine if endpoint is Elasticsearch and if it is indeed between 6.x and 8.x. `ConnectionStub` had to accommodate for that.
+- Unit tests have been fixed/added accordingly, running on multiple target frameworks (`net6`, `net7` and `net48`).
+- Built-in .NET SDK conditional compilation symbols are now used (e.g NETFRAMEWORK).
+
 ## [9.0.0] - 2022-04-29
 
 ### Fixed
