@@ -15,7 +15,7 @@
   <ItemGroup>
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     <PackageReference Include="Elasticsearch.Net.v6" Version="6.9.0-ci20190620T132817" />
-    <PackageReference Include="NEST.v6" Version="6.9.0-ci20190620T132817" />
+    <PackageReference Include="NEST.v6" Version="6.9.0-ci20210419T072245" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
       
     <PackageReference Include="xunit" Version="2.4.2" />
