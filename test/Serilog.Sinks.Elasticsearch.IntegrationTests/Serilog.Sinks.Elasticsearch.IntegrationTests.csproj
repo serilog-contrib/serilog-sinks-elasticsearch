@@ -6,6 +6,7 @@
     <DebugSymbols>True</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <IsTestProject>True</IsTestProject>
+    <IsPackable>false</IsPackable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>

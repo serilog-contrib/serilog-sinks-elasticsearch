@@ -8,6 +8,7 @@
     <DebugSymbols>True</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <IsTestProject>True</IsTestProject>
+    <IsPackable>false</IsPackable>
     
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
