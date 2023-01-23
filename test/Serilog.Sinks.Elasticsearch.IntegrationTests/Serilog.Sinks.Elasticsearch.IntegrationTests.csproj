@@ -59,6 +59,6 @@
   </Target>
 
   <Target Name="PrintCoverageReportPathForGitHubActions" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) == 'true'">
-    <Message Importance="high" Text="::set-output name=coverage-reports::@(CoverletReport, ',')" />
+    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; >> $GITHUB_OUTPUT" />
   </Target>
 </Project>
