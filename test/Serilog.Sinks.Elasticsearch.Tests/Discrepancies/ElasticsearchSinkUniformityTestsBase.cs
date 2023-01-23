@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using Elasticsearch.Net;
 using FluentAssertions;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
 {
@@ -17,7 +18,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
-                .WriteTo.ColoredConsole()
+                .WriteTo.Console()
                 .WriteTo.Elasticsearch(_options);
 
             var logger = loggerConfig.CreateLogger();
@@ -54,7 +55,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
                 .And.Be(exceptionMessage);
             var realException = firstEvent.Exceptions[0];
 #if !NO_SERIALIZATION
-#if !PARTIALLY_SERIALIZATION
+#if NETFRAMEWORK
             realException.ExceptionMethod.Should().NotBeNull();
             realException.ExceptionMethod.Name.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.AssemblyName.Should().NotBeNullOrWhiteSpace();

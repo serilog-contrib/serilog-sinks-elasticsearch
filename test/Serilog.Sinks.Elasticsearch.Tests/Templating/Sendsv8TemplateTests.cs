@@ -5,15 +5,15 @@ using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {
-    public class SetTwoShardsInTemplateTests : ElasticsearchSinkTestsBase
+    public class Sendsv8TemplateTests : ElasticsearchSinkTestsBase
     {
         private readonly Tuple<Uri, string> _templatePut;
 
-        public SetTwoShardsInTemplateTests()
+        public Sendsv8TemplateTests()
         {
             _options.AutoRegisterTemplate = true;
-            _options.NumberOfShards = 2;
-            _options.NumberOfReplicas= 0;
+            _options.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv8;
+            _options.IndexAliases = new string[] { "logstash" };
 
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -33,9 +33,9 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         }
 
         [Fact]
-        public void ShouldRegisterTheCorrectTemplateOnRegistration()
+        public void ShouldRegisterTheVersion6TemplateOnRegistrationWhenDetectedElasticsearchVersionIsV8()
         {
-            JsonEquals(_templatePut.Item2, "template_v8_no-aliases_2shards.json");
+            JsonEquals(_templatePut.Item2, "template_v8.json");
         }
 
         [Fact]

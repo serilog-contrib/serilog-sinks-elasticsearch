@@ -30,6 +30,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Starting from version 3, compatible with Elasticsearch 2.
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
 * From version 8.x there is support for Elasticsearch.net version 7.
+* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8.
 
 
 ## Quick start
@@ -40,15 +41,79 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 Install-Package serilog.sinks.elasticsearch
 ```
 
-Register the sink in code or using the appSettings reader (from v2.0.42+) as shown below. Make sure to specify the version of ES you are targeting. Be aware that the AutoRegisterTemplate option will not overwrite an existing template.
+Simplest way to register this sink is to use default configuration:
+
+```csharp
+var loggerConfig = new LoggerConfiguration()
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"));
+```
+
+Or, if using .NET Core and `Serilog.Settings.Configuration` Nuget package and `appsettings.json`, default configuration would look like this:
+
+```json
+{
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Elasticsearch" ],
+    "MinimumLevel": "Warning",
+    "WriteTo": [
+      {
+        "Name": "Elasticsearch",
+        "Args": {
+          "nodeUris": "http://localhost:9200"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName" ],
+    "Properties": {
+      "Application": "ImmoValuation.Swv - Web"
+    }
+  }
+}
+```
+
+More elaborate configuration, using additional Nuget packages (e.g. `Serilog.Enrichers.Environment`) would look like:
+
+```json
+{
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Elasticsearch" ],
+    "MinimumLevel": "Warning",
+    "WriteTo": [
+      {
+        "Name": "Elasticsearch",
+        "Args": {
+          "nodeUris": "http://localhost:9200"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName" ],
+    "Properties": {
+      "Application": "My app"
+    }
+  }
+}
+```
+
+This way the sink will detect version of Elasticsearch server (`DetectElasticsearchVersion` is set to `true` by default) and handle `TypeName` behavior correctly, based on the server version (6.x, 7.x or 8.x).
+
+### Disable detection of Elasticsearch server version
+
+Alternatively, `DetectElasticsearchVersion` can be set to `false` and certain option can be configured manually. In that case, the sink will assume version 7 of Elasticsearch, but options will be ignored due to a potential version incompatibility.
+
+For example, you can configure the sink to force registeration of v6 index template. Be aware that the AutoRegisterTemplate option will not overwrite an existing template.
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
     .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200") ){
+             DetectElasticsearchVersion = false,
              AutoRegisterTemplate = true,
              AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv6
      });
 ```
+
+### Configurable properties
+
+Besides a registration of the sink in the code, it is possible to register it using appSettings reader (from v2.0.42+) reader (from v2.0.42+) as shown below.
 
 This example shows the options that are currently available when using the appSettings reader.
 
@@ -75,7 +140,8 @@ This example shows the options that are currently available when using the appSe
     <add key="serilog:write-to:Elasticsearch.emitEventFailure" value="WriteToSelfLog" />
     <add key="serilog:write-to:Elasticsearch.queueSizeLimit" value="100000" />
     <add key="serilog:write-to:Elasticsearch.autoRegisterTemplate" value="true" />
-    <add key="serilog:write-to:Elasticsearch.autoRegisterTemplateVersion" value="ESv2" />
+    <add key="serilog:write-to:Elasticsearch.autoRegisterTemplateVersion" value="ESv7" />
+    <add key="serilog:write-to:Elasticsearch.detectElasticsearchVersion" value="false" /><!-- `true` is default -->
     <add key="serilog:write-to:Elasticsearch.overwriteTemplate" value="false" />
     <add key="serilog:write-to:Elasticsearch.registerTemplateFailure" value="IndexAnyway" />
     <add key="serilog:write-to:Elasticsearch.deadLetterIndexName" value="deadletter-{0:yyyy.MM}" />

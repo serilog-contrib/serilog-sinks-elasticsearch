@@ -24,57 +24,61 @@ namespace Serilog.Sinks.Elasticsearch
         /// <summary>
         /// Elasticsearch version &gt;= version 7.0
         /// </summary>
-        ESv7 = 3
+        ESv7 = 3,
+        /// <summary>
+        /// Elasticsearch version &gt;= version 8.0
+        /// </summary>
+        ESv8 = 4
     }
 
     /// <summary>
     ///
     /// </summary>
     public class ElasticsearchTemplateProvider
-    {
-        [Obsolete("Use the overload taking ElasticsearchSinkOptions which takes IncludeTypeName into account")]
-        public static object GetTemplate(
-            Dictionary<string, string> settings,
-            string templateMatchString,
-            AutoRegisterTemplateVersion version = AutoRegisterTemplateVersion.ESv2)
-        {
-            switch (version)
-            {
-                case AutoRegisterTemplateVersion.ESv5:
-                    return GetTemplateESv5(settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv6:
-                    return GetTemplateESv6(null, null, settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv7:
-                    return GetTemplateESv7(null, null, settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv2:
-                    return GetTemplateESv2(settings, templateMatchString);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(version), version, null);
-            }
-        }
-        
+    {        
         public static object GetTemplate(ElasticsearchSinkOptions options,
-            string discoveredVersion,
+            int discoveredMajorVersion,
             Dictionary<string, string> settings,
             string templateMatchString,
             AutoRegisterTemplateVersion version = AutoRegisterTemplateVersion.ESv2)
         {
             switch (version)
             {
+                case AutoRegisterTemplateVersion.ESv8:
+                    return GetTemplateESv8(options, discoveredMajorVersion, settings, templateMatchString);
+                case AutoRegisterTemplateVersion.ESv7:
+                    return GetTemplateESv7(options, discoveredMajorVersion, settings, templateMatchString);
+                case AutoRegisterTemplateVersion.ESv6:
+                    return GetTemplateESv6(options, discoveredMajorVersion, settings, templateMatchString);
                 case AutoRegisterTemplateVersion.ESv5:
                     return GetTemplateESv5(settings, templateMatchString);
                 case AutoRegisterTemplateVersion.ESv2:
                     return GetTemplateESv2(settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv6:
-                    return GetTemplateESv6(options, discoveredVersion, settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv7:
-                    return GetTemplateESv7(options, discoveredVersion, settings, templateMatchString);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(version), version, null);
             }
         }
 
-        private static object GetTemplateESv7(ElasticsearchSinkOptions options, string discoveredVersion,
+        private static object GetTemplateESv8(ElasticsearchSinkOptions options, int discoveredMajorVersion,
+            Dictionary<string, string> settings,
+            string templateMatchString)
+        {
+            dynamic templateV7 = GetTemplateESv7(options, discoveredMajorVersion, settings, templateMatchString);
+
+            // wrap settings, mappings and aliases into template property.
+            return new
+            {
+                index_patterns = templateV7.index_patterns,
+                template = new
+                {
+                    settings = templateV7.settings,
+                    mappings = templateV7.mappings,
+                    aliases = templateV7.aliases
+                }
+            };
+        }
+
+        private static object GetTemplateESv7(ElasticsearchSinkOptions options, int discoveredMajorVersion,
             Dictionary<string, string> settings,
             string templateMatchString)
         {
@@ -157,7 +161,7 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
             };
-            mappings = discoveredVersion?.StartsWith("6.") ?? false ? new { _doc = mappings } : mappings;
+            mappings = discoveredMajorVersion == 6 ? new { _doc = mappings } : mappings;
 
             Dictionary<string, object> aliases = new Dictionary<string, object>();
 
@@ -170,6 +174,7 @@ namespace Serilog.Sinks.Elasticsearch
                     aliases.Add(alias, new object());
                 }
 
+
             return new
             {
                 index_patterns = new[] { templateMatchString },
@@ -179,7 +184,7 @@ namespace Serilog.Sinks.Elasticsearch
             };
         }
 
-        private static object GetTemplateESv6(ElasticsearchSinkOptions options, string discoveredVersion,
+        private static object GetTemplateESv6(ElasticsearchSinkOptions options, int discoveredMajorVersion,
             Dictionary<string, string> settings,
             string templateMatchString)
         {
@@ -263,7 +268,7 @@ namespace Serilog.Sinks.Elasticsearch
                 }
             };
             
-            mappings = discoveredVersion?.StartsWith("7.") ?? false ? (object) new { _doc = mappings} : new { _default_ = mappings};
+            mappings = discoveredMajorVersion == 7 ? (object) new { _doc = mappings} : new { _default_ = mappings};
             
             return new
             {

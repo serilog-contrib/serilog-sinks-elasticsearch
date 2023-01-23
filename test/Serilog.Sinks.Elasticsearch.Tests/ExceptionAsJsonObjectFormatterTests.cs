@@ -9,6 +9,7 @@ using Serilog.Events;
 using Serilog.Formatting.Elasticsearch;
 using Serilog.Parsing;
 using Serilog.Sinks.Elasticsearch.Tests.Domain;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {
@@ -51,7 +52,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             var exceptionInfo = eventWritten.Exception;
             exceptionInfo.Should().NotBeNull();
             exceptionInfo.Message.Should().Be(expectedExceptionMessage);
-#if !DOTNETCORE
+#if NETFRAMEWORK
             exceptionInfo.ClassName.Should().Be("System.Exception");
 #endif
         }

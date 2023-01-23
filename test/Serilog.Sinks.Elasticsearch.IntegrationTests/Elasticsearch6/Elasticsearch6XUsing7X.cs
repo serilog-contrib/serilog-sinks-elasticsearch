@@ -47,7 +47,7 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
             {
                 var loggerConfig = new LoggerConfiguration()
                     .MinimumLevel.Information()
-                    .WriteTo.ColoredConsole()
+                    .WriteTo.Console()
                     .WriteTo.Elasticsearch(
                         ElasticsearchSinkOptionsFactory.Create(IndexPrefix, TemplateName, o =>
                         {

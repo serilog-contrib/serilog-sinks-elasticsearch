@@ -4,6 +4,7 @@
     <Authors>Michiel van Oudheusden, Martijn Laarman, Mogens Heller Grabe, Serilog Contributors</Authors>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Serilog.Sinks.Elasticsearch</AssemblyName>
     <AssemblyOriginatorKeyFile>../../assets/Serilog.snk</AssemblyOriginatorKeyFile>
@@ -35,11 +36,11 @@
 
     <ProjectReference Include="..\Serilog.Formatting.Elasticsearch\Serilog.Formatting.Elasticsearch.csproj" />
       
-    <PackageReference Include="Serilog" Version="2.11.0" />
+    <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.8.1" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.5" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.0" />
   </ItemGroup>
 

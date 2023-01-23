@@ -38,9 +38,9 @@ namespace Serilog.Sinks.Elasticsearch
 
         /// <summary>
         /// When using the <see cref="AutoRegisterTemplate"/> feature, this allows to set the Elasticsearch version. Depending on the
-        /// version, a template will be selected. Defaults to pre 5.0.
+        /// version, a template will be selected. Defaults to 7.0.
         /// </summary>
-        public AutoRegisterTemplateVersion AutoRegisterTemplateVersion { get; set; }
+        public AutoRegisterTemplateVersion? AutoRegisterTemplateVersion { get; set; }
 
         /// <summary>
         /// Specifies the option on how to handle failures when writing the template to Elasticsearch. This is only applicable when using the AutoRegisterTemplate option.
@@ -110,7 +110,7 @@ namespace Serilog.Sinks.Elasticsearch
         public string DeadLetterIndexName { get; set; }
 
         ///<summary>
-        /// The default elasticsearch type name to use for the log events. Defaults to: "_doc".
+        /// The default elasticsearch type name to use for the log events. Defaults to: null.
         /// </summary>
         public string TypeName { get; set; }
 
@@ -288,7 +288,6 @@ namespace Serilog.Sinks.Elasticsearch
         {
             this.IndexFormat = "logstash-{0:yyyy.MM.dd}";
             this.DeadLetterIndexName = "deadletter-{0:yyyy.MM.dd}";
-            this.TypeName = DefaultTypeName;
             this.Period = TimeSpan.FromSeconds(2);
             this.BatchPostingLimit = 50;
             this.SingleEventSizePostingLimit = null;
@@ -308,13 +307,14 @@ namespace Serilog.Sinks.Elasticsearch
         /// The default Elasticsearch type name used for Elasticsearch versions prior to 7.
         /// <para>As of <c>Elasticsearch 7</c> and up <c>_type</c> has been removed.</para>
         /// </summary>
-        public static string DefaultTypeName { get; } = "_doc";
+        public static string DefaultTypeName { get; } = "logevent";
 
         /// <summary>
         /// Instructs the sink to auto detect the running Elasticsearch version.
         ///
         /// <para>
         /// This information is used to attempt to register an older or newer template
+        /// and to decide which version of index-template API to use.
         /// </para>
         /// <para></para>
         ///
@@ -329,7 +329,7 @@ namespace Serilog.Sinks.Elasticsearch
         /// - using <see cref="Serilog.Sinks.Elasticsearch.AutoRegisterTemplateVersion.ESv6"/> against <c> Elasticsearch 7.x </c>
         /// </para>
         /// </summary>
-        public bool DetectElasticsearchVersion { get; set; }
+        public bool DetectElasticsearchVersion { get; set; } = true;
 
         /// <summary>
         /// Configures the elasticsearch sink

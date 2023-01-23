@@ -1,10 +1,4 @@
-﻿using Serilog.Debugging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using Xunit;
+﻿using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

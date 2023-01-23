@@ -92,7 +92,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         protected override void AddToPayLoad(string nextLine)
         {
             var indexName = _getIndexForEvent(nextLine, _date);
-            var action = ElasticsearchSink.CreateElasticAction(
+            var action = BatchedElasticsearchSink.CreateElasticAction(
                 opType: _elasticOpType, 
                 indexName: indexName, pipelineName: _pipelineName,
                 id: _count + "_" + Guid.NewGuid(),

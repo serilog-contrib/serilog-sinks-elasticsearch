@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -19,7 +17,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
-                .WriteTo.ColoredConsole()
+                .WriteTo.Console()
                 .WriteTo.Elasticsearch(_options);
 
             var logger = loggerConfig.CreateLogger();
