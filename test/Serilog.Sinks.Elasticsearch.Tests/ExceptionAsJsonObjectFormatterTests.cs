@@ -52,7 +52,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             var exceptionInfo = eventWritten.Exception;
             exceptionInfo.Should().NotBeNull();
             exceptionInfo.Message.Should().Be(expectedExceptionMessage);
-#if !DOTNETCORE
+#if NETFRAMEWORK
             exceptionInfo.ClassName.Should().Be("System.Exception");
 #endif
         }

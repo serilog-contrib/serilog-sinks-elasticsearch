@@ -106,11 +106,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
         <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
-    </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
-    <DefineConstants>$(DefineConstants);DOTNETCORE;PARTIALLY_SERIALIZATION</DefineConstants>
-  </PropertyGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />

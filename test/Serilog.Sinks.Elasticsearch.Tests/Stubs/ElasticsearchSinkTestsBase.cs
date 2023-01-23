@@ -120,10 +120,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
 
         protected void JsonEquals(string json, string embeddedResourceNameEndsWith)
         {
-#if DOTNETCORE
-            var assembly = GetType().Assembly;
+#if NETFRAMEWORK
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();       
 #else
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var assembly = GetType().Assembly;
 #endif
             var expected = TestDataHelper.ReadEmbeddedResource(assembly, embeddedResourceNameEndsWith);
 

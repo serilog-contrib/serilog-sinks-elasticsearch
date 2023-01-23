@@ -55,7 +55,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Discrepancies
                 .And.Be(exceptionMessage);
             var realException = firstEvent.Exceptions[0];
 #if !NO_SERIALIZATION
-#if !PARTIALLY_SERIALIZATION
+#if NETFRAMEWORK
             realException.ExceptionMethod.Should().NotBeNull();
             realException.ExceptionMethod.Name.Should().NotBeNullOrWhiteSpace();
             realException.ExceptionMethod.AssemblyName.Should().NotBeNullOrWhiteSpace();
