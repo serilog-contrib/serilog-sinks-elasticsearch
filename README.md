@@ -30,7 +30,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Starting from version 3, compatible with Elasticsearch 2.
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
 * From version 8.x there is support for Elasticsearch.net version 7.
-* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8.
+* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8. Versions 2 and 5 of Elasticsearch are no longer supported.
 
 
 ## Quick start
