@@ -45,7 +45,7 @@ Simplest way to register this sink is to use default configuration:
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
-    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"));
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200")));
 ```
 
 Or, if using .NET Core and `Serilog.Settings.Configuration` Nuget package and `appsettings.json`, default configuration would look like this:
