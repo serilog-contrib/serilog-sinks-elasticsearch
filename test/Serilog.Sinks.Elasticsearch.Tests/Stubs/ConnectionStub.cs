@@ -53,7 +53,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
                         $" to be productCheck pre-flight request");
 
                 _productCheckDone = true;
-                return ReturnConnectionStatus<TReturn>(requestData); // root page returned
+                return ReturnConnectionStatus<TReturn>(requestData); // hard-coded root page returned
             }
 
             byte[] responseBytes = Array.Empty<byte>();
@@ -66,6 +66,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
 
             int responseStatusCode = 200;
             string contentType = null;
+            InMemoryHttpResponse productCheckResponse = null;
 
             switch (requestData.Method)
             {
@@ -79,13 +80,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
                     switch (requestData.Uri.PathAndQuery.ToLower())
                     {
                         case "/":
-                            // ReturnConnectionStatus(...) call at the bottom will return dummy product page
-                            // when root "/" is requested.
+                            productCheckResponse = ModifiedProductCheckResponse(_productVersion);
                             break;
-                        case "/_cat/nodes":
                         case "/_cat/nodes?h=v":
                             responseBytes = Encoding.UTF8.GetBytes(_productVersion);
-                            responseStatusCode = 200;
                             contentType = "text/plain; charset=UTF-8";
                             break;
                     }
@@ -100,12 +98,29 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Stubs
                     break;
             }
 
-            return ReturnConnectionStatus<TReturn>(requestData, responseBytes, responseStatusCode, contentType);
+            return ReturnConnectionStatus<TReturn>(requestData, productCheckResponse, responseBytes, responseStatusCode, contentType);
         }
 
         public override Task<TResponse> RequestAsync<TResponse>(RequestData requestData, CancellationToken cancellationToken)
         {
             return Task.FromResult(Request<TResponse>(requestData));
+        }
+
+        public static InMemoryHttpResponse ModifiedProductCheckResponse(string productVersion)
+        {
+            var productCheckResponse = ValidProductCheckResponse();
+            if (productVersion is not null)
+            {
+                using var originalMemoryStream = new MemoryStream(productCheckResponse.ResponseBytes, false);
+                {
+                    var json = LowLevelRequestResponseSerializer.Instance.Deserialize<dynamic>(originalMemoryStream);
+                    json["version"]["number"] = productVersion;
+                    using var modifiedMemoryStream = new MemoryStream();
+                    LowLevelRequestResponseSerializer.Instance.Serialize(json, modifiedMemoryStream);
+                    productCheckResponse.ResponseBytes = modifiedMemoryStream.ToArray();
+                }
+            }
+            return productCheckResponse;
         }
     }
 }

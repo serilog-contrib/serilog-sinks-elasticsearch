@@ -1,4 +1,5 @@
 ﻿using Elasticsearch.Net;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using System.Text;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             /* ARRANGE */
             var options = new ElasticsearchSinkOptions
             {
-                Connection = FakeResponse(elasticVersion),
+                Connection = FakeProductCheckResponse(elasticVersion),
                 TypeName = configuredTypeName
             };
 
@@ -41,7 +42,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             /* ARRANGE */
             var options = new ElasticsearchSinkOptions
             {
-                Connection = FakeResponse(elasticVersion),
+                Connection = FakeProductCheckResponse(elasticVersion),
                 DetectElasticsearchVersion = false,
                 TypeName = configuredTypeName
             };
@@ -65,7 +66,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             /* ARRANGE */
             var options = new ElasticsearchSinkOptions
             {
-                Connection = FakeResponse(elasticVersion),
+                Connection = FakeProductCheckResponse(elasticVersion),
                 DetectElasticsearchVersion = true,
                 TypeName = configuredTypeName
             };
@@ -83,10 +84,10 @@ namespace Serilog.Sinks.Elasticsearch.Tests
             Assert.Equal(expectedTypeName, options.TypeName);
         }
 
-        private static IConnection FakeResponse(string responseText)
+        private static IConnection FakeProductCheckResponse(string responseText)
         {
-            byte[] responseBody = Encoding.UTF8.GetBytes(responseText);
-            return new InMemoryConnection(responseBody, contentType: "text/plain; charset=UTF-8");
+            var productCheckResponse = ConnectionStub.ModifiedProductCheckResponse(responseText);
+            return new InMemoryConnection(productCheckResponse);
         }
     }
 }
