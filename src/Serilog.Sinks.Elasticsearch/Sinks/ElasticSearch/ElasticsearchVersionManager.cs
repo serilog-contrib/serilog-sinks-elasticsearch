@@ -56,19 +56,18 @@ namespace Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch
         {
             try
             {
-                var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
-                {
-                    Headers = new[] { "v" }
-                });
+                var response = _client.DoRequest<DynamicResponse>(HttpMethod.GET, "/");
                 if (!response.Success) return null;
 
-                var discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault();
+                var discoveredVersion = response.Dictionary["version"]["number"];
 
-                if (discoveredVersion == null)
+                if (!discoveredVersion.HasValue)
                     return null;
 
-                return new Version(discoveredVersion);
+                if (discoveredVersion.Value is not string strVersion)
+                    return null;
+
+                return new Version(strVersion);
 
             }
             catch (Exception ex)

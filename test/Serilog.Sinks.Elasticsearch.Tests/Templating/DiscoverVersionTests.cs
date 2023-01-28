@@ -34,7 +34,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         public void TemplatePutToCorrectUrl()
         {
             var uri = _templateGet.Item1;
-            uri.AbsolutePath.Should().Be("/_cat/nodes");
+            uri.AbsolutePath.Should().Be("/");
         }
     }
 }
