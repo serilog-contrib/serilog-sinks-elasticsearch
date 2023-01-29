@@ -1,4 +1,4 @@
-# Serilog.Sinks.Elasticsearch [![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
+# Serilog.Sinks.Elasticsearch [![Continuous Integration](https://github.com/serilog-contrib/serilog-sinks-elasticsearch/actions/workflows/cicd.yaml/badge.svg?branch=dev)](https://github.com/serilog-contrib/serilog-sinks-elasticsearch/actions/workflows/cicd.yaml) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
 
 This repository contains two nuget packages: `Serilog.Sinks.Elasticsearch` and `Serilog.Formatting.Elasticsearch`.
 
@@ -30,7 +30,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Starting from version 3, compatible with Elasticsearch 2.
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
 * From version 8.x there is support for Elasticsearch.net version 7.
-* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8. Versions 2 and 5 of Elasticsearch are no longer supported.
+* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8. Versions 2 and 5 of Elasticsearch are no longer supported. We also focus on .NET 6 going forward to keep the maintanance simpler. If you need older frameworks, please stick with a previous version.
 
 
 ## Quick start
