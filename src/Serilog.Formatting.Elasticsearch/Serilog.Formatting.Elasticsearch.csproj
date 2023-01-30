@@ -13,7 +13,7 @@
     <AssemblyName>Serilog.Formatting.Elasticsearch</AssemblyName>
     <AssemblyOriginatorKeyFile>../../assets/Serilog.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <PublicSign>false</PublicSign>
     <PackageId>Serilog.Formatting.Elasticsearch</PackageId>
     <PackageTags>serilog;elasticsearch;logging;event;formatting</PackageTags>
     <PackageReleaseNotes>https://github.com/serilog-contrib/serilog-sinks-elasticsearch/blob/master/CHANGES.md</PackageReleaseNotes>
