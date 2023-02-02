@@ -1,0 +1,77 @@
+﻿{
+    "index_patterns": [ "logstash-*" ],
+    "settings": {
+        "index.refresh_interval": "5s"
+    },
+    "mappings": {
+        "dynamic_templates": [
+            {
+                "numerics_in_fields": {
+                    "path_match": "fields\\.[\\d+]$",
+                    "match_pattern": "regex",
+                    "mapping": {
+                        "type": "text",
+                        "index": true,
+                        "norms": false
+                    }
+                }
+            },
+            {
+                "string_fields": {
+                    "match": "*",
+                    "match_mapping_type": "string",
+                    "mapping": {
+                        "type": "text",
+                        "index": true,
+                        "norms": false,
+                        "fields": {
+                            "raw": {
+                                "type": "keyword",
+                                "index": true,
+                                "ignore_above": 256
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "properties": {
+            "message": {
+                "type": "text",
+                "index": true
+            },
+            "exceptions": {
+                "type": "nested",
+                "properties": {
+                    "Depth": {
+                        "type": "integer"
+                    },
+                    "RemoteStackIndex": {
+                        "type": "integer"
+                    },
+                    "HResult": {
+                        "type": "integer"
+                    },
+                    "StackTraceString": {
+                        "type": "text",
+                        "index": true
+                    },
+                    "RemoteStackTraceString": {
+                        "type": "text",
+                        "index": true
+                    },
+                    "ExceptionMessage": {
+                        "type": "object",
+                        "properties": {
+                            "MemberType": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "aliases": {
+    }
+}

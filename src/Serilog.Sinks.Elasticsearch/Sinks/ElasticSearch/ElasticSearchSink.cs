@@ -25,26 +25,39 @@ using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.Elasticsearch
 {
+    public sealed class ElasticsearchSink : PeriodicBatchingSink
+    {
+        public ElasticsearchSink(ElasticsearchSinkOptions options)
+            : this(
+                  new BatchedElasticsearchSink(options),
+                  new PeriodicBatchingSinkOptions
+                    {
+                        BatchSizeLimit = options.BatchPostingLimit,
+                        Period = options.Period,
+                        EagerlyEmitFirstEvent = true,
+                        QueueLimit = (options.QueueSizeLimit == -1) ? null : new int?(options.QueueSizeLimit)
+                    }
+                  )
+        {
+        }
+
+        private ElasticsearchSink(IBatchedLogEventSink batchedSink, PeriodicBatchingSinkOptions options)
+            : base(batchedSink, options)
+        {
+        }
+    }
     /// <summary>
     /// Writes log events as documents to ElasticSearch.
     /// </summary>
-    public class ElasticsearchSink : PeriodicBatchingSink
+    internal sealed class BatchedElasticsearchSink : IBatchedLogEventSink
     {
-
         private readonly ElasticsearchSinkState _state;
 
-        /// <summary>
-        /// Creates a new ElasticsearchSink instance with the provided options
-        /// </summary>
-        /// <param name="options">Options configuring how the sink behaves, may NOT be null</param>
-        public ElasticsearchSink(ElasticsearchSinkOptions options)
-            : base(options.BatchPostingLimit, options.Period, options.QueueSizeLimit)
+        public BatchedElasticsearchSink(ElasticsearchSinkOptions options)
         {
             _state = ElasticsearchSinkState.Create(options);
-            _state.DiscoverClusterVersion();
             _state.RegisterTemplateIfNeeded();
         }
-
         /// <summary>
         /// Emit a batch of log events, running to completion synchronously.
         /// </summary>
@@ -54,7 +67,7 @@ namespace Serilog.Sinks.Elasticsearch
         ///  or <see cref="M:Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink.EmitBatchAsync(System.Collections.Generic.IEnumerable{Serilog.Events.LogEvent})" />,
         /// not both.
         /// </remarks>
-        protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
+        public async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             DynamicResponse result;
 
@@ -71,19 +84,9 @@ namespace Serilog.Sinks.Elasticsearch
             HandleResponse(events, result);
         }
 
-        /// <summary>
-        /// Emit a batch of log events, running to completion synchronously.
-        /// </summary>
-        /// <param name="events">The events to emit.</param>
-        /// <returns>Response from Elasticsearch</returns>
-        protected virtual Task<T> EmitBatchCheckedAsync<T>(IEnumerable<LogEvent> events) where T : class, IElasticsearchResponse, new()
+        public Task OnEmptyBatchAsync()
         {
-            // ReSharper disable PossibleMultipleEnumeration
-            if (events == null || !events.Any())
-                return Task.FromResult<T>(default(T));
-
-            var payload = CreatePlayLoad(events);
-            return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -91,14 +94,14 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="events">The events to emit.</param>
         /// <returns>Response from Elasticsearch</returns>
-        protected virtual T EmitBatchChecked<T>(IEnumerable<LogEvent> events) where T : class, IElasticsearchResponse, new()
+        private Task<T> EmitBatchCheckedAsync<T>(IEnumerable<LogEvent> events) where T : class, IElasticsearchResponse, new()
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any())
-                return null;
+                return Task.FromResult<T>(default(T));
 
-            var payload = CreatePlayLoad(events);
-            return _state.Client.Bulk<T>(PostData.MultiJson(payload));
+            var payload = CreatePayload(events);
+            return _state.Client.BulkAsync<T>(PostData.MultiJson(payload));
         }
 
         /// <summary>
@@ -106,12 +109,12 @@ namespace Serilog.Sinks.Elasticsearch
         /// </summary>
         /// <param name="ex"></param>
         /// <param name="events"></param>
-        protected virtual void HandleException(Exception ex, IEnumerable<LogEvent> events)
+        private void HandleException(Exception ex, IEnumerable<LogEvent> events)
         {
             if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToSelfLog))
             {
                 // ES reports an error, output the error to the selflog
-                SelfLog.WriteLine("Caught exception while preforming bulk operation to Elasticsearch: {0}", ex);
+                SelfLog.WriteLine("Caught exception while performing bulk operation to Elasticsearch: {0}", ex);
             }
             if (_state.Options.EmitEventFailure.HasFlag(EmitEventFailureHandling.WriteToFailureSink) &&
                 _state.Options.FailureSink != null)
@@ -153,19 +156,7 @@ namespace Serilog.Sinks.Elasticsearch
                 throw ex;
         }
 
-        // Helper function: checks if a given dynamic member / dictionary key exists at runtime
-        private static bool HasProperty(dynamic settings, string name)
-        {
-            if (settings is IDictionary<string, object>)
-                return ((IDictionary<string, object>)settings).ContainsKey(name);
-
-            if (settings is System.Dynamic.DynamicObject)
-                return ((System.Dynamic.DynamicObject)settings).GetDynamicMemberNames().Contains(name);
-
-            return settings.GetType().GetProperty(name) != null;
-        }
-
-        private IEnumerable<string> CreatePlayLoad(IEnumerable<LogEvent> events)
+        private IEnumerable<string> CreatePayload(IEnumerable<LogEvent> events)
         {
             if (!_state.TemplateRegistrationSuccess && _state.Options.RegisterTemplateFailure == RegisterTemplateRecovery.FailSink)
             {
@@ -280,7 +271,7 @@ namespace Serilog.Sinks.Elasticsearch
                 : new ElasticIndexAction(actionPayload);
             return action;
         }
-        
+
         sealed class ElasticCreateAction
         {
             public ElasticCreateAction(ElasticActionPayload payload)

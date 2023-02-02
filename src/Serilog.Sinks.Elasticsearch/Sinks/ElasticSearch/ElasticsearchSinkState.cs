@@ -14,16 +14,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Elasticsearch.Net;
-using Elasticsearch.Net.Specification.CatApi;
 using Elasticsearch.Net.Specification.IndicesApi;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Elasticsearch;
+using Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch;
 
 namespace Serilog.Sinks.Elasticsearch
 {
@@ -51,12 +49,11 @@ namespace Serilog.Sinks.Elasticsearch
         private readonly string _templateName;
         private readonly string _templateMatchString;
         private static readonly Regex IndexFormatRegex = new Regex(@"^(.*)(?:\{0\:.+\})(.*)$");
-        private string _discoveredVersion;
 
-        public string DiscoveredVersion => _discoveredVersion;
-        private bool IncludeTypeName =>
-            (DiscoveredVersion?.StartsWith("7.") ?? false)
-            && _options.AutoRegisterTemplateVersion == AutoRegisterTemplateVersion.ESv6;
+        private readonly ElasticsearchVersionManager _versionManager;
+
+        private bool IncludeTypeName => _versionManager.EffectiveVersion.Major >= 7;
+
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -83,7 +80,6 @@ namespace Serilog.Sinks.Elasticsearch
 
             _options = options;
 
-
             var configuration = new ConnectionConfiguration(options.ConnectionPool, options.Connection, options.Serializer)
                 .RequestTimeout(options.ConnectionTimeout);
 
@@ -100,6 +96,16 @@ namespace Serilog.Sinks.Elasticsearch
 
             _registerTemplateOnStartup = options.AutoRegisterTemplate;
             TemplateRegistrationSuccess = !_registerTemplateOnStartup;
+
+            _versionManager = new ElasticsearchVersionManager(options.DetectElasticsearchVersion, _client);
+
+            // Resolve typeName
+            if (_versionManager.EffectiveVersion.Major < 7)
+                _options.TypeName = string.IsNullOrWhiteSpace(_options.TypeName)
+                    ? ElasticsearchSinkOptions.DefaultTypeName // "logevent"
+                    : _options.TypeName;
+            else
+                _options.TypeName = null;
         }
 
         public static ITextFormatter CreateDefaultFormatter(ElasticsearchSinkOptions options)
@@ -166,11 +172,20 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                var result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
-                    new PutIndexTemplateRequestParameters
-                    {
-                        IncludeTypeName = IncludeTypeName ? true : (bool?)null
-                    });
+                StringResponse result;                
+                if (_versionManager.EffectiveVersion.Major < 8)
+                { 
+                    result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
+                        new PutIndexTemplateRequestParameters
+                        {
+                            IncludeTypeName = IncludeTypeName ? true : (bool?)null
+                        });
+                }
+                else
+                {
+                    // Default to version 8 API
+                    result = _client.Indices.PutTemplateV2ForAll<StringResponse>(_templateName, GetTemplatePostData());
+                }
 
                 if (!result.Success)
                 {
@@ -229,38 +244,23 @@ namespace Serilog.Sinks.Elasticsearch
             if (_options.NumberOfReplicas.HasValue && !settings.ContainsKey("number_of_replicas"))
                 settings.Add("number_of_replicas", _options.NumberOfReplicas.Value.ToString());
 
+            var effectiveTemplateVerson =
+                _options.AutoRegisterTemplateVersion ??
+                _versionManager.EffectiveVersion.Major switch
+                {
+                    >= 8 => AutoRegisterTemplateVersion.ESv8,
+                    7 => AutoRegisterTemplateVersion.ESv7,
+                    6 => AutoRegisterTemplateVersion.ESv6,
+                    _ => throw new NotSupportedException()
+                };
+
             return ElasticsearchTemplateProvider.GetTemplate(
                 _options,
-                DiscoveredVersion,
+                _versionManager.EffectiveVersion.Major,
                 settings,
                 _templateMatchString,
-                _options.AutoRegisterTemplateVersion);
+                effectiveTemplateVerson);
 
-        }
-
-        public void DiscoverClusterVersion()
-        {
-            if (!_options.DetectElasticsearchVersion) return;
-
-            try
-            {
-
-                var response = _client.Cat.Nodes<StringResponse>(new CatNodesRequestParameters()
-                {
-                    Headers = new[] { "v" }
-                });
-                if (!response.Success) return;
-
-                _discoveredVersion = response.Body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                    .FirstOrDefault();
-
-                if (_discoveredVersion?.StartsWith("7.") ?? false)
-                    _options.TypeName = "_doc";
-            }
-            catch (Exception ex)
-            {
-                SelfLog.WriteLine("Failed to discover the cluster version. {0}", ex);
-            }
         }
     }
 }

@@ -86,7 +86,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
             bool hasErrors = false;
             foreach (dynamic item in items)
             {
-                var itemIndex = item?[ElasticsearchSink.BulkAction(_elasticOpType)];
+                var itemIndex = item?[BatchedElasticsearchSink.BulkAction(_elasticOpType)];
                 long? status = itemIndex?["status"];
                 i++;
                 if (!status.HasValue || status < 300)

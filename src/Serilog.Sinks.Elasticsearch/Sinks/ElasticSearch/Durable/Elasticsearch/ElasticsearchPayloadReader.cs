@@ -17,6 +17,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         private readonly Func<object, string> _serialize;
         private readonly Func<string, DateTime,string> _getIndexForEvent;
         private readonly ElasticOpType _elasticOpType;
+        private readonly RollingInterval _rollingInterval;
         private List<string> _payload;
         private int _count;
         private DateTime _date;
@@ -29,14 +30,21 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         /// <param name="serialize"></param>
         /// <param name="getIndexForEvent"></param>
         /// <param name="elasticOpType"></param>
+        /// <param name="rollingInterval"></param>
         public ElasticsearchPayloadReader(string pipelineName, string typeName, Func<object, string> serialize,
-            Func<string, DateTime, string> getIndexForEvent, ElasticOpType elasticOpType)
+            Func<string, DateTime, string> getIndexForEvent, ElasticOpType elasticOpType, RollingInterval rollingInterval)
         {
+            if ((int)rollingInterval < (int)RollingInterval.Day)
+            {
+                throw new ArgumentException("Rolling intervals less frequent than RollingInterval.Day are not supported");
+            }
+            
             _pipelineName = pipelineName;
             _typeName = typeName;
             _serialize = serialize;
             _getIndexForEvent = getIndexForEvent;
             _elasticOpType = elasticOpType;
+            _rollingInterval = rollingInterval;
         }
 
         /// <summary>
@@ -64,8 +72,9 @@ namespace Serilog.Sinks.Elasticsearch.Durable
                 throw new FormatException(string.Format("The file name '{0}' does not seem to follow the right file pattern - it must be named [whatever]-{{Date}}[_n].json", Path.GetFileName(filename)));
             }
 
-            var dateString = lastToken.Substring(0, 8);
-            _date = DateTime.ParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture);            
+            var dateFormat = _rollingInterval.GetFormat();
+            var dateString = lastToken.Substring(0, dateFormat.Length);
+            _date = DateTime.ParseExact(dateString, dateFormat, CultureInfo.InvariantCulture);
         }
        /// <summary>
        /// 
@@ -83,7 +92,7 @@ namespace Serilog.Sinks.Elasticsearch.Durable
         protected override void AddToPayLoad(string nextLine)
         {
             var indexName = _getIndexForEvent(nextLine, _date);
-            var action = ElasticsearchSink.CreateElasticAction(
+            var action = BatchedElasticsearchSink.CreateElasticAction(
                 opType: _elasticOpType, 
                 indexName: indexName, pipelineName: _pipelineName,
                 id: _count + "_" + Guid.NewGuid(),

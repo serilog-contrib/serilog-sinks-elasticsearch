@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 using Xunit;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
@@ -15,7 +16,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
             var loggerConfig = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .Enrich.WithMachineName()
-                .WriteTo.ColoredConsole()
+                .WriteTo.Console()
                 .WriteTo.Elasticsearch(_options);
 
             var logger = loggerConfig.CreateLogger();
@@ -33,7 +34,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         public void TemplatePutToCorrectUrl()
         {
             var uri = _templateGet.Item1;
-            uri.AbsolutePath.Should().Be("/_cat/nodes");
+            uri.AbsolutePath.Should().Be("/");
         }
     }
 }

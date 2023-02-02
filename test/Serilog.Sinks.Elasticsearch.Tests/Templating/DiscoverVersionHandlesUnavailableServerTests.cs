@@ -4,6 +4,7 @@ using System.Text;
 using FluentAssertions;
 using Xunit;
 using Serilog.Debugging;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests.Templating
 {

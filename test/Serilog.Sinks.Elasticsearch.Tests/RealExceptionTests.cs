@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Nest;
 using Xunit;
 using Serilog.Events;
 using Serilog.Parsing;
+using Serilog.Sinks.Elasticsearch.Tests.Stubs;
 
 namespace Serilog.Sinks.Elasticsearch.Tests
 {

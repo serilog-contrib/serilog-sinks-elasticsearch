@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <NoWarn>$(NoWarn);xUnit1013</NoWarn>
     <DebugSymbols>True</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <IsTestProject>True</IsTestProject>
+    <IsPackable>false</IsPackable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Serilog.Sinks.Elasticsearch\Serilog.Sinks.Elasticsearch.csproj" />
@@ -14,15 +16,49 @@
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
     <PackageReference Include="Elasticsearch.Net.v6" Version="6.9.0-ci20190620T132817" />
     <PackageReference Include="NEST.v6" Version="6.9.0-ci20190620T132817" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
       
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit.extensibility.execution" Version="2.4.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.2.4" />
     <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.2.4" />
-    <PackageReference Include="FluentAssertions" Version="5.7.0" />
-    <PackageReference Include="NEST" Version="7.8.1" />
-    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
+    <PackageReference Include="FluentAssertions" Version="6.9.0" />
+    <PackageReference Include="NEST" Version="7.17.5" />
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="ReportGenerator" Version="5.1.15" />    
   </ItemGroup>
+
+  <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
+    <PackageReference Include="GitHubActionsTestLogger" Version="1.4.1" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Coverage">
+    <!-- Automatically collect coverage when running `dotnet test` -->
+    <CollectCoverage>true</CollectCoverage>
+    <!-- Tweak the default coverlet output directory to be `coverage` in the repository root directory -->
+    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine($(MSBuildProjectDirectory),'..','coverage'))))))</CoverletOutput>
+    <!-- The default output format is `json` which is not supported by ReportGenerator -->
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
+  </PropertyGroup>
+
+  <Target Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) != 'true'">
+    <PropertyGroup>
+      <CoverageReportDirectory>$([MSBuild]::EnsureTrailingSlash('$(CoverletOutput)report'))</CoverageReportDirectory>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('Linux'))">xdg-open</OpenCommand>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('OSX'))">open</OpenCommand>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('Windows'))">explorer</OpenCommand>
+    </PropertyGroup>
+    <ReportGenerator ReportFiles="@(CoverletReport)" TargetDirectory="$(CoverageReportDirectory)" />
+    <!-- executing "explorer path\to\index.html" returns exit code 1, so we ignore it -->
+    <Exec WorkingDirectory="$(CoverageReportDirectory)" Command="$(OpenCommand) index.html" Condition="$(OpenCommand) != ''" IgnoreExitCode="true" />
+  </Target>
+
+  <Target Name="PrintCoverageReportPathForGitHubActions" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) == 'true'">
+    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; >> $GITHUB_OUTPUT" />
+  </Target>
 </Project>

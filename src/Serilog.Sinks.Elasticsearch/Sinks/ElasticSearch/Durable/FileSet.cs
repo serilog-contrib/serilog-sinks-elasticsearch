@@ -19,9 +19,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Serilog.Debugging;
-
+[assembly:
+    InternalsVisibleTo(
+        "Serilog.Sinks.Elasticsearch.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100fb8d13fd344a1c6fe0fe83ef33c1080bf30690765bc6eb0df26ebfdf8f21670c64265b30db09f73a0dea5b3db4c9d18dbf6d5a25af5ce9016f281014d79dc3b4201ac646c451830fc7e61a2dfd633d34c39f87b81894191652df5ac63cc40c77f3542f702bda692e6e8a9158353df189007a49da0f3cfd55eb250066b19485ec")]
 namespace Serilog.Sinks.Elasticsearch.Durable
 {
     /// <summary>
@@ -36,14 +39,16 @@ namespace Serilog.Sinks.Elasticsearch.Durable
 
         const string InvalidPayloadFilePrefix = "invalid-";
 
-        public FileSet(string bufferBaseFilename)
+        public FileSet(string bufferBaseFilename, RollingInterval rollingInterval)
         {
             if (bufferBaseFilename == null) throw new ArgumentNullException(nameof(bufferBaseFilename));
 
             _bookmarkFilename = Path.GetFullPath(bufferBaseFilename + ".bookmark");
             _logFolder = Path.GetDirectoryName(_bookmarkFilename);
             _candidateSearchPath = Path.GetFileName(bufferBaseFilename) + "-*.json";
-            _filenameMatcher = new Regex("^" + Regex.Escape(Path.GetFileName(bufferBaseFilename)) + "-(?<date>\\d{8})(?<sequence>_[0-9]{3,}){0,1}\\.json$");
+            var dateRegularExpressionPart = rollingInterval.GetMatchingDateRegularExpressionPart();
+            _filenameMatcher = new Regex("^" + Regex.Escape(Path.GetFileName(bufferBaseFilename)) + "-(?<date>" 
+                                         + dateRegularExpressionPart + ")(?<sequence>_[0-9]{3,}){0,1}\\.json$");
         }
 
         public BookmarkFile OpenBookmarkFile()

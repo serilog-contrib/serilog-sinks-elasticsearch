@@ -1,0 +1,150 @@
+name: Continuous Integration
+
+on: 
+  push:
+  pull_request:
+  release:
+    types:
+      - published
+env:
+  Configuration: Release
+  ContinuousIntegrationBuild: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+  # GitHub Packages Feed settings
+  GITHUB_FEED: https://nuget.pkg.github.com/serilog-contrib/
+  GITHUB_USER: mivano
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    name: Run tests and create NuGet package
+    outputs:
+      coverage-reports: ${{ steps.dotnet-test.outputs.coverage-reports }}
+      version: ${{ steps.dotnet-pack.outputs.version }}
+      nupkg-filename: ${{ steps.dotnet-pack.outputs.nupkg-filename }}
+      release-body: ${{ steps.tag-message.outputs.release-notes }}
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3.0.3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Retrieve cached NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore -c Release
+
+      - name: Run tests
+        run: dotnet test --no-build -c Release --logger "html;LogFileName=TestResults-${{ runner.os }}.html" --logger "trx;LogFileName=TestResults-${{ runner.os }}.trx" --logger GitHubActions
+        id: dotnet-test
+      
+      - name: Upload received files from failing tests
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: Received-${{ runner.os }}
+          path: "**/*.received.*"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: TestResults-${{ runner.os }}
+          path: test/Serilog.Sinks.Elasticsearch.Tests/TestResults/TestResults-${{ runner.os }}.html
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Results (${{ runner.os }})
+          path: '**.trx'
+          reporter: dotnet-trx
+
+      - name: Create NuGet packages
+        run: dotnet pack --no-build -c Release --version-suffix "ci-$GITHUB_RUN_ID" --include-symbols --include-source --output .
+        id: dotnet-pack
+    
+      - name: Upload NuGet package artifact        
+        uses: actions/upload-artifact@v3
+        with:
+          name: nuget
+          path: '**/*.nupkg'
+   
+  prerelease:
+    needs: package
+    name: Create prerelease 
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: nuget
+          path: nuget
+      - name: Push to GitHub Feed
+        run: | 
+          dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/serilog-contrib/index.json"
+          
+          for f in ./nuget/*.nupkg
+          do             
+            echo $f
+            dotnet nuget push $f --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+          done
+    
+  publish:
+    runs-on: ubuntu-latest
+    needs: package
+    if: github.event_name == 'release'
+    name: Publish NuGet package 
+    steps:
+      - name: Checkout git repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3.0.3
+
+      - name: Retrieve cached NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Create Release NuGet package
+        run: |
+          arrTag=(${GITHUB_REF//\// })
+          VERSION="${arrTag[2]}"
+          VERSION="${VERSION//v}"
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:Version=$VERSION -o ./nuget
+      
+      - name: Push to GitHub Feed
+        run: |
+          dotnet nuget add source --username $GITHUB_USER --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/serilog-contrib/index.json"
+     
+          for f in ./nuget/*.nupkg
+          do             
+            dotnet nuget push $f --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+          done
+
+      - name: Publish NuGet package on nuget.org
+        run: dotnet nuget push ./nuget/*.nupkg --api-key "${{ secrets.NUGET_API_KEY }}" --skip-duplicate

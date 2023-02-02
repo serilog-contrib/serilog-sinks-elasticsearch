@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;net461</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <AssemblyName>Serilog.Sinks.Elasticsearch.Tests</AssemblyName>
     <PackageId>Serilog.Sinks.Elasticsearch.Tests</PackageId>
 
     <DebugSymbols>True</DebugSymbols>
     <LangVersion>latest</LangVersion>
     <IsTestProject>True</IsTestProject>
+    <IsPackable>false</IsPackable>
     
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
@@ -21,27 +22,32 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\assets\Serilog.snk</AssemblyOriginatorKeyFile>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>    
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Templating\template_0replicas.json" />
-    <None Remove="Templating\template_2shards.json" />
-    <None Remove="Templating\template_5replicas.json" />
-    <None Remove="Templating\template_v2.json" />
-    <None Remove="Templating\template_v5.json" />
     <None Remove="Templating\template_v6.json" />
     <None Remove="Templating\template_v7.json" />
+    <None Remove="Templating\template_v7_no-aliases.json" />
+    <None Remove="Templating\template_v8.json" />
+    <None Remove="Templating\template_v8_no-aliases_0replicas.json" />
+    <None Remove="Templating\template_v8_no-aliases_2shards.json" />
+    <None Remove="Templating\template_v8_no-aliases_5replicas.json" />
+    <None Include="..\..\assets\Serilog.snk">
+      <Link>Serilog.snk</Link>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Templating\template_0replicas.json" />
-    <EmbeddedResource Include="Templating\template_2shards.json" />
-    <EmbeddedResource Include="Templating\template_5replicas.json" />
+    <EmbeddedResource Include="Templating\template_v7_no-aliases.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_0replicas.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_2shards.json" />
+    <EmbeddedResource Include="Templating\template_v8_no-aliases_5replicas.json" />
+    <EmbeddedResource Include="Templating\template_v8.json" />
     <EmbeddedResource Include="Templating\template_v7.json" />
     <EmbeddedResource Include="Templating\template_v6.json" />
-    <EmbeddedResource Include="Templating\template_v5.json" />
-    <EmbeddedResource Include="Templating\template_v2.json" />
-    <EmbeddedResource Include="Templating\template.json" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,39 +56,55 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-version" Version="1.1.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Elasticsearch.Net" Version="7.17.5" />
+    <PackageReference Include="NEST" Version="7.17.5" />
+    <PackageReference Include="NEST.JsonNetSerializer" Version="7.17.5" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+    <PackageReference Include="FluentAssertions" Version="6.9.0" />
+    <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
+    <PackageReference Include="ReportGenerator" Version="5.1.15" />
 
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
-    <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="Elasticsearch.Net" Version="7.8.1" />
-    <PackageReference Include="NEST" Version="7.8.1" />
-    <PackageReference Include="NEST.JsonNetSerializer" Version="7.8.1" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
-    <PackageReference Include="FluentAssertions" Version="4.19.4" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
-    <Reference Include="System.Diagnostics.Tools" />
-    <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="System.Reflection" />
-    <Reference Include="System.Runtime" />
-    <Reference Include="System.Linq" />
-    <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
 
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-        <PackageReference Include="Microsoft.CSharp" Version="4.6.0" />
-    </ItemGroup>
+  <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
+    <PackageReference Include="GitHubActionsTestLogger" Version="2.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <DefineConstants>$(DefineConstants);DOTNETCORE;PARTIALLY_SERIALIZATION</DefineConstants>
+  <PropertyGroup Label="Coverage">
+    <!-- Automatically collect coverage when running `dotnet test` -->
+    <CollectCoverage>true</CollectCoverage>
+    <!-- Tweak the default coverlet output directory to be `coverage` in the repository root directory -->
+    <CoverletOutput>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine($(MSBuildProjectDirectory),'..','coverage'))))))</CoverletOutput>
+    <!-- The default output format is `json` which is not supported by ReportGenerator -->
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
   </PropertyGroup>
+
+  <Target Name="GenerateHtmlCoverageReport" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) != 'true'">
+    <PropertyGroup>
+      <CoverageReportDirectory>$([MSBuild]::EnsureTrailingSlash('$(CoverletOutput)report'))</CoverageReportDirectory>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('Linux'))">xdg-open</OpenCommand>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('OSX'))">open</OpenCommand>
+      <OpenCommand Condition="$([MSBuild]::IsOSPlatform('Windows'))">explorer</OpenCommand>
+    </PropertyGroup>
+    <ReportGenerator ReportFiles="@(CoverletReport)" TargetDirectory="$(CoverageReportDirectory)" />
+    <!-- executing "explorer path\to\index.html" returns exit code 1, so we ignore it -->
+    <Exec WorkingDirectory="$(CoverageReportDirectory)" Command="$(OpenCommand) index.html" Condition="$(OpenCommand) != ''" IgnoreExitCode="true" />
+  </Target>
+
+  <Target Name="PrintCoverageReportPathForGitHubActions" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) == 'true'">
+    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; >> $GITHUB_OUTPUT" />
+  </Target>
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
