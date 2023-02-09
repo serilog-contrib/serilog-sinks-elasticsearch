@@ -62,11 +62,7 @@ Or, if using .NET Core and `Serilog.Settings.Configuration` Nuget package and `a
           "nodeUris": "http://localhost:9200"
         }
       }
-    ],
-    "Enrich": [ "FromLogContext", "WithMachineName" ],
-    "Properties": {
-      "Application": "ImmoValuation.Swv - Web"
-    }
+    ]
   }
 }
 ```
