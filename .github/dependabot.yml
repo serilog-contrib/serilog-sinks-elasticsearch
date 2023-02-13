@@ -14,3 +14,28 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+
+  - package-ecosystem: nuget
+    directory: /sample/Serilog.Sinks.Elasticsearch.Sample
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /src/Serilog.Formatting.Elasticsearch
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /src/Serilog.Sinks.Elasticsearch
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /test/Serilog.Sinks.Elasticsearch.IntegrationTests
+    schedule:
+      interval: daily
+
+  - package-ecosystem: nuget
+    directory: /test/Serilog.Sinks.Elasticsearch.Tests
+    schedule:
+      interval: daily
