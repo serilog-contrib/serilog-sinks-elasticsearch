@@ -343,6 +343,7 @@ Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which th
 #### Version 9
 
 * Dropped support for 456 and sticking now with NETSTANDARD
+* Dropped support for Opensearch - This package supported writing to Opensearch (without guarantees) up untill the last version, Updated ES packages dropped support for Opensearch
 
 #### Version 7
 
