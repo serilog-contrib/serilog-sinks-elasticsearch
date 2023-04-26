@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -67,9 +67,9 @@
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="NEST.JsonNetSerializer" Version="7.17.5" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
-    <PackageReference Include="FluentAssertions" Version="6.9.0" />
+    <PackageReference Include="FluentAssertions" Version="6.11.0" />
     <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
-    <PackageReference Include="ReportGenerator" Version="5.1.15" />
+    <PackageReference Include="ReportGenerator" Version="5.1.19" />
 
   </ItemGroup>
 
@@ -103,7 +103,7 @@
   </Target>
 
   <Target Name="PrintCoverageReportPathForGitHubActions" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) == 'true'">
-    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; >> $GITHUB_OUTPUT" />
+    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; &gt;&gt; $GITHUB_OUTPUT" />
   </Target>
 
   <ItemGroup>

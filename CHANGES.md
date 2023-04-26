@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [10.0.0]
+
+ - PR #449
 
 ## [9.0.0] - 2023-01-23
 
@@ -22,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Elasticsearch server versions 2 and 5 are no longer supported.
 
 ### Other Changes
-- Nuget pacakges have been updated (except for the Elasticsearch integration-tests related packages)
+- Nuget packages have been updated (except for the Elasticsearch integration-tests related packages)
 - Most of the `ElasticserachSink` functionality has been moved into internal `BatchedElasticsearchSink` class that inherits from `IBatchedLogEventSink`, so it complies with new recommended way of integration with `PeriodicBatchingSink` and we don't use obsolete constructors.
 - `ConnectionStub` was moved out of `ElasticsearchSinkTestsBase` and extended. Both are now in `/Stubs` subfolder. Newer versions of Elasticsearch.NET client are now using "pre-flight" request to determine if endpoint is Elasticsearch and if it is indeed between 6.x and 8.x. `ConnectionStub` had to accommodate for that.
 - Unit tests have been fixed/added accordingly, running on multiple target frameworks (`net6`, `net7` and `net48`).
