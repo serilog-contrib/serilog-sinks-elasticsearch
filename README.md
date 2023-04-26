@@ -293,7 +293,7 @@ An example:
 ```csharp
 .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
                 {
-                    FailureCallback = e => Console.WriteLine("Unable to submit event " + e.MessageTemplate),
+                    FailureCallback = (e, ex) => Console.WriteLine("Unable to submit event " + e.MessageTemplate + " to Elasticsearch because of: " + ex?.Message),
                     EmitEventFailure = EmitEventFailureHandling.WriteToSelfLog |
                                        EmitEventFailureHandling.WriteToFailureSink |
                                        EmitEventFailureHandling.RaiseCallback,
@@ -339,6 +339,10 @@ Option BufferFileCountLimit is added. The maximum number of log files that will 
 Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which the buffer log file for a specific date will be allowed to grow. By default `100L * 1024 * 1024` will be applied.
 
 ### Breaking changes
+
+#### Version 10
+
+* Although a small change, PR #449 added the ability to see the exception on a failure. This is a breaking change as the `FailureCallback` signature has changed. If you are using this option, you will need to update your code to match the new signature.
 
 #### Version 9
 
