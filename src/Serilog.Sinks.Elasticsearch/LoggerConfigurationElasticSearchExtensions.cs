@@ -102,7 +102,7 @@ namespace Serilog
         {
             return Elasticsearch(loggerSinkConfiguration, nodeUris, indexFormat, templateName, typeName, batchPostingLimit, period, inlineFields, restrictedToMinimumLevel, bufferBaseFilename,
                 bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false,
-                AutoRegisterTemplateVersion.ESv2, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
+                AutoRegisterTemplateVersion.ESv7, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
         }
 
         /// <summary>

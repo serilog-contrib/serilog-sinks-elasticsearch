@@ -21,8 +21,6 @@ env:
 jobs:
   package:
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
     name: Run tests and create NuGet package
     outputs:
       coverage-reports: ${{ steps.dotnet-test.outputs.coverage-reports }}
@@ -68,7 +66,7 @@ jobs:
         if: always()
         with:
           name: TestResults-${{ runner.os }}
-          path: TestResults-${{ runner.os }}.html
+          path: test/Serilog.Sinks.Elasticsearch.Tests/TestResults/TestResults-${{ runner.os }}.html
 
       - name: Test Report
         uses: dorny/test-reporter@v1
@@ -137,7 +135,7 @@ jobs:
           arrTag=(${GITHUB_REF//\// })
           VERSION="${arrTag[2]}"
           VERSION="${VERSION//v}"
-          dotnet pack -v normal -c Release --include-symbols --include-source -p:PackageVersion=$VERSION -o ./nuget
+          dotnet pack -v normal -c Release --include-symbols --include-source -p:Version=$VERSION -o ./nuget
       
       - name: Push to GitHub Feed
         run: |

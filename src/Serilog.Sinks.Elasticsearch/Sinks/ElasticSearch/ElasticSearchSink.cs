@@ -142,7 +142,7 @@ namespace Serilog.Sinks.Elasticsearch
                 {
                     foreach (var e in events)
                     {
-                        _state.Options.FailureCallback(e);
+                        _state.Options.FailureCallback(e, ex);
                     }
                 }
                 catch (Exception exCallback)
@@ -233,7 +233,7 @@ namespace Serilog.Sinks.Elasticsearch
                             // Send to a failure callback
                             try
                             {
-                                _state.Options.FailureCallback(e);
+                                _state.Options.FailureCallback(e, null);
                             }
                             catch (Exception ex)
                             {

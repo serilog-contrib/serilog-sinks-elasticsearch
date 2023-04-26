@@ -251,8 +251,6 @@ namespace Serilog.Sinks.Elasticsearch
                     >= 8 => AutoRegisterTemplateVersion.ESv8,
                     7 => AutoRegisterTemplateVersion.ESv7,
                     6 => AutoRegisterTemplateVersion.ESv6,
-                    5 => AutoRegisterTemplateVersion.ESv5,
-                    2 => AutoRegisterTemplateVersion.ESv2,
                     _ => throw new NotSupportedException()
                 };
 

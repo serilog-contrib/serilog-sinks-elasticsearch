@@ -30,7 +30,7 @@
     <PackageReference Include="FluentAssertions" Version="6.9.0" />
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
-    <PackageReference Include="ReportGenerator" Version="5.1.13" />    
+    <PackageReference Include="ReportGenerator" Version="5.1.15" />    
   </ItemGroup>
 
   <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
@@ -59,6 +59,6 @@
   </Target>
 
   <Target Name="PrintCoverageReportPathForGitHubActions" AfterTargets="GenerateCoverageResultAfterTest" Condition="$(ContinuousIntegrationBuild) == 'true'">
-    <Message Importance="high" Text="::set-output name=coverage-reports::@(CoverletReport, ',')" />
+    <Message Importance="high" Text="&quot;coverage-reports=@(CoverletReport, ',')&quot; >> $GITHUB_OUTPUT" />
   </Target>
 </Project>

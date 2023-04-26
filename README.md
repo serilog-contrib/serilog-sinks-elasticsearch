@@ -1,4 +1,4 @@
-# Serilog.Sinks.Elasticsearch [![Build status](https://ci.appveyor.com/api/projects/status/bk367tcnx9qt2sjy/branch/master?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-elasticsearch/branch/master) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
+# Serilog.Sinks.Elasticsearch [![Continuous Integration](https://github.com/serilog-contrib/serilog-sinks-elasticsearch/actions/workflows/cicd.yaml/badge.svg?branch=dev)](https://github.com/serilog-contrib/serilog-sinks-elasticsearch/actions/workflows/cicd.yaml) [![NuGet Badge](https://img.shields.io/nuget/v/Serilog.Sinks.Elasticsearch.svg)](https://www.nuget.org/packages/Serilog.Sinks.Elasticsearch)
 
 This repository contains two nuget packages: `Serilog.Sinks.Elasticsearch` and `Serilog.Formatting.Elasticsearch`.
 
@@ -30,7 +30,7 @@ The Serilog Elasticsearch sink project is a sink (basically a writer) for the Se
 * Starting from version 3, compatible with Elasticsearch 2.
 * Version 6.x supports the new Elasticsearch.net version 6.x library.
 * From version 8.x there is support for Elasticsearch.net version 7.
-* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8.
+* From version 9.x there is support for Elasticsearch.net version 8. Version detection is enabled by default, in which case `TypeName` is handled automatically across major versions 6, 7 and 8. Versions 2 and 5 of Elasticsearch are no longer supported. Version 9.0.0 of the sink targets netstandard2.0 and therefore can be run on any .NET Framework that supports it (both .NET Core and .NET Framework), however, we are focused on testing it with .NET 6.0 to make the maintenance simpler.
 
 
 ## Quick start
@@ -45,7 +45,7 @@ Simplest way to register this sink is to use default configuration:
 
 ```csharp
 var loggerConfig = new LoggerConfiguration()
-    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"));
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200")));
 ```
 
 Or, if using .NET Core and `Serilog.Settings.Configuration` Nuget package and `appsettings.json`, default configuration would look like this:
@@ -62,11 +62,7 @@ Or, if using .NET Core and `Serilog.Settings.Configuration` Nuget package and `a
           "nodeUris": "http://localhost:9200"
         }
       }
-    ],
-    "Enrich": [ "FromLogContext", "WithMachineName" ],
-    "Properties": {
-      "Application": "ImmoValuation.Swv - Web"
-    }
+    ]
   }
 }
 ```
@@ -347,6 +343,7 @@ Option BufferFileSizeLimitBytes is added The maximum size, in bytes, to which th
 #### Version 9
 
 * Dropped support for 456 and sticking now with NETSTANDARD
+* Dropped support for Opensearch - This package supported writing to Opensearch (without guarantees) up untill the last version, Updated ES packages dropped support for Opensearch
 
 #### Version 7
 

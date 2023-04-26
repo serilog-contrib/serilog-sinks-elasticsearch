@@ -10,14 +10,6 @@ namespace Serilog.Sinks.Elasticsearch
     public enum AutoRegisterTemplateVersion
     {
         /// <summary>
-        /// Elasticsearch version &lt;= 2.4
-        /// </summary>
-        ESv2 = 0,
-        /// <summary>
-        /// Elasticsearch version &lt;= version 5.6
-        /// </summary>
-        ESv5 = 1,
-        /// <summary>
         /// Elasticsearch version &gt;= version 6.0
         /// </summary>
         ESv6 = 2,
@@ -40,7 +32,7 @@ namespace Serilog.Sinks.Elasticsearch
             int discoveredMajorVersion,
             Dictionary<string, string> settings,
             string templateMatchString,
-            AutoRegisterTemplateVersion version = AutoRegisterTemplateVersion.ESv2)
+            AutoRegisterTemplateVersion version = AutoRegisterTemplateVersion.ESv7)
         {
             switch (version)
             {
@@ -50,10 +42,6 @@ namespace Serilog.Sinks.Elasticsearch
                     return GetTemplateESv7(options, discoveredMajorVersion, settings, templateMatchString);
                 case AutoRegisterTemplateVersion.ESv6:
                     return GetTemplateESv6(options, discoveredMajorVersion, settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv5:
-                    return GetTemplateESv5(settings, templateMatchString);
-                case AutoRegisterTemplateVersion.ESv2:
-                    return GetTemplateESv2(settings, templateMatchString);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(version), version, null);
             }
