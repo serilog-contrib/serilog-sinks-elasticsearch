@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -30,7 +30,7 @@
     <PackageReference Include="FluentAssertions" Version="6.9.0" />
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="coverlet.msbuild" Version="3.2.0" PrivateAssets="all" />
-    <PackageReference Include="ReportGenerator" Version="5.1.15" />    
+    <PackageReference Include="ReportGenerator" Version="5.1.20" />    
   </ItemGroup>
 
   <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
