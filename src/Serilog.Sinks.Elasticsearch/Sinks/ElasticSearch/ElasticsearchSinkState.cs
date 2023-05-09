@@ -52,8 +52,6 @@ namespace Serilog.Sinks.Elasticsearch
 
         private readonly ElasticsearchVersionManager _versionManager;
 
-        private bool IncludeTypeName => _versionManager.EffectiveVersion.Major >= 7;
-
         public ElasticsearchSinkOptions Options => _options;
         public IElasticLowLevelClient Client => _client;
         public ITextFormatter Formatter => _formatter;
@@ -172,20 +170,16 @@ namespace Serilog.Sinks.Elasticsearch
                     }
                 }
 
-                StringResponse result;                
-                if (_versionManager.EffectiveVersion.Major < 8)
-                { 
-                    result = _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
+                var result = _versionManager.EffectiveVersion.Major switch
+                {
+                    < 8 => _client.Indices.PutTemplateForAll<StringResponse>(_templateName, GetTemplatePostData(),
                         new PutIndexTemplateRequestParameters
                         {
-                            IncludeTypeName = IncludeTypeName ? true : (bool?)null
-                        });
-                }
-                else
-                {
+                            IncludeTypeName = _versionManager.EffectiveVersion.Major < 7 ? true : null
+                        }),
                     // Default to version 8 API
-                    result = _client.Indices.PutTemplateV2ForAll<StringResponse>(_templateName, GetTemplatePostData());
-                }
+                    _ => _client.Indices.PutTemplateV2ForAll<StringResponse>(_templateName, GetTemplatePostData()),
+                };
 
                 if (!result.Success)
                 {
