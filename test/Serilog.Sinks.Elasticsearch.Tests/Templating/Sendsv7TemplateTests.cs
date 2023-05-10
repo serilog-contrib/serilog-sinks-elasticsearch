@@ -44,6 +44,7 @@ namespace Serilog.Sinks.Elasticsearch.Tests.Templating
         {
             var uri = _templatePut.Item1;
             uri.AbsolutePath.Should().Be("/_template/serilog-events-template");
+            uri.Query.Should().Be(string.Empty);
         }
     }
 }
