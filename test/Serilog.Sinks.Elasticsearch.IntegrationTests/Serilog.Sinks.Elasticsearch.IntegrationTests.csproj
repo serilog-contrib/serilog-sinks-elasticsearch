@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net6.0</TargetFrameworks>
@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(ContinuousIntegrationBuild) == 'true'">
-    <PackageReference Include="GitHubActionsTestLogger" Version="1.4.1" />
+    <PackageReference Include="GitHubActionsTestLogger" Version="2.3.2" />
   </ItemGroup>
 
   <PropertyGroup Label="Coverage">
