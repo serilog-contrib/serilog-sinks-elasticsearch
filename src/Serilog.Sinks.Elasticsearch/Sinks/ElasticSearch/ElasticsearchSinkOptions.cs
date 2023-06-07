@@ -282,6 +282,11 @@ namespace Serilog.Sinks.Elasticsearch
         public RollingInterval BufferFileRollingInterval { get; set; }
 
         /// <summary>
+        /// Apikey to access elasticsearch, the value is encoded, atob(`id:apikey`).This is another method instead user/password
+        /// </summary>
+        public string Apikey { get; set; }
+
+        /// <summary>
         /// Configures the elasticsearch sink defaults
         /// </summary>
         public ElasticsearchSinkOptions()
