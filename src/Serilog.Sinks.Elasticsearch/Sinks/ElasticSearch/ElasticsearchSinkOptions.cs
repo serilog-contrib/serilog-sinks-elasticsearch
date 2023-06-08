@@ -282,7 +282,11 @@ namespace Serilog.Sinks.Elasticsearch
         public RollingInterval BufferFileRollingInterval { get; set; }
 
         /// <summary>
-        /// Apikey to access elasticsearch, the value is encoded, atob(`id:apikey`).This is another method instead user/password
+        /// Apikey to access elasticsearch, the value is encoded
+        /// If your elasticsearch can be accessed using user and password, you access via url like this: http://user:password@localhost
+        /// For another choice, you can using a apiKey, which can be created in kibana:    POST /security/api_key { "name": "aaa-apikeys", "role_descriptors": { "abc-shared-application": { "cluster": [ "all" ], "index": [ { "names": [ "abc_share*" ], "privileges": [ "all" ] } ] } } }
+        /// then you can get the apikey coded by base64 it like this: aFlBbDVvY0JOblduWHdpZnNLOUk6cEt2Y01tYVlRQ3FsWlF0MVVjRkN034==
+        /// For more detail about apiKey, see: https://www.elastic.co/guide/en/apm/server/7.15/api-key.html
         /// </summary>
         public string Apikey { get; set; }
 
