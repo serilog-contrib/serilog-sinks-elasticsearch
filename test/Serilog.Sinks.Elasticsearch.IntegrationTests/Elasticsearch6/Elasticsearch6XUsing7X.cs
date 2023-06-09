@@ -54,6 +54,7 @@ namespace Serilog.Sinks.Elasticsearch.IntegrationTests.Elasticsearch6
                             o.DetectElasticsearchVersion = true;
                             o.AutoRegisterTemplateVersion = AutoRegisterTemplateVersion.ESv7;
                             o.AutoRegisterTemplate = true;
+                            o.ApiKey = "aWQ6d3d3ZGRkZGRkZGRkZA==";
                         })
                     );
                 var logger = loggerConfig.CreateLogger();
