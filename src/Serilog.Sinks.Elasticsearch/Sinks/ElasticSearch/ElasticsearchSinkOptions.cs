@@ -282,13 +282,17 @@ namespace Serilog.Sinks.Elasticsearch
         public RollingInterval BufferFileRollingInterval { get; set; }
 
         /// <summary>
-        /// Apikey to access elasticsearch, the value is encoded
-        /// If your elasticsearch can be accessed using user and password, you access via url like this: http://user:password@localhost
-        /// For another choice, you can using a apiKey, which can be created in kibana:    POST /security/api_key { "name": "aaa-apikeys", "role_descriptors": { "abc-shared-application": { "cluster": [ "all" ], "index": [ { "names": [ "abc_share*" ], "privileges": [ "all" ] } ] } } }
-        /// then you can get the apikey coded by base64 it like this: aFlBbDVvY0JOblduWHdpZnNLOUk6cEt2Y01tYVlRQ3FsWlF0MVVjRkN034==
-        /// For more detail about apiKey, see: https://www.elastic.co/guide/en/apm/server/7.15/api-key.html
+        /// Specify the Api key used to access elasticsearch, the value needs to be encoded.
+        /// If your elasticsearch instance can be accessed using a username and password,
+        /// you access it via url like this: http://user:password@localhost
+        /// 
+        /// Alternatively, you can using API key, which can be created in kibana:
+        /// POST /security/api_key { "name": "aaa-apikeys", "role_descriptors": { "abc-shared-application": { "cluster": [ "all" ], "index": [ { "names": [ "abc_share*" ], "privileges": [ "all" ] } ] } } }
+        ///
+        /// Afterwards, you can get the apikey and code it using base64 like this: aFlBbDVvY0JOblduWHdpZnNLOUk6cEt2Y01tYVlRQ3FsWlF0MVVjRkN034==
+        /// For more details about using the  apiKey, see: https://www.elastic.co/guide/en/apm/server/7.15/api-key.html
         /// </summary>
-        public string Apikey { get; set; }
+        public string ApiKey { get; set; }
 
         /// <summary>
         /// Configures the elasticsearch sink defaults

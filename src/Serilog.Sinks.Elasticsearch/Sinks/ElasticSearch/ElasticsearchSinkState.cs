@@ -86,8 +86,8 @@ namespace Serilog.Sinks.Elasticsearch
             if (options.ModifyConnectionSettings != null)
                 configuration = options.ModifyConnectionSettings(configuration);
 
-            if (!string.IsNullOrEmpty(options.Apikey))
-                configuration = configuration.ApiKeyAuthentication(new ApiKeyAuthenticationCredentials(options.Apikey));
+            if (!string.IsNullOrEmpty(options.ApiKey))
+                configuration = configuration.ApiKeyAuthentication(new ApiKeyAuthenticationCredentials(options.ApiKey));
 
             configuration.ThrowExceptions();
 
