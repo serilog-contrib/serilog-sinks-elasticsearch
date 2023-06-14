@@ -25,8 +25,8 @@
     </PackageReference>
     <PackageReference Include="xunit.extensibility.execution" Version="2.4.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
-    <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.3.5" />
-    <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.3.5" />
+    <PackageReference Include="Elastic.Elasticsearch.Xunit" Version="0.2.4" />
+    <PackageReference Include="Elastic.Elasticsearch.Managed" Version="0.2.4" />
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
     <PackageReference Include="NEST" Version="7.17.5" />
     <PackageReference Include="coverlet.msbuild" Version="6.0.0" PrivateAssets="all" />
