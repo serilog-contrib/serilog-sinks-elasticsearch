@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [9.0.2]
 
 - Add support for API Keys by @qgbo in #545
+- Upgraded dependencies
 
 ## [9.0.1]
 
