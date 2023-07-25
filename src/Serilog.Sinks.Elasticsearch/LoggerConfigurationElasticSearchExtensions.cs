@@ -145,6 +145,7 @@ namespace Serilog
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
         /// <param name="detectElasticsearchVersion">Turns on detection of elasticsearch version via background HTTP call. This will also set `TypeName` automatically, according to the version of Elasticsearch.</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
+        /// <param name="ignoreServerCertificateValidation">If <value>true</value> the Elasticsearch client will be configured with a ServerCertificateValidationCallback which always returns true.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -184,7 +185,8 @@ namespace Serilog
             int? bufferFileCountLimit = null,
             Dictionary<string,string> templateCustomSettings = null,
             ElasticOpType batchAction = ElasticOpType.Index,
-            bool detectElasticsearchVersion = true)
+            bool detectElasticsearchVersion = true,
+            bool ignoreServerCertificateValidation = false)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -231,9 +233,10 @@ namespace Serilog
             }
             options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
 
+            var headers = new NameValueCollection();
+            
             if (!string.IsNullOrWhiteSpace(connectionGlobalHeaders))
             {
-                NameValueCollection headers = new NameValueCollection();
                 connectionGlobalHeaders
                     .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList()
@@ -245,6 +248,8 @@ namespace Serilog
 
                 options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
             }
+            
+            SetSinkOptionsModifyConnectionSettings(options, headers, ignoreServerCertificateValidation);
 
             options.ConnectionTimeout = TimeSpan.FromSeconds(connectionTimeout);
             options.EmitEventFailure = emitEventFailure;
@@ -275,6 +280,21 @@ namespace Serilog
             options.DetectElasticsearchVersion = detectElasticsearchVersion;
 
             return Elasticsearch(loggerSinkConfiguration, options);
+        }
+
+        private static void SetSinkOptionsModifyConnectionSettings(ElasticsearchSinkOptions options,
+            NameValueCollection headers, bool ignoreServerCertificateValidation)
+        {
+            options.ModifyConnectionSettings = (c) =>
+            {
+                if (headers.Count > 0)
+                    c.GlobalHeaders(headers);
+
+                if (ignoreServerCertificateValidation)
+                    c.ServerCertificateValidationCallback((o, certificate, arg3, arg4) => true);
+
+                return c;
+            };
         }
     }
 }
