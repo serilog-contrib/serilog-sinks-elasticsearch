@@ -22,9 +22,12 @@ using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Elasticsearch.Net;
 using Serilog.Formatting;
 using Serilog.Sinks.Elasticsearch.Durable;
+using Serilog.Sinks.Elasticsearch.Sinks.ElasticSearch;
 
 namespace Serilog
 {
@@ -100,9 +103,14 @@ namespace Serilog
            string connectionGlobalHeaders,
            LoggingLevelSwitch levelSwitch)
         {
+            var modifyConnectionSettingsOptions = new ModifyConnectionSettingsOptions
+            {
+                ConnectionGlobalHeaders = connectionGlobalHeaders
+            };
+            
             return Elasticsearch(loggerSinkConfiguration, nodeUris, indexFormat, templateName, typeName, batchPostingLimit, period, inlineFields, restrictedToMinimumLevel, bufferBaseFilename,
-                bufferFileSizeLimitBytes, bufferLogShippingInterval, connectionGlobalHeaders, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false,
-                AutoRegisterTemplateVersion.ESv7, false, RegisterTemplateRecovery.IndexAnyway, null, null, null);
+                bufferFileSizeLimitBytes, bufferLogShippingInterval, levelSwitch, 5, EmitEventFailureHandling.WriteToSelfLog, 100000, null, false,
+                AutoRegisterTemplateVersion.ESv7, false, RegisterTemplateRecovery.IndexAnyway, null, null, null, modifyConnectionSettingsOptions: modifyConnectionSettingsOptions);
         }
 
         /// <summary>
@@ -122,7 +130,6 @@ namespace Serilog
         /// <param name="bufferFileSizeLimitBytes"><see cref="ElasticsearchSinkOptions.BufferFileSizeLimitBytes"/></param>
         /// <param name="bufferFileCountLimit"><see cref="ElasticsearchSinkOptions.BufferFileCountLimit"/></param>        
         /// <param name="bufferLogShippingInterval"><see cref="ElasticsearchSinkOptions.BufferLogShippingInterval"/></param>
-        /// <param name="connectionGlobalHeaders">A comma or semi-colon separated list of key value pairs of headers to be added to each elastic http request</param>
         /// <param name="connectionTimeout"><see cref="ElasticsearchSinkOptions.ConnectionTimeout"/>The connection timeout (in seconds) when sending bulk operations to elasticsearch (defaults to 5).</param>   
         /// <param name="emitEventFailure"><see cref="ElasticsearchSinkOptions.EmitEventFailure"/>Specifies how failing emits should be handled.</param>  
         /// <param name="queueSizeLimit"><see cref="ElasticsearchSinkOptions.QueueSizeLimit"/>The maximum number of events that will be held in-memory while waiting to ship them to Elasticsearch. Beyond this limit, events will be dropped. The default is 100,000. Has no effect on durable log shipping.</param>   
@@ -145,7 +152,7 @@ namespace Serilog
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
         /// <param name="detectElasticsearchVersion">Turns on detection of elasticsearch version via background HTTP call. This will also set `TypeName` automatically, according to the version of Elasticsearch.</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
-        /// <param name="ignoreServerCertificateValidation">If <value>true</value> the Elasticsearch client will be configured with a ServerCertificateValidationCallback which always returns true.</param>
+        /// <param name="modifyConnectionSettingsOptions">Provides options for modifying the Elasticsearch connection.</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -161,7 +168,6 @@ namespace Serilog
             string bufferBaseFilename = null,
             long? bufferFileSizeLimitBytes = null,
             long bufferLogShippingInterval = 5000,
-            string connectionGlobalHeaders = null,
             LoggingLevelSwitch levelSwitch = null,
             int connectionTimeout = 5,
             EmitEventFailureHandling emitEventFailure = EmitEventFailureHandling.WriteToSelfLog,
@@ -186,7 +192,7 @@ namespace Serilog
             Dictionary<string,string> templateCustomSettings = null,
             ElasticOpType batchAction = ElasticOpType.Index,
             bool detectElasticsearchVersion = true,
-            bool ignoreServerCertificateValidation = false)
+            ModifyConnectionSettingsOptions modifyConnectionSettingsOptions = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -233,23 +239,7 @@ namespace Serilog
             }
             options.BufferLogShippingInterval = TimeSpan.FromMilliseconds(bufferLogShippingInterval);
 
-            var headers = new NameValueCollection();
-            
-            if (!string.IsNullOrWhiteSpace(connectionGlobalHeaders))
-            {
-                connectionGlobalHeaders
-                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                    .ToList()
-                    .ForEach(headerValueStr =>
-                    {
-                        var headerValue = headerValueStr.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-                        headers.Add(headerValue[0], headerValue[1]);
-                    });
-
-                options.ModifyConnectionSettings = (c) => c.GlobalHeaders(headers);
-            }
-            
-            SetSinkOptionsModifyConnectionSettings(options, headers, ignoreServerCertificateValidation);
+            SetSinkOptionsModifyConnectionSettings(options, modifyConnectionSettingsOptions);
 
             options.ConnectionTimeout = TimeSpan.FromSeconds(connectionTimeout);
             options.EmitEventFailure = emitEventFailure;
@@ -283,18 +273,50 @@ namespace Serilog
         }
 
         private static void SetSinkOptionsModifyConnectionSettings(ElasticsearchSinkOptions options,
-            NameValueCollection headers, bool ignoreServerCertificateValidation)
+            ModifyConnectionSettingsOptions settingsOptions)
         {
+            var headers = new NameValueCollection();
+            
+            if (!string.IsNullOrWhiteSpace(settingsOptions.ConnectionGlobalHeaders))
+            {
+                settingsOptions.ConnectionGlobalHeaders
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                    .ToList()
+                    .ForEach(headerValueStr =>
+                    {
+                        var headerValue = headerValueStr.Split(new[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
+                        headers.Add(headerValue[0], headerValue[1]);
+                    });
+            }
+            
             options.ModifyConnectionSettings = (c) =>
             {
                 if (headers.Count > 0)
                     c.GlobalHeaders(headers);
 
-                if (ignoreServerCertificateValidation)
-                    c.ServerCertificateValidationCallback((o, certificate, arg3, arg4) => true);
+                c.ServerCertificateValidationCallback((obj, certificate, chain, errors) =>
+                    ServerCertificateValidation(obj, certificate, chain, errors, settingsOptions));
 
                 return c;
             };
+        }
+
+        private static bool ServerCertificateValidation(object obj, X509Certificate certificate, X509Chain chain,
+            SslPolicyErrors errors, ModifyConnectionSettingsOptions options)
+        {
+            if (errors.HasFlag(SslPolicyErrors.RemoteCertificateChainErrors) &&
+                options.IgnoreSslRemoteCertificateChainErrors)
+                return true;
+            
+            if (errors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch) &&
+                options.IgnoreSslRemoteCertificateNameMismatchErrors)
+                return true;
+            
+            if (errors.HasFlag(SslPolicyErrors.RemoteCertificateNotAvailable) &&
+                options.IgnoreSslRemoteCertificateNotAvailableErrors)
+                return true;
+
+            return false;
         }
     }
 }
