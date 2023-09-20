@@ -145,6 +145,7 @@ namespace Serilog
         /// <param name="templateCustomSettings">Add custom elasticsearch settings to the template</param>
         /// <param name="detectElasticsearchVersion">Turns on detection of elasticsearch version via background HTTP call. This will also set `TypeName` automatically, according to the version of Elasticsearch.</param>
         /// <param name="batchAction">Configures the OpType being used when inserting document in batch. Must be set to create for data streams.</param>
+        /// <param name="apiKey">Specify the Api key used to access elasticsearch, the value needs to be encoded.default null</param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="nodeUris"/> is <see langword="null" />.</exception>
         public static LoggerConfiguration Elasticsearch(
@@ -182,9 +183,10 @@ namespace Serilog
             ILogEventSink failureSink = null,
             long? singleEventSizePostingLimit = null,
             int? bufferFileCountLimit = null,
-            Dictionary<string,string> templateCustomSettings = null,
+            Dictionary<string, string> templateCustomSettings = null,
             ElasticOpType batchAction = ElasticOpType.Index,
-            bool detectElasticsearchVersion = true)
+            bool detectElasticsearchVersion = true,
+            string apiKey = null)
         {
             if (string.IsNullOrEmpty(nodeUris))
                 throw new ArgumentNullException(nameof(nodeUris), "No Elasticsearch node(s) specified.");
@@ -273,6 +275,7 @@ namespace Serilog
             options.TemplateCustomSettings = templateCustomSettings;
 
             options.DetectElasticsearchVersion = detectElasticsearchVersion;
+            options.ApiKey = apiKey;
 
             return Elasticsearch(loggerSinkConfiguration, options);
         }
