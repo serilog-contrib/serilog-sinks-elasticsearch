@@ -2,7 +2,7 @@
 
 This repository contains two nuget packages: `Serilog.Sinks.Elasticsearch` and `Serilog.Formatting.Elasticsearch`.
 
-> __Just a heads up that the .NET team @elastic have created their own new Serilog Sink called Elastic.Serilog.Sinks (Package: https://www.nuget.org/packages/Elastic.Serilog.Sinks#readme-body-tab and documentation: https://www.elastic.co/guide/en/ecs-logging/dotnet/current/serilog-data-shipper.html). Althought this current sink will still work, I advice you to have a look first at the official Elastic implementation as it is better supported and more up to date.__
+> __Just a heads up that the .NET team @elastic have created their own new Serilog Sink called Elastic.Serilog.Sinks (Package: https://www.nuget.org/packages/Elastic.Serilog.Sinks#readme-body-tab and documentation: https://www.elastic.co/guide/en/ecs-logging/dotnet/current/serilog-data-shipper.html). Although this current sink will still work, I advise you to have a look first at the official Elastic implementation as it is better supported and more up to date.__
 
 ## Table of contents
 
