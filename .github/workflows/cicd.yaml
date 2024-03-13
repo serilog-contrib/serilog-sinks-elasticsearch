@@ -29,17 +29,17 @@ jobs:
       release-body: ${{ steps.tag-message.outputs.release-notes }}
     steps:
       - name: Checkout git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
         with:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
         with:
           dotnet-version: '7.0.x'
 
       - name: Retrieve cached NuGet packages
-        uses: actions/cache@v3
+        uses: actions/cache@6998d139ddd3e68c71e9e398d8e40b71a2f39812 # v3.2.5
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
@@ -55,21 +55,21 @@ jobs:
         id: dotnet-test
       
       - name: Upload received files from failing tests
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         if: failure()
         with:
           name: Received-${{ runner.os }}
           path: "**/*.received.*"
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         if: always()
         with:
           name: TestResults-${{ runner.os }}
           path: test/Serilog.Sinks.Elasticsearch.Tests/TestResults/TestResults-${{ runner.os }}.html
 
       - name: Test Report
-        uses: dorny/test-reporter@v1
+        uses: dorny/test-reporter@e9fa2f582c0ebbe2e263fd18fad744d52e0b0203 # v1
         if: always()
         with:
           name: Test Results (${{ runner.os }})
@@ -81,7 +81,7 @@ jobs:
         id: dotnet-pack
     
       - name: Upload NuGet package artifact        
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
           name: nuget
           path: '**/*.nupkg'
@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           name: nuget
           path: nuget
@@ -114,15 +114,15 @@ jobs:
     name: Publish NuGet package 
     steps:
       - name: Checkout git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
         with:
           fetch-depth: 0
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3.0.3
+        uses: actions/setup-dotnet@607fce577a46308457984d59e4954e075820f10a # v3.0.3
 
       - name: Retrieve cached NuGet packages
-        uses: actions/cache@v3
+        uses: actions/cache@6998d139ddd3e68c71e9e398d8e40b71a2f39812 # v3.2.5
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
