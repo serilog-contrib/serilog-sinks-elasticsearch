@@ -271,7 +271,8 @@ In your `appsettings.json` file, under the `Serilog` node, :
           "connectionPool": "My.Namespace.MyConnectionPool, My.Assembly.Name",
           "customFormatter": "My.Namespace.MyCustomFormatter, My.Assembly.Name",
           "customDurableFormatter": "My.Namespace.MyCustomDurableFormatter, My.Assembly.Name",
-          "failureSink": "My.Namespace.MyFailureSink, My.Assembly.Name"
+          "failureSink": "My.Namespace.MyFailureSink, My.Assembly.Name",
+          "ignoreServerCertificateValidation": "false"
         }
     }]
   }
