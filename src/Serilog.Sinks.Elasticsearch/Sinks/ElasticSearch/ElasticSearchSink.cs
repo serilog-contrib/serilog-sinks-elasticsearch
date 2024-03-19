@@ -19,14 +19,20 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Elasticsearch.Net;
+using Serilog.Core;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog.Sinks.Elasticsearch
 {
-    public sealed class ElasticsearchSink : PeriodicBatchingSink
+    public sealed class ElasticsearchSink : ILogEventSink, IDisposable
+#if ASYNC_DISPOSABLE
+        , IAsyncDisposable
+#endif
     {
+        readonly PeriodicBatchingSink _batchingSink;
+        
         public ElasticsearchSink(ElasticsearchSinkOptions options)
             : this(
                   new BatchedElasticsearchSink(options),
@@ -42,10 +48,28 @@ namespace Serilog.Sinks.Elasticsearch
         }
 
         private ElasticsearchSink(IBatchedLogEventSink batchedSink, PeriodicBatchingSinkOptions options)
-            : base(batchedSink, options)
         {
+            _batchingSink = new PeriodicBatchingSink(batchedSink, options);
         }
+
+        public void Dispose()
+        {
+            _batchingSink.Dispose();
+        }
+
+        public void Emit(LogEvent logEvent)
+        {
+            _batchingSink.Emit(logEvent);
+        }
+
+#if ASYNC_DISPOSABLE
+        public ValueTask DisposeAsync()
+        {
+            return _batchingSink.DisposeAsync();
+        }
+#endif
     }
+    
     /// <summary>
     /// Writes log events as documents to ElasticSearch.
     /// </summary>
